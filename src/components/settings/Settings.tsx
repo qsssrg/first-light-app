@@ -1,13 +1,16 @@
 'use client';
 
 import { useState, useRef } from 'react';
+import { useRouter } from 'next/navigation';
 import { useProfile, updateProfile } from '@/lib/hooks';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from '@/components/ui/dialog';
-import { Download, Upload, AlertCircle, CheckCircle, RotateCcw } from 'lucide-react';
+import { Download, Upload, AlertCircle, CheckCircle, RotateCcw, BookOpen, UserPen } from 'lucide-react';
 import { exportAllData, downloadBackup, validateBackup, importData, type BackupData } from '@/lib/backup';
+import { getPlayerName, setPlayerName } from '@/lib/player-name';
+import { openingScenario, postAssessmentScenario } from '@/lib/scenarios/opening';
 
 export function Settings() {
   const profile = useProfile();
@@ -57,16 +60,100 @@ export function Settings() {
       <Card className="p-4">
         <h3 className="text-sm font-medium mb-2">プロフィール</h3>
         <div className="text-xs text-gray-600 dark:text-gray-400 space-y-1">
-          <p>名前: {profile.name || '未設定'}</p>
+          <p>名前: {profile.name || getPlayerName() || '未設定'}</p>
           <p>タイプ: {profile.learnerType}</p>
           <p>開始日: {new Date(profile.createdAt).toLocaleDateString('ja-JP')}</p>
         </div>
       </Card>
 
+      <NameChangeSection currentName={profile.name || getPlayerName() || ''} />
+
+      <StoryRecollectionSection />
+
       <BackupSection />
 
       <DataResetSection />
     </div>
+  );
+}
+
+function NameChangeSection({ currentName }: { currentName: string }) {
+  const [editing, setEditing] = useState(false);
+  const [name, setName] = useState(currentName);
+  const [saved, setSaved] = useState(false);
+
+  const handleSave = async () => {
+    const trimmed = name.trim();
+    if (trimmed.length === 0) return;
+    setPlayerName(trimmed);
+    await updateProfile({ name: trimmed });
+    setSaved(true);
+    setEditing(false);
+    setTimeout(() => setSaved(false), 2000);
+  };
+
+  return (
+    <Card className="p-4">
+      <h3 className="text-sm font-medium mb-2 flex items-center gap-2">
+        <UserPen className="w-4 h-4" /> 名前の変更
+      </h3>
+      <p className="text-xs text-gray-500 mb-3">メンバーがあなたを呼ぶ名前を変更できます。</p>
+      {editing ? (
+        <div className="flex gap-2">
+          <input
+            type="text"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && handleSave()}
+            className="flex-1 px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-transparent text-sm focus:outline-none focus:border-indigo-400"
+            maxLength={20}
+            autoFocus
+          />
+          <Button size="sm" onClick={handleSave} disabled={name.trim().length === 0}>保存</Button>
+          <Button size="sm" variant="outline" onClick={() => { setEditing(false); setName(currentName); }}>取消</Button>
+        </div>
+      ) : (
+        <div className="flex items-center justify-between">
+          <span className="text-sm">{currentName || '未設定'}</span>
+          <Button size="sm" variant="outline" onClick={() => setEditing(true)}>変更</Button>
+        </div>
+      )}
+      {saved && (
+        <p className="text-xs text-green-500 mt-2 flex items-center gap-1">
+          <CheckCircle className="w-3 h-3" /> 名前を変更しました
+        </p>
+      )}
+    </Card>
+  );
+}
+
+function StoryRecollectionSection() {
+  const router = useRouter();
+
+  const stories = [
+    { id: 'opening', label: 'オープニング', desc: '夜の街でFIRST LIGHTと出会う', scenario: openingScenario },
+    { id: 'post-assessment', label: 'アセスメント後', desc: '英語力判定の結果を受けて', scenario: postAssessmentScenario },
+  ];
+
+  return (
+    <Card className="p-4">
+      <h3 className="text-sm font-medium mb-2 flex items-center gap-2">
+        <BookOpen className="w-4 h-4" /> ストーリー回想
+      </h3>
+      <p className="text-xs text-gray-500 mb-3">過去に見たストーリーをもう一度再生できます。</p>
+      <div className="space-y-2">
+        {stories.map((s) => (
+          <button
+            key={s.id}
+            onClick={() => router.push(`/story-replay?id=${s.id}`)}
+            className="w-full text-left px-3 py-2.5 rounded-lg border border-gray-200 dark:border-gray-700 hover:border-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-950 transition-colors"
+          >
+            <p className="text-sm font-medium">{s.label}</p>
+            <p className="text-xs text-gray-500">{s.desc}</p>
+          </button>
+        ))}
+      </div>
+    </Card>
   );
 }
 
