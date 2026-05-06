@@ -20,7 +20,7 @@ interface Question {
 const ASSESSMENT_QUESTIONS: Question[] = [
   {
     axis: 'vocabulary',
-    question: '英単語を見たとき、���のくらい意味がわかりますか？',
+    question: '英単語を見たとき、どのくらい意味がわかりますか？',
     options: [
       { text: '基本的な単語（dog, run等）ならわかる', score: 20 },
       { text: '日常会話レベル（appointment, significant等）はOK', score: 50 },
