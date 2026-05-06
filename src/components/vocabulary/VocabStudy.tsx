@@ -6,13 +6,117 @@ import { calculateNextReview } from '@/lib/srs';
 import { calculateXp } from '@/lib/xp';
 import { getAdaptiveCards, shuffle } from '@/lib/adaptive';
 import { db } from '@/lib/db';
-import { getMemberByAxis } from '@/lib/members';
+import { MEMBERS } from '@/lib/members';
+import { MemberAvatar } from '@/components/common/MemberAvatar';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Check, X, Sparkles } from 'lucide-react';
 import type { VocabCard } from '@/types';
 import { EXAMPLE_TRANSLATIONS } from '@/lib/example-translations-data';
+import { getPlayerName } from '@/lib/player-name';
+
+type EncouragementLevel = 'great' | 'good' | 'struggle';
+
+const ENCOURAGEMENT: Record<string, Record<EncouragementLevel, string[]>> = {
+  kai: {
+    great: [
+      'すごいじゃん、{name}！ この調子なら…俺も負けてられないな。',
+      '{name}、完璧だ。やっぱり見込んだ通りだったよ。',
+      'さすがだな、{name}。メンバーにも報告しておくよ。',
+    ],
+    good: [
+      'お疲れ、{name}。いい感じだ。この調子で続けていこう。',
+      '{name}、着実に伸びてるよ。焦る必要はない。',
+      '毎日少しずつ。{name}のペースでいい。俺たちはいつでもここにいる。',
+    ],
+    struggle: [
+      '焦らなくていい、{name}。俺も最初は全然だったんだ。',
+      '{name}、大丈夫。今日やったぶんは確実に力になってる。',
+      '続けてるだけで{name}はすごいよ。一緒に頑張ろう。',
+    ],
+  },
+  yuuki: {
+    great: [
+      '{name}〜！ すごすぎ！！ 天才かよ！',
+      'やばい！ {name}、こんなにできるの！？ かっこいい！',
+      '{name}さん完璧じゃん！ 今度俺にも教えてよ〜！',
+    ],
+    good: [
+      '{name}、お疲れ〜！ 頑張ったね！ 明日もやろ！',
+      'いいね{name}！ ちょっとずつ上手くなってるの分かるよ！',
+      '{name}と一緒に勉強すると楽しいな〜！ また明日ね！',
+    ],
+    struggle: [
+      '{name}〜、ドンマイドンマイ！ 俺なんかもっとひどかったよ！笑',
+      '大丈夫！ {name}なら絶対できるようになるって！ 信じてる！',
+      '{name}、やっただけ偉い！ 続けることが一番大事だから！',
+    ],
+  },
+  ren: {
+    great: [
+      'ふっ…{name}、やるじゃん。ちょっと悔しいわ。',
+      '{name}…お前、才能あるんじゃないか。マジで。',
+      'いい音聴いた後みたいな爽快感だな。{name}、いい調子だ。',
+    ],
+    good: [
+      '{name}、お疲れ。今日もちゃんとやったな。',
+      '悪くない。{name}、このまま続けてくれ。',
+      '地道にやってる{name}を見てると、俺もやる気出るんだよな。',
+    ],
+    struggle: [
+      '{name}…まぁ、そういう日もある。気にすんな。',
+      '俺も全然ダメな日あったよ。{name}、明日また来いよ。',
+      '…{name}。帰る前にもう1問だけ、やってみないか？',
+    ],
+  },
+  haruto: {
+    great: [
+      '{name}さん…すごいです。僕も見習わないと。',
+      '言葉の意味を正確に捉えてる…{name}さん、本当に素敵です。',
+      '{name}さんの成長、歌詞に書きたいくらいです。',
+    ],
+    good: [
+      '{name}さん、今日もお疲れさまでした。着実に前に進んでますよ。',
+      '一つひとつの単語に、{name}さんの努力が詰まってると思います。',
+      '{name}さんと一緒に学べて…僕も頑張れます。',
+    ],
+    struggle: [
+      '{name}さん、大丈夫です。僕も最初は何も分からなかった。',
+      '言葉って不思議で…繰り返すうちに急に分かる瞬間が来るんです。{name}さんもきっと。',
+      '{name}さん、今日来てくれたこと自体が、もう前進ですから。',
+    ],
+  },
+  sora: {
+    great: [
+      '{name}さん…すごい正答率ですね。尊敬します。',
+      '…{name}さんって、もしかして英語得意だったりします？',
+      '{name}さんの集中力、見習いたいです。',
+    ],
+    good: [
+      '{name}さん、お疲れさまです。今日も一歩前に進みましたね。',
+      '…{name}さんと一緒に勉強できて、嬉しいです。',
+      'コツコツ続ける{name}さん、かっこいいと思います。',
+    ],
+    struggle: [
+      '{name}さん…僕も読解、最初は全然でした。大丈夫ですよ。',
+      '間違えた問題って、実は一番覚えやすいんですよ。{name}さん、次は大丈夫です。',
+      '{name}さん、無理しないでくださいね。明日もここで待ってます。',
+    ],
+  },
+};
+
+function getEncouragement(studied: number, correctRate: number): { member: typeof MEMBERS[0]; message: string } {
+  const name = getPlayerName() || 'マネージャー';
+  const level: EncouragementLevel = correctRate >= 0.8 ? 'great' : correctRate >= 0.5 ? 'good' : 'struggle';
+  const memberKeys = Object.keys(ENCOURAGEMENT);
+  const memberId = memberKeys[Math.floor(Math.random() * memberKeys.length)];
+  const member = MEMBERS.find(m => m.id === memberId)!;
+  const messages = ENCOURAGEMENT[memberId][level];
+  const message = messages[Math.floor(Math.random() * messages.length)]
+    .replace(/\{name\}/g, name);
+  return { member, message };
+}
 
 type QuizStep = 'meaning' | 'meaning-result' | 'example' | 'example-result';
 type SessionPhase = 'study' | 'tokoton-end';
@@ -212,7 +316,8 @@ export function VocabStudy() {
   // Tokoton End screen
   if (phase === 'tokoton-end') {
     const elapsed = Math.floor((Date.now() - startTimeRef.current) / 60000);
-    const vocabMember = getMemberByAxis('vocabulary');
+    const correctRate = studied > 0 ? maxCombo / studied : 0;
+    const encouragement = getEncouragement(studied, correctRate);
 
     return (
       <div className="flex flex-col items-center justify-center min-h-[70vh] px-6 space-y-6">
@@ -226,21 +331,17 @@ export function VocabStudy() {
             <p className="text-sm text-gray-700 dark:text-gray-300">最大コンボ {maxCombo}</p>
             <p className="text-sm text-gray-700 dark:text-gray-300">{elapsed > 0 ? `${elapsed}分間` : '1分未満'}</p>
           </div>
-          {vocabMember && (
-            <Card className="p-4 mt-6" style={{ borderColor: `${vocabMember.color}40` }}>
-              <div className="flex items-center gap-3">
-                <div
-                  className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white"
-                  style={{ backgroundColor: vocabMember.color }}
-                >
-                  {vocabMember.name[0]}
-                </div>
-                <p className="text-xs text-gray-600 dark:text-gray-400">
-                  {vocabMember.nameJa}の語彙力が着実に伸びています。
-                </p>
+          <Card className="p-4 mt-6">
+            <div className="flex gap-3 items-start">
+              <div className="shrink-0">
+                <MemberAvatar member={encouragement.member} size="md" />
               </div>
-            </Card>
-          )}
+              <div className="flex-1">
+                <p className="text-xs text-gray-500 mb-1">{encouragement.member.nameJa}</p>
+                <p className="text-sm text-gray-700 dark:text-gray-300">{encouragement.message}</p>
+              </div>
+            </div>
+          </Card>
         </div>
         <Button variant="outline" onClick={resetSession} className="mt-4">
           もう一度
@@ -257,13 +358,30 @@ export function VocabStudy() {
         <h2 className="text-xl font-bold">
           {totalCards === 0 ? '復習する単語がありません' : ''}
         </h2>
-        {studied > 0 && (
-          <div className="text-center space-y-2 text-sm text-gray-600 dark:text-gray-400">
-            <p>{studied}問に取り組みました</p>
-            {newWordsEncountered > 0 && <p>新しく{newWordsEncountered}語に出会いました</p>}
-            <p>最大コンボ: {maxCombo}</p>
-          </div>
-        )}
+        {studied > 0 && (() => {
+          const correctRate = studied > 0 ? maxCombo / studied : 0;
+          const encouragement = getEncouragement(studied, correctRate);
+          return (
+            <div className="w-full max-w-sm space-y-4">
+              <div className="text-center space-y-2 text-sm text-gray-600 dark:text-gray-400">
+                <p>{studied}問に取り組みました</p>
+                {newWordsEncountered > 0 && <p>新しく{newWordsEncountered}語に出会いました</p>}
+                <p>最大コンボ: {maxCombo}</p>
+              </div>
+              <Card className="p-4">
+                <div className="flex gap-3 items-start">
+                  <div className="shrink-0">
+                    <MemberAvatar member={encouragement.member} size="md" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-xs text-gray-500 mb-1">{encouragement.member.nameJa}</p>
+                    <p className="text-sm text-gray-700 dark:text-gray-300">{encouragement.message}</p>
+                  </div>
+                </div>
+              </Card>
+            </div>
+          );
+        })()}
         <Button onClick={resetSession}>もう一度</Button>
       </div>
     );
