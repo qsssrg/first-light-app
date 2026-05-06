@@ -1,6 +1,5 @@
 'use client';
 
-import Image from 'next/image';
 import type { CharacterId } from '@/lib/scenarios/types';
 
 interface CharacterSpriteProps {
@@ -8,17 +7,14 @@ interface CharacterSpriteProps {
   active: boolean;
 }
 
-const SPRITE_MAP: Record<string, string> = {
-  haruto: '/members/haruto.png',
-  sora: '/members/sora.png',
-  ren: '/members/ren.png',
-  yuuki: '/members/yuuki.png',
-  kai: '/members/kai.png',
-};
+const basePath = process.env.NEXT_PUBLIC_BASE_PATH || '';
+
+const CHARACTERS = ['haruto', 'sora', 'ren', 'yuuki', 'kai'];
 
 export function CharacterSprite({ character, active }: CharacterSpriteProps) {
-  const src = SPRITE_MAP[character];
-  if (!src) return null;
+  if (!CHARACTERS.includes(character)) return null;
+
+  const src = `${basePath}/members/${character}.png`;
 
   return (
     <div
@@ -29,12 +25,10 @@ export function CharacterSprite({ character, active }: CharacterSpriteProps) {
       }}
     >
       <div className="relative w-64 h-64 sm:w-80 sm:h-80">
-        <Image
+        <img
           src={src}
           alt={character}
-          fill
-          className="object-contain drop-shadow-2xl rounded-full"
-          priority
+          className="w-full h-full object-contain drop-shadow-2xl rounded-full"
         />
       </div>
     </div>
