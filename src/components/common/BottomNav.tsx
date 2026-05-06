@@ -1,6 +1,6 @@
 'use client';
 
-import { Home, Users, BookOpen, PenTool, BarChart3 } from 'lucide-react';
+import { Home, Users, BookOpen, PenTool, BarChart3, Settings } from 'lucide-react';
 import { usePathname, useRouter } from 'next/navigation';
 
 const NAV_ITEMS = [
@@ -9,6 +9,7 @@ const NAV_ITEMS = [
   { href: '/vocabulary', icon: BookOpen, label: '単語帳' },
   { href: '/writing-practice', icon: PenTool, label: '添削' },
   { href: '/dashboard', icon: BarChart3, label: '分析' },
+  { href: '/settings', icon: Settings, label: '設定' },
 ];
 
 export function BottomNav() {
