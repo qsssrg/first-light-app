@@ -261,6 +261,7 @@ function StoryRecollectionSection() {
     { id: 'opening', label: 'オープニング', desc: '夜の街でFIRST LIGHTと出会う' },
     { id: 'pre-assessment', label: 'アセスメント前', desc: '翌日、芸能オフィスに呼ばれて' },
     { id: 'post-assessment', label: 'アセスメント後', desc: '英語力判定の結果を受けて' },
+    { id: 'vocab-intro', label: 'ハルトと単語練習', desc: '練習スタジオでハルトと出会う' },
   ];
 
   return (

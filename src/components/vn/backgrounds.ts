@@ -76,6 +76,13 @@ export const VN_BACKGROUNDS: Record<string, VNBackground> = {
     overlay: 'radial-gradient(ellipse at 50% 70%, rgba(255,220,150,0.15) 0%, transparent 40%), radial-gradient(circle at 50% 60%, rgba(255,255,200,0.1) 0%, transparent 20%)',
     imagePath: `${basePath}/backgrounds/night-street-limousine.jpg`,
   },
+  'practice-studio': {
+    id: 'practice-studio',
+    label: '練習スタジオ',
+    gradient: 'linear-gradient(180deg, #2a2015 0%, #3d2e20 30%, #4a3828 60%, #2a2015 100%)',
+    overlay: 'radial-gradient(ellipse at 40% 40%, rgba(255,200,120,0.1) 0%, transparent 50%)',
+    imagePath: `${basePath}/backgrounds/practice-studio.jpg`,
+  },
   'stylish-office': {
     id: 'stylish-office',
     label: '芸能オフィス',

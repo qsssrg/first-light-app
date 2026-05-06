@@ -4,27 +4,31 @@ import { Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { VNEngine } from '@/components/vn/VNEngine';
 import { openingScenario, preAssessmentScenario, postAssessmentScenario } from '@/lib/scenarios/opening';
+import { getRandomVocabIntro } from '@/lib/scenarios/vocab-intro';
 import type { Scenario } from '@/lib/scenarios/types';
 
-const SCENARIO_MAP: Record<string, Scenario> = {
+const SCENARIO_MAP: Record<string, Scenario | (() => Scenario)> = {
   opening: openingScenario,
   'pre-assessment': preAssessmentScenario,
   'post-assessment': postAssessmentScenario,
+  'vocab-intro': getRandomVocabIntro,
 };
 
 function StoryReplayContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const id = searchParams.get('id') || 'opening';
-  const scenario = SCENARIO_MAP[id];
+  const entry = SCENARIO_MAP[id];
 
-  if (!scenario) {
+  if (!entry) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <p className="text-gray-500">ストーリーが見つかりません</p>
       </div>
     );
   }
+
+  const scenario = typeof entry === 'function' ? entry() : entry;
 
   // Remove navigation actions for replay (don't redirect to assessment/dashboard)
   const replayScenario: Scenario = {

@@ -4,14 +4,14 @@ import { useState } from 'react';
 import { BottomNav } from '@/components/common/BottomNav';
 import { VocabStudy } from '@/components/vocabulary/VocabStudy';
 import { VNModal } from '@/components/vn/VNModal';
-import { getRandomVocabStart } from '@/lib/scenarios/adapter';
+import { getRandomVocabIntro } from '@/lib/scenarios/vocab-intro';
 import type { Scenario } from '@/lib/scenarios/types';
 
 export default function VocabularyPage() {
-  const [introScene] = useState<Scenario | undefined>(() => getRandomVocabStart());
+  const [introScene] = useState<Scenario>(() => getRandomVocabIntro());
   const [introDone, setIntroDone] = useState(false);
 
-  if (introScene && !introDone) {
+  if (!introDone) {
     return (
       <VNModal
         scenario={introScene}
