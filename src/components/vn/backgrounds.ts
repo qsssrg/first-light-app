@@ -76,6 +76,13 @@ export const VN_BACKGROUNDS: Record<string, VNBackground> = {
     overlay: 'radial-gradient(ellipse at 50% 70%, rgba(255,220,150,0.15) 0%, transparent 40%), radial-gradient(circle at 50% 60%, rgba(255,255,200,0.1) 0%, transparent 20%)',
     imagePath: `${basePath}/backgrounds/night-street-limousine.jpg`,
   },
+  'stylish-office': {
+    id: 'stylish-office',
+    label: '芸能オフィス',
+    gradient: 'linear-gradient(180deg, #f0ebe5 0%, #e8e0d5 30%, #d4ccc0 60%, #c8bfb0 100%)',
+    overlay: 'radial-gradient(ellipse at 50% 30%, rgba(255,240,220,0.15) 0%, transparent 50%)',
+    imagePath: `${basePath}/backgrounds/office.jpg`,
+  },
 };
 
 export function getBackground(id: string): VNBackground {

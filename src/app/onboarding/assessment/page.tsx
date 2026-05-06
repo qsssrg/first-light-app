@@ -3,12 +3,22 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { VNEngine } from '@/components/vn/VNEngine';
-import { postAssessmentScenario } from '@/lib/scenarios/opening';
+import { preAssessmentScenario, postAssessmentScenario } from '@/lib/scenarios/opening';
 import { Onboarding } from '@/components/home/Onboarding';
 
 export default function AssessmentPage() {
-  const [phase, setPhase] = useState<'assessment' | 'result'>('assessment');
+  const [phase, setPhase] = useState<'pre-story' | 'assessment' | 'result'>('pre-story');
   const router = useRouter();
+
+  if (phase === 'pre-story') {
+    return (
+      <VNEngine
+        scenario={preAssessmentScenario}
+        onComplete={() => setPhase('assessment')}
+        skippable
+      />
+    );
+  }
 
   if (phase === 'assessment') {
     return (

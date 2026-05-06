@@ -89,6 +89,49 @@ export const openingScenario: Scenario = {
   ],
 };
 
+export const preAssessmentScenario: Scenario = {
+  id: 'pre-assessment',
+  background: 'stylish-office',
+  lines: [
+    // --- 場面転換 ---
+    { type: 'dialog', character: 'narrator', text: '――翌日。' },
+    { type: 'dialog', character: 'narrator', text: '渡された名刺の住所を頼りに、あなたはビルの前に立っていた。' },
+    { type: 'dialog', character: 'player', text: '（ここ…？ 芸能事務所って、こんなところなんだ…）', isInner: true },
+    { type: 'dialog', character: 'player', text: '（昨日のこと、まだ夢みたい。本当に来ちゃったけど…大丈夫かな）', isInner: true },
+
+    // --- オフィス内部 ---
+    { type: 'dialog', character: 'narrator', text: 'ガラス張りのエントランスを抜け、案内されたフロアのドアを開けると――' },
+    { type: 'dialog', character: 'narrator', text: 'スタイリッシュなオフィスの中に、5人全員が揃っていた。' },
+
+    // --- メンバーの反応 ---
+    { type: 'dialog', character: 'kai', text: '{playerName}。来てくれたんだな。', expression: 'smile' },
+    { type: 'dialog', character: 'yuuki', text: '{playerName}〜！ 来ると思ってたよ！', expression: 'smile' },
+    { type: 'dialog', character: 'haruto', text: '…ちゃんと来てくれて、嬉しいです。', expression: 'default' },
+    { type: 'dialog', character: 'ren', text: 'やっぱ来たか。', expression: 'smile' },
+    { type: 'dialog', character: 'sora', text: '{playerName}さん…おはようございます。', expression: 'default' },
+
+    { type: 'dialog', character: 'player', text: '（全員待ってたんだ…本気なんだな、この人たち）', isInner: true },
+
+    // --- アセスメントへの導入 ---
+    { type: 'dialog', character: 'kai', text: 'さっそくだけど、{playerName}の英語力をチェックさせてもらっていいかな。', expression: 'serious' },
+    { type: 'dialog', character: 'kai', text: 'どこが得意でどこが苦手か分かれば、俺たちの作戦が立てられる。', expression: 'serious' },
+    { type: 'dialog', character: 'yuuki', text: 'テストって言ってもそんな難しくないから！ リラックスリラックス！', expression: 'smile' },
+    { type: 'dialog', character: 'ren', text: '俺も最初受けたとき、緊張したけどな。大丈夫だ。', expression: 'smile' },
+    { type: 'dialog', character: 'haruto', text: '{playerName}さんの力を見せてください。俺たち、受け止めますから。', expression: 'default' },
+
+    {
+      type: 'choice',
+      prompt: '',
+      options: [
+        { text: 'よし、やってみる', next: 'start' },
+        { text: '（深呼吸して…）準備できた', next: 'start' },
+      ],
+    },
+
+    { type: 'dialog', character: 'kai', text: 'いい目だ。じゃあ始めよう。', expression: 'smile' },
+  ],
+};
+
 export const postAssessmentScenario: Scenario = {
   id: 'post-assessment',
   background: 'studio',

@@ -3,11 +3,12 @@
 import { Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { VNEngine } from '@/components/vn/VNEngine';
-import { openingScenario, postAssessmentScenario } from '@/lib/scenarios/opening';
+import { openingScenario, preAssessmentScenario, postAssessmentScenario } from '@/lib/scenarios/opening';
 import type { Scenario } from '@/lib/scenarios/types';
 
 const SCENARIO_MAP: Record<string, Scenario> = {
   opening: openingScenario,
+  'pre-assessment': preAssessmentScenario,
   'post-assessment': postAssessmentScenario,
 };
 

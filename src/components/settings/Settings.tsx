@@ -10,7 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { Download, Upload, AlertCircle, CheckCircle, RotateCcw, BookOpen, UserPen } from 'lucide-react';
 import { exportAllData, downloadBackup, validateBackup, importData, type BackupData } from '@/lib/backup';
 import { getPlayerName, setPlayerName } from '@/lib/player-name';
-import { openingScenario, postAssessmentScenario } from '@/lib/scenarios/opening';
+import { openingScenario, preAssessmentScenario, postAssessmentScenario } from '@/lib/scenarios/opening';
 
 export function Settings() {
   const profile = useProfile();
@@ -131,8 +131,9 @@ function StoryRecollectionSection() {
   const router = useRouter();
 
   const stories = [
-    { id: 'opening', label: 'オープニング', desc: '夜の街でFIRST LIGHTと出会う', scenario: openingScenario },
-    { id: 'post-assessment', label: 'アセスメント後', desc: '英語力判定の結果を受けて', scenario: postAssessmentScenario },
+    { id: 'opening', label: 'オープニング', desc: '夜の街でFIRST LIGHTと出会う' },
+    { id: 'pre-assessment', label: 'アセスメント前', desc: '翌日、芸能オフィスに呼ばれて' },
+    { id: 'post-assessment', label: 'アセスメント後', desc: '英語力判定の結果を受けて' },
   ];
 
   return (
