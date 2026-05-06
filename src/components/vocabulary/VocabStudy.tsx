@@ -4,25 +4,64 @@ import { useState, useCallback, useRef, useMemo } from 'react';
 import { useDueCards, useVocabCards } from '@/lib/hooks';
 import { calculateNextReview } from '@/lib/srs';
 import { calculateXp } from '@/lib/xp';
-import { getAdaptiveCards } from '@/lib/adaptive';
+import { getAdaptiveCards, shuffle } from '@/lib/adaptive';
 import { db } from '@/lib/db';
 import { getMemberByAxis } from '@/lib/members';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { Check, X, Eye, Sparkles } from 'lucide-react';
+import { Check, X, Sparkles } from 'lucide-react';
 import type { VocabCard } from '@/types';
 
-type StudyState = 'front' | 'back';
+type QuizStep = 'meaning' | 'meaning-result' | 'example' | 'example-result';
 type SessionPhase = 'study' | 'tokoton-end';
+
+function generateOptions(
+  correctCard: VocabCard,
+  allCards: VocabCard[],
+  field: 'meaning'
+): string[] {
+  const correct = correctCard[field];
+  // Prefer same category, then same difficulty range
+  const sameCategory = allCards.filter(
+    c => c[field] !== correct && c.category === correctCard.category
+  );
+  const sameDifficulty = allCards.filter(
+    c => c[field] !== correct && Math.abs(c.difficulty - correctCard.difficulty) <= 1
+  );
+  const others = allCards.filter(c => c[field] !== correct);
+
+  // Pick 3 distractors, preferring same category
+  const pool = sameCategory.length >= 3 ? sameCategory :
+               sameDifficulty.length >= 3 ? sameDifficulty : others;
+  const shuffled = shuffle(pool);
+  const distractors = shuffled.slice(0, 3).map(c => c[field]);
+
+  // Ensure we have exactly 3 unique distractors
+  const unique = [...new Set(distractors)];
+  let i = 0;
+  while (unique.length < 3 && i < others.length) {
+    const val = others[i][field];
+    if (val !== correct && !unique.includes(val)) {
+      unique.push(val);
+    }
+    i++;
+  }
+
+  const options = shuffle([correct, ...unique.slice(0, 3)]);
+  return options;
+}
 
 export function VocabStudy() {
   const rawDueCards = useDueCards();
   const allCards = useVocabCards();
-  // Apply adaptive ordering: prioritize weak/overdue cards, shuffle for variety
   const dueCards = useMemo(() => getAdaptiveCards(rawDueCards, rawDueCards.length), [rawDueCards]);
+
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [state, setState] = useState<StudyState>('front');
+  const [step, setStep] = useState<QuizStep>('meaning');
+  const [selected, setSelected] = useState<number | null>(null);
+  const [meaningCorrect, setMeaningCorrect] = useState(false);
+  const [exampleCorrect, setExampleCorrect] = useState(false);
   const [combo, setCombo] = useState(0);
   const [maxCombo, setMaxCombo] = useState(0);
   const [sessionXp, setSessionXp] = useState(0);
@@ -32,10 +71,25 @@ export function VocabStudy() {
   const [phase, setPhase] = useState<SessionPhase>('study');
   const startTimeRef = useRef(Date.now());
 
-  // In tokoton mode, cycle through all cards infinitely
+  // Generate options once per card (memoized by index)
+  const meaningOptions = useMemo(() => {
+    const card = isTokoton
+      ? (allCards.length > 0 ? allCards : dueCards)[currentIndex % Math.max(1, (allCards.length > 0 ? allCards : dueCards).length)]
+      : dueCards[currentIndex];
+    if (!card) return [];
+    return generateOptions(card as VocabCard, allCards, 'meaning');
+  }, [currentIndex, allCards, dueCards, isTokoton]);
+
+  const exampleOptions = useMemo(() => {
+    const card = isTokoton
+      ? (allCards.length > 0 ? allCards : dueCards)[currentIndex % Math.max(1, (allCards.length > 0 ? allCards : dueCards).length)]
+      : dueCards[currentIndex];
+    if (!card) return [];
+    return generateOptions(card as VocabCard, allCards, 'meaning');
+  }, [currentIndex, allCards, dueCards, isTokoton]);
+
   const getCard = (): VocabCard | undefined => {
     if (isTokoton) {
-      // Infinite mode: cycle through all available cards
       const pool = allCards.length > 0 ? allCards : dueCards;
       if (pool.length === 0) return undefined;
       return pool[currentIndex % pool.length] as VocabCard;
@@ -46,63 +100,104 @@ export function VocabStudy() {
   const currentCard = getCard();
   const totalCards = dueCards.length;
 
-  const handleAnswer = useCallback(async (quality: number) => {
-    if (!currentCard?.id) return;
+  const handleSelect = useCallback((index: number) => {
+    if (step === 'meaning-result' || step === 'example-result') return;
+    setSelected(index);
+  }, [step]);
 
-    const correct = quality >= 3;
-    const newCombo = correct ? combo + 1 : 0;
-    const xp = calculateXp(correct, newCombo);
-    const srsUpdate = calculateNextReview(currentCard, quality);
+  const handleConfirm = useCallback(() => {
+    if (selected === null) return;
 
-    await db.vocabCards.update(currentCard.id, {
-      ...srsUpdate,
-      lastReview: new Date(),
-      correctCount: currentCard.correctCount + (correct ? 1 : 0),
-      incorrectCount: currentCard.incorrectCount + (correct ? 0 : 1),
-    });
+    if (step === 'meaning') {
+      const correct = meaningOptions[selected] === currentCard?.meaning;
+      setMeaningCorrect(correct);
+      setStep('meaning-result');
+    } else if (step === 'example') {
+      const correct = exampleOptions[selected] === currentCard?.meaning;
+      setExampleCorrect(correct);
+      setStep('example-result');
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selected, step, meaningOptions, exampleOptions, currentCard]);
 
-    if (xp > 0) {
-      const profile = await db.userProfile.toCollection().first();
-      if (profile?.id) {
-        await db.userProfile.update(profile.id, {
-          xp: profile.xp + xp,
-          totalXp: profile.totalXp + xp,
-        });
+  const handleNext = useCallback(async () => {
+    if (step === 'meaning-result') {
+      // Move to example step
+      setStep('example');
+      setSelected(null);
+      return;
+    }
+
+    if (step === 'example-result' && currentCard?.id) {
+      // Both steps done — calculate SRS quality
+      const quality = (meaningCorrect && exampleCorrect) ? 5 :
+                      (meaningCorrect || exampleCorrect) ? 3 : 1;
+      const correct = quality >= 3;
+      const newCombo = correct ? combo + 1 : 0;
+      const xp = calculateXp(correct, newCombo);
+      const srsUpdate = calculateNextReview(currentCard, quality);
+
+      await db.vocabCards.update(currentCard.id, {
+        ...srsUpdate,
+        lastReview: new Date(),
+        correctCount: currentCard.correctCount + (correct ? 1 : 0),
+        incorrectCount: currentCard.incorrectCount + (correct ? 0 : 1),
+      });
+
+      if (xp > 0) {
+        const profile = await db.userProfile.toCollection().first();
+        if (profile?.id) {
+          await db.userProfile.update(profile.id, {
+            xp: profile.xp + xp,
+            totalXp: profile.totalXp + xp,
+          });
+        }
       }
+
+      if (currentCard.repetitions === 0) {
+        setNewWordsEncountered(n => n + 1);
+      }
+
+      setCombo(newCombo);
+      setMaxCombo(Math.max(maxCombo, newCombo));
+      setSessionXp(sessionXp + xp);
+      setStudied(studied + 1);
+      setStep('meaning');
+      setSelected(null);
+      setMeaningCorrect(false);
+      setExampleCorrect(false);
+      setCurrentIndex(currentIndex + 1);
+
+      if (newCombo >= 10 && !isTokoton) setIsTokoton(true);
+      if (!correct) setIsTokoton(false);
     }
+  }, [step, currentCard, meaningCorrect, exampleCorrect, combo, maxCombo, sessionXp, studied, currentIndex, isTokoton]);
 
-    // Track new words
-    if (currentCard.repetitions === 0) {
-      setNewWordsEncountered(n => n + 1);
-    }
-
-    setCombo(newCombo);
-    setMaxCombo(Math.max(maxCombo, newCombo));
-    setSessionXp(sessionXp + xp);
-    setStudied(studied + 1);
-    setState('front');
-    setCurrentIndex(currentIndex + 1);
-
-    // トコトンモード: 10問連続正答で自動発動
-    if (newCombo >= 10 && !isTokoton) setIsTokoton(true);
-    if (!correct) setIsTokoton(false);
-  }, [currentCard, combo, maxCombo, sessionXp, studied, currentIndex, isTokoton]);
-
-  const handleTokotonEnd = () => {
-    setPhase('tokoton-end');
+  const resetSession = () => {
+    setPhase('study');
+    setCurrentIndex(0);
+    setStudied(0);
+    setSessionXp(0);
+    setCombo(0);
+    setMaxCombo(0);
+    setNewWordsEncountered(0);
+    setIsTokoton(false);
+    setStep('meaning');
+    setSelected(null);
+    setMeaningCorrect(false);
+    setExampleCorrect(false);
+    startTimeRef.current = Date.now();
   };
 
-  // Tokoton End - 承認メッセージ
+  // Tokoton End screen
   if (phase === 'tokoton-end') {
     const elapsed = Math.floor((Date.now() - startTimeRef.current) / 60000);
-    const accuracy = studied > 0 ? Math.round(((studied - (studied - maxCombo > 0 ? studied - maxCombo : 0)) / studied) * 100) : 0;
     const vocabMember = getMemberByAxis('vocabulary');
 
     return (
       <div className="flex flex-col items-center justify-center min-h-[70vh] px-6 space-y-6">
         <div className="w-full max-w-sm space-y-4">
           <p className="text-sm text-gray-500 text-center">今日の学習 ───</p>
-
           <div className="space-y-2 text-center">
             <p className="text-sm text-gray-700 dark:text-gray-300">{studied}問に取り組みました</p>
             {newWordsEncountered > 0 && (
@@ -111,7 +206,6 @@ export function VocabStudy() {
             <p className="text-sm text-gray-700 dark:text-gray-300">最大コンボ {maxCombo}</p>
             <p className="text-sm text-gray-700 dark:text-gray-300">{elapsed > 0 ? `${elapsed}分間` : '1分未満'}</p>
           </div>
-
           {vocabMember && (
             <Card className="p-4 mt-6" style={{ borderColor: `${vocabMember.color}40` }}>
               <div className="flex items-center gap-3">
@@ -128,29 +222,14 @@ export function VocabStudy() {
             </Card>
           )}
         </div>
-
-        <Button
-          variant="outline"
-          onClick={() => {
-            setPhase('study');
-            setCurrentIndex(0);
-            setStudied(0);
-            setSessionXp(0);
-            setCombo(0);
-            setMaxCombo(0);
-            setNewWordsEncountered(0);
-            setIsTokoton(false);
-            startTimeRef.current = Date.now();
-          }}
-          className="mt-4"
-        >
+        <Button variant="outline" onClick={resetSession} className="mt-4">
           もう一度
         </Button>
       </div>
     );
   }
 
-  // Normal session complete (non-tokoton)
+  // Session complete (non-tokoton)
   if (!isTokoton && (!currentCard || currentIndex >= totalCards)) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-4 px-4">
@@ -165,60 +244,68 @@ export function VocabStudy() {
             <p>最大コンボ: {maxCombo}</p>
           </div>
         )}
-        <Button onClick={() => { setCurrentIndex(0); setStudied(0); setSessionXp(0); setCombo(0); setMaxCombo(0); setNewWordsEncountered(0); }}>
-          もう一度
-        </Button>
+        <Button onClick={resetSession}>もう一度</Button>
       </div>
     );
   }
 
+  // Get current options based on step
+  const options = (step === 'meaning' || step === 'meaning-result') ? meaningOptions : exampleOptions;
+  const correctAnswer = currentCard?.meaning ?? '';
+  const isResultStep = step === 'meaning-result' || step === 'example-result';
+  const isCorrectThisStep = step === 'meaning-result' ? meaningCorrect : exampleCorrect;
+
   // ─── トコトンモード UI ───
-  if (isTokoton) {
+  if (isTokoton && !isResultStep) {
     return (
       <div className="min-h-[80vh] flex flex-col justify-center px-3">
-        {/* Minimal combo indicator */}
         <div className="text-center mb-2">
           <span className="text-xs text-orange-400 font-mono">🔥 {combo}</span>
         </div>
 
-        {/* Card - minimal */}
-        <div className="flex flex-col justify-center items-center text-center py-8">
-          {state === 'front' ? (
-            <>
-              <h3 className="text-3xl font-bold mb-6">{currentCard?.word}</h3>
-              <button
-                onClick={() => setState('back')}
-                className="text-gray-400 text-sm underline"
-              >
-                見る
-              </button>
-            </>
+        <div className="flex flex-col justify-center items-center text-center py-4">
+          {step === 'meaning' ? (
+            <h3 className="text-3xl font-bold mb-2">{currentCard?.word}</h3>
           ) : (
-            <>
+            <div className="mb-2">
               <p className="text-xs text-gray-500 mb-1">{currentCard?.word}</p>
-              <h3 className="text-xl font-bold mb-6">{currentCard?.meaning}</h3>
-              <div className="flex gap-4">
-                <button
-                  onClick={() => handleAnswer(1)}
-                  className="w-14 h-14 rounded-full border-2 border-red-400 flex items-center justify-center active:bg-red-50 dark:active:bg-red-950"
-                >
-                  <X className="w-6 h-6 text-red-400" />
-                </button>
-                <button
-                  onClick={() => handleAnswer(5)}
-                  className="w-14 h-14 rounded-full border-2 border-green-400 flex items-center justify-center active:bg-green-50 dark:active:bg-green-950"
-                >
-                  <Check className="w-6 h-6 text-green-400" />
-                </button>
-              </div>
-            </>
+              <p className="text-sm text-gray-300 italic px-4">{currentCard?.example}</p>
+              <p className="text-xs text-gray-500 mt-2">この単語の意味は？</p>
+            </div>
           )}
+
+          <p className="text-xs text-gray-500 mb-4">
+            {step === 'meaning' ? '意味を選んでください' : '例文中の単語の意味は？'}
+          </p>
+
+          <div className="w-full max-w-sm space-y-2">
+            {options.map((opt, i) => (
+              <button
+                key={`${currentIndex}-${step}-${i}`}
+                onClick={() => handleSelect(i)}
+                className={`w-full text-left px-4 py-3 rounded-lg border transition-colors text-sm ${
+                  selected === i
+                    ? 'border-indigo-500 bg-indigo-500/10 text-white'
+                    : 'border-gray-700 hover:border-gray-500 text-gray-300'
+                }`}
+              >
+                {opt}
+              </button>
+            ))}
+          </div>
+
+          <Button
+            onClick={handleConfirm}
+            disabled={selected === null}
+            className="mt-4 w-full max-w-sm"
+          >
+            決定
+          </Button>
         </div>
 
-        {/* End button - small and subtle */}
-        <div className="text-center mt-8">
+        <div className="text-center mt-4">
           <button
-            onClick={handleTokotonEnd}
+            onClick={() => setPhase('tokoton-end')}
             className="text-xs text-gray-400 hover:text-gray-600 underline decoration-dotted"
           >
             今日はここまで
@@ -228,63 +315,126 @@ export function VocabStudy() {
     );
   }
 
-  // ─── 通常モード UI ───
+  // ─── 結果表示 (トコトンモード含む) ───
+  if (isResultStep) {
+    return (
+      <div className="space-y-4 px-4">
+        {/* Progress */}
+        {!isTokoton && (
+          <div className="space-y-1">
+            <div className="flex justify-between text-xs text-gray-500">
+              <span>{currentIndex + 1} / {totalCards}</span>
+              {combo > 0 && <span className="text-orange-500 font-medium">🔥 {combo} combo</span>}
+            </div>
+            <Progress value={((currentIndex + 1) / totalCards) * 100} className="h-1.5" />
+          </div>
+        )}
+        {isTokoton && (
+          <div className="text-center">
+            <span className="text-xs text-orange-400 font-mono">🔥 {combo}</span>
+          </div>
+        )}
+
+        <Card className={`p-6 text-center ${isCorrectThisStep ? 'border-green-500/50' : 'border-red-500/50'}`}>
+          {/* Result header */}
+          <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full mb-4 ${
+            isCorrectThisStep
+              ? 'bg-green-500/10 text-green-400'
+              : 'bg-red-500/10 text-red-400'
+          }`}>
+            {isCorrectThisStep ? <Check className="w-5 h-5" /> : <X className="w-5 h-5" />}
+            <span className="font-bold">{isCorrectThisStep ? '正解！' : '不正解'}</span>
+          </div>
+
+          {/* Word info */}
+          <h3 className="text-2xl font-bold mb-1">{currentCard?.word}</h3>
+          <p className="text-lg text-green-400 font-medium mb-2">{currentCard?.meaning}</p>
+
+          {step === 'example-result' && (
+            <p className="text-sm text-gray-400 italic mb-2">{currentCard?.example}</p>
+          )}
+
+          {/* Show what they selected if wrong */}
+          {!isCorrectThisStep && selected !== null && (
+            <p className="text-sm text-red-400 mt-2">
+              選んだ回答: {options[selected]}
+            </p>
+          )}
+
+          {/* Step indicator */}
+          <div className="flex justify-center gap-2 mt-4">
+            <div className={`w-2 h-2 rounded-full ${step === 'meaning-result' ? 'bg-white' : 'bg-gray-600'}`} />
+            <div className={`w-2 h-2 rounded-full ${step === 'example-result' ? 'bg-white' : 'bg-gray-600'}`} />
+          </div>
+        </Card>
+
+        <Button onClick={handleNext} className="w-full">
+          {step === 'meaning-result' ? '例文クイズへ' : '次の問題'}
+        </Button>
+      </div>
+    );
+  }
+
+  // ─── 通常モード: 4択クイズ UI ───
   return (
     <div className="space-y-4 px-4">
       {/* Progress bar */}
       <div className="space-y-1">
         <div className="flex justify-between text-xs text-gray-500">
           <span>{currentIndex + 1} / {totalCards}</span>
-          {combo > 0 && (
-            <span className="text-orange-500 font-medium">🔥 {combo} combo</span>
-          )}
+          {combo > 0 && <span className="text-orange-500 font-medium">🔥 {combo} combo</span>}
         </div>
         <Progress value={((currentIndex + 1) / totalCards) * 100} className="h-1.5" />
       </div>
 
-      {/* Card */}
-      <Card className="p-6 min-h-[240px] flex flex-col justify-center items-center text-center">
-        {state === 'front' ? (
+      {/* Question */}
+      <Card className="p-6 text-center">
+        {step === 'meaning' ? (
           <>
             <p className="text-xs text-gray-400 mb-2">{currentCard?.category}</p>
-            <h3 className="text-2xl font-bold mb-4">{currentCard?.word}</h3>
-            <Button variant="outline" size="sm" onClick={() => setState('back')}>
-              <Eye className="w-4 h-4 mr-1" /> 意味を見る
-            </Button>
+            <h3 className="text-2xl font-bold mb-1">{currentCard?.word}</h3>
+            <p className="text-sm text-gray-500 mt-3">この単語の意味は？</p>
           </>
         ) : (
           <>
             <p className="text-xs text-gray-400 mb-2">{currentCard?.word}</p>
-            <h3 className="text-xl font-bold mb-2">{currentCard?.meaning}</h3>
-            <p className="text-sm text-gray-600 dark:text-gray-400 italic mb-6">
-              {currentCard?.example}
-            </p>
-            <div className="flex gap-3">
-              <Button
-                variant="outline"
-                className="border-red-300 text-red-600 hover:bg-red-50"
-                onClick={() => handleAnswer(1)}
-              >
-                <X className="w-4 h-4 mr-1" /> わからない
-              </Button>
-              <Button
-                variant="outline"
-                className="border-yellow-300 text-yellow-600 hover:bg-yellow-50"
-                onClick={() => handleAnswer(3)}
-              >
-                まあまあ
-              </Button>
-              <Button
-                variant="outline"
-                className="border-green-300 text-green-600 hover:bg-green-50"
-                onClick={() => handleAnswer(5)}
-              >
-                <Check className="w-4 h-4 mr-1" /> 完璧
-              </Button>
-            </div>
+            <p className="text-base text-gray-300 italic mb-1">{currentCard?.example}</p>
+            <p className="text-sm text-gray-500 mt-3">この単語の意味は？</p>
           </>
         )}
+
+        {/* Step indicator */}
+        <div className="flex justify-center gap-2 mt-3">
+          <div className={`w-2 h-2 rounded-full ${step === 'meaning' ? 'bg-white' : 'bg-gray-600'}`} />
+          <div className={`w-2 h-2 rounded-full ${step === 'example' ? 'bg-white' : 'bg-gray-600'}`} />
+        </div>
       </Card>
+
+      {/* Options */}
+      <div className="space-y-2">
+        {options.map((opt, i) => (
+          <button
+            key={`${currentIndex}-${step}-${i}`}
+            onClick={() => handleSelect(i)}
+            className={`w-full text-left px-4 py-3 rounded-lg border transition-colors text-sm ${
+              selected === i
+                ? 'border-indigo-500 bg-indigo-500/10'
+                : 'border-gray-200 dark:border-gray-700 hover:border-gray-400 dark:hover:border-gray-500'
+            }`}
+          >
+            {opt}
+          </button>
+        ))}
+      </div>
+
+      {/* Confirm button */}
+      <Button
+        onClick={handleConfirm}
+        disabled={selected === null}
+        className="w-full"
+      >
+        決定
+      </Button>
 
       {/* XP indicator */}
       {sessionXp > 0 && (
