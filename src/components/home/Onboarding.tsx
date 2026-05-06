@@ -7,6 +7,7 @@ import { Progress } from '@/components/ui/progress';
 import { db } from '@/lib/db';
 import { initProfile } from '@/lib/hooks';
 import { generateInitialCards } from '@/lib/sample-vocab';
+import { getPlayerName } from '@/lib/player-name';
 import { MEMBERS } from '@/lib/members';
 import { MemberAvatar } from '@/components/common/MemberAvatar';
 import type { SkillAxis, LearnerType } from '@/types';
@@ -101,7 +102,7 @@ export function Onboarding({ onComplete }: { onComplete: () => void }) {
 
   const handleFinish = async () => {
     const learnerType = determineLearnerType(scores);
-    await initProfile('');
+    await initProfile(getPlayerName() || '');
     const profile = await db.userProfile.toCollection().first();
     if (profile?.id) {
       await db.userProfile.update(profile.id, {

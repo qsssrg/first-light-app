@@ -17,15 +17,21 @@ export const openingScenario: Scenario = {
     // --- Scene 3: カイ登場 ---
     { type: 'dialog', character: 'kai', text: 'ちょっと待って。', expression: 'serious' },
     { type: 'dialog', character: 'player', text: '（FIRST LIGHTの…カイ…!?）', isInner: true },
-    { type: 'dialog', character: 'kai', text: '…君、英語できる人？', expression: 'serious' },
-    { type: 'dialog', character: 'player', text: 'え…あ、あの…えっと…' },
+    { type: 'dialog', character: 'kai', text: '…君。名前、教えてくれないか。', expression: 'serious' },
+
+    { type: 'input', prompt: 'あなたの名前は？', placeholder: '名前を入力してください', storeKey: 'playerName' },
+
+    { type: 'dialog', character: 'kai', text: '{playerName}…。ああ、やっぱり間違いない。', expression: 'serious' },
+    { type: 'dialog', character: 'player', text: '（え…？ 「間違いない」って…？）', isInner: true },
+    { type: 'dialog', character: 'kai', text: '…ずっと探してたんだ、{playerName}のことを。', expression: 'smile' },
+    { type: 'dialog', character: 'player', text: 'え…あの…どういう…？' },
 
     // --- Scene 4: メンバーが次々降りてくる ---
-    { type: 'dialog', character: 'yuuki', text: 'カイ〜！ また突然声かけてる〜！', expression: 'smile' },
-    { type: 'dialog', character: 'ren', text: '…人違いだったらどうすんだよ。', expression: 'default' },
-    { type: 'dialog', character: 'player', text: '（全員いる…FIRST LIGHT、本物だ…）', isInner: true },
+    { type: 'dialog', character: 'yuuki', text: 'カイ〜！ 見つかったの！？', expression: 'surprised' },
+    { type: 'dialog', character: 'ren', text: '…本当にいたのか。', expression: 'default' },
+    { type: 'dialog', character: 'player', text: '（全員いる…FIRST LIGHT、本物だ…しかも全員こっちを見てる…！）', isInner: true },
 
-    { type: 'dialog', character: 'haruto', text: 'あの…驚かせてすみません。実は俺たち、困ってて…。', expression: 'default' },
+    { type: 'dialog', character: 'haruto', text: '{playerName}さん…ですよね。驚かせてすみません。実は俺たち、困ってて…。', expression: 'default' },
     { type: 'dialog', character: 'sora', text: '…来週、海外のフェスに出るんです。でも…', expression: 'default' },
     { type: 'dialog', character: 'kai', text: '英語、全然ダメなんだ。MCも挨拶も、何も準備できてない。', expression: 'serious' },
 
@@ -33,7 +39,7 @@ export const openingScenario: Scenario = {
     { type: 'dialog', character: 'yuuki', text: '通訳さんが急に来れなくなっちゃって…！', expression: 'surprised' },
     { type: 'dialog', character: 'ren', text: '俺は洋楽聴いてるから多少は…って思ったけど、喋るのは別だな。', expression: 'default' },
     { type: 'dialog', character: 'haruto', text: '歌詞は書けても、会話となると…。', expression: 'default' },
-    { type: 'dialog', character: 'kai', text: '俺たちに英語を教えてくれないか。いや…一緒に英語を学んでくれないか。', expression: 'smile' },
+    { type: 'dialog', character: 'kai', text: '{playerName}。俺たちに英語を教えてくれないか。いや…一緒に英語を学んでくれないか。', expression: 'smile' },
 
     { type: 'dialog', character: 'player', text: '（いきなりすぎる…でも、FIRST LIGHTと一緒に…？）', isInner: true },
 
@@ -45,7 +51,7 @@ export const openingScenario: Scenario = {
     { type: 'dialog', character: 'kai', text: '俺はメンバーをまとめる立場だから、文法とか構造から理解したい。全体を見渡せるように。', expression: 'smile' },
 
     // --- Scene 7: 決断 ---
-    { type: 'dialog', character: 'kai', text: '…どうかな。俺たちと一緒に、世界を目指してくれないか。', expression: 'serious' },
+    { type: 'dialog', character: 'kai', text: '…どうかな、{playerName}。俺たちと一緒に、世界を目指してくれないか。', expression: 'serious' },
 
     {
       type: 'choice',
@@ -57,13 +63,13 @@ export const openingScenario: Scenario = {
     },
 
     // --- Scene 8: 歓喜 ---
-    { type: 'dialog', character: 'yuuki', text: 'マジで！？ やったーーー！！', expression: 'surprised' },
-    { type: 'dialog', character: 'sora', text: '…よかった。ありがとうございます。', expression: 'smile' },
-    { type: 'dialog', character: 'ren', text: 'ふっ…助かる。よろしくな。', expression: 'smile' },
-    { type: 'dialog', character: 'haruto', text: 'ありがとう…本当に。よろしくお願いします。', expression: 'smile' },
-    { type: 'dialog', character: 'kai', text: 'ありがとう。じゃあさっそくだけど…まずは君の英語力を知りたい。', expression: 'smile' },
+    { type: 'dialog', character: 'yuuki', text: 'マジで！？ {playerName}、ありがとう！！', expression: 'surprised' },
+    { type: 'dialog', character: 'sora', text: '…よかった。{playerName}さん、よろしくお願いします。', expression: 'smile' },
+    { type: 'dialog', character: 'ren', text: 'ふっ…{playerName}か。よろしくな。', expression: 'smile' },
+    { type: 'dialog', character: 'haruto', text: '{playerName}さん…ありがとう。本当に。', expression: 'smile' },
+    { type: 'dialog', character: 'kai', text: 'ありがとう、{playerName}。じゃあさっそくだけど…まずは{playerName}の英語力を知りたい。', expression: 'smile' },
     { type: 'dialog', character: 'kai', text: '簡単なチェックを受けてくれるか？ それで俺たちの作戦を立てよう。', expression: 'serious' },
-    { type: 'dialog', character: 'ren', text: '俺たちも一緒に受けるから。気楽にいこう。', expression: 'smile' },
+    { type: 'dialog', character: 'ren', text: '俺たちも一緒に受けるから。気楽にいこう、{playerName}。', expression: 'smile' },
 
     { type: 'action', action: 'navigate', target: '/onboarding/assessment' },
   ],
@@ -73,11 +79,11 @@ export const postAssessmentScenario: Scenario = {
   id: 'post-assessment',
   background: 'studio',
   lines: [
-    { type: 'dialog', character: 'kai', text: 'テスト、お疲れさま。結果が出たよ。' },
-    { type: 'dialog', character: 'kai', text: 'なるほど…全体像が見えてきた。' },
-    { type: 'dialog', character: 'yuuki', text: 'マネージャー、苦手なところは俺たちがカバーするから！' },
-    { type: 'dialog', character: 'haruto', text: '一歩ずつ、一緒にやっていきましょう。' },
-    { type: 'dialog', character: 'kai', text: 'じゃあ、まずは基礎からコツコツいこう。準備はいい？' },
+    { type: 'dialog', character: 'kai', text: '{playerName}、テストお疲れさま。結果が出たよ。' },
+    { type: 'dialog', character: 'kai', text: 'なるほど…{playerName}の全体像が見えてきた。' },
+    { type: 'dialog', character: 'yuuki', text: '{playerName}！ 苦手なところは俺たちがカバーするから！' },
+    { type: 'dialog', character: 'haruto', text: '{playerName}さん、一歩ずつ一緒にやっていきましょう。' },
+    { type: 'dialog', character: 'kai', text: 'じゃあ、まずは基礎からコツコツいこう。準備はいい、{playerName}？' },
 
     {
       type: 'choice',
@@ -89,7 +95,7 @@ export const postAssessmentScenario: Scenario = {
     },
 
     { type: 'dialog', character: 'kai', text: 'よし。FIRST LIGHT、活動開始だ。' },
-    { type: 'dialog', character: 'narrator', text: '――こうして、あなたとFIRST LIGHTの物語が始まった。' },
+    { type: 'dialog', character: 'narrator', text: '――こうして、{playerName}とFIRST LIGHTの物語が始まった。' },
 
     { type: 'action', action: 'navigate', target: '/dashboard' },
   ],

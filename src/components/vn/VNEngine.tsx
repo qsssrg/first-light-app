@@ -5,8 +5,10 @@ import { useRouter } from 'next/navigation';
 import { TextWindow } from './TextWindow';
 import { CharacterSprite } from './CharacterSprite';
 import { ChoiceButtons } from './ChoiceButtons';
-import type { Scenario, DialogLine, ChoiceLine } from '@/lib/scenarios/types';
+import { NameInput } from './NameInput';
+import type { Scenario, DialogLine, ChoiceLine, InputLine } from '@/lib/scenarios/types';
 import { getBackground } from './backgrounds';
+import { setPlayerName, resolvePlayerName } from '@/lib/player-name';
 
 interface VNEngineProps {
   scenario: Scenario;
@@ -45,6 +47,13 @@ export function VNEngine({ scenario, onComplete, skippable = false }: VNEnginePr
     advance();
   }, [advance]);
 
+  const handleInput = useCallback((value: string, storeKey: string) => {
+    if (storeKey === 'playerName') {
+      setPlayerName(value);
+    }
+    advance();
+  }, [advance]);
+
   if (!line) return null;
 
   const currentCharacter = line.type === 'dialog' ? line.character : 'narrator';
@@ -76,11 +85,11 @@ export function VNEngine({ scenario, onComplete, skippable = false }: VNEnginePr
         active={line.type === 'dialog' && line.character !== 'narrator' && line.character !== 'player'}
       />
 
-      {/* Text window or choice buttons */}
+      {/* Text window or choice buttons or input */}
       {line.type === 'dialog' && (
         <TextWindow
           character={(line as DialogLine).character}
-          text={(line as DialogLine).text}
+          text={resolvePlayerName((line as DialogLine).text)}
           onComplete={advance}
           isActive={true}
           isInner={(line as DialogLine).isInner}
@@ -92,6 +101,14 @@ export function VNEngine({ scenario, onComplete, skippable = false }: VNEnginePr
           prompt={(line as ChoiceLine).prompt}
           options={(line as ChoiceLine).options}
           onSelect={handleChoice}
+        />
+      )}
+
+      {line.type === 'input' && (
+        <NameInput
+          prompt={(line as InputLine).prompt}
+          placeholder={(line as InputLine).placeholder}
+          onSubmit={(value) => handleInput(value, (line as InputLine).storeKey)}
         />
       )}
 

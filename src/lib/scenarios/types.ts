@@ -26,7 +26,15 @@ export interface ActionLine {
   duration?: number;
 }
 
-export type ScenarioLine = DialogLine | ChoiceLine | ActionLine;
+export interface InputLine {
+  type: 'input';
+  prompt: string;
+  placeholder?: string;
+  /** Key to store the input value (e.g. 'playerName') */
+  storeKey: string;
+}
+
+export type ScenarioLine = DialogLine | ChoiceLine | ActionLine | InputLine;
 
 export interface Scenario {
   id: string;

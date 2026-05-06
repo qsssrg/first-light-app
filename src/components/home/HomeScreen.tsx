@@ -1,13 +1,15 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import { useProfile, useDueCards } from '@/lib/hooks';
 import { getLevelProgress, xpToNextLevel } from '@/lib/xp';
-import { MEMBERS } from '@/lib/members';
+import { MEMBERS, getMember } from '@/lib/members';
 import { MemberAvatar } from '@/components/common/MemberAvatar';
 import { Progress } from '@/components/ui/progress';
 import { Card } from '@/components/ui/card';
 import { BookOpen, Flame, Target, Sparkles, ArrowRight, Lightbulb } from 'lucide-react';
 import Link from 'next/link';
+import { getPlayerName } from '@/lib/player-name';
 
 function NextActionGuide({ profile, dueCardCount }: { profile: any; dueCardCount: number }) {
   const getNextAction = () => {
@@ -47,9 +49,45 @@ function NextActionGuide({ profile, dueCardCount }: { profile: any; dueCardCount
   );
 }
 
+function useGreeting(): { member: ReturnType<typeof getMember>; message: string } {
+  const [greeting, setGreeting] = useState({ member: getMember('kai')!, message: '' });
+
+  useEffect(() => {
+    const name = getPlayerName();
+    const hour = new Date().getHours();
+    const displayName = name || 'マネージャー';
+
+    const greetings = hour < 6 ? [
+      { id: 'ren', msg: `こんな時間まで起きてるのか、${displayName}。…俺もだけど。` },
+      { id: 'kai', msg: `${displayName}、無理はするなよ。でも…付き合うよ。` },
+    ] : hour < 10 ? [
+      { id: 'yuuki', msg: `おはよ〜${displayName}！ 今日も一緒に頑張ろ！` },
+      { id: 'sora', msg: `おはようございます、${displayName}さん。今日は何を学びましょうか。` },
+      { id: 'kai', msg: `おはよう、${displayName}。今日も俺たちについてきてくれるか？` },
+    ] : hour < 17 ? [
+      { id: 'haruto', msg: `${displayName}さん、今日も来てくれたんですね。嬉しいです。` },
+      { id: 'yuuki', msg: `${displayName}！ 待ってたよ〜！` },
+      { id: 'kai', msg: `${displayName}、調子はどうだ？ 今日もやっていこう。` },
+    ] : hour < 21 ? [
+      { id: 'ren', msg: `${displayName}、お疲れ。今日はどこまでやる？` },
+      { id: 'sora', msg: `${displayName}さん、夜の勉強って集中できますよね。` },
+    ] : [
+      { id: 'haruto', msg: `遅い時間なのに…${displayName}さん、ありがとう。` },
+      { id: 'kai', msg: `${displayName}、今日もお疲れさま。少しだけやって休もう。` },
+      { id: 'ren', msg: `…${displayName}、夜更かしもほどほどにな。` },
+    ];
+
+    const pick = greetings[Math.floor(Math.random() * greetings.length)];
+    setGreeting({ member: getMember(pick.id)!, message: pick.msg });
+  }, []);
+
+  return greeting;
+}
+
 export function HomeScreen() {
   const profile = useProfile();
   const dueCards = useDueCards();
+  const greeting = useGreeting();
 
   if (!profile) return null;
 
@@ -58,6 +96,16 @@ export function HomeScreen() {
 
   return (
     <div className="space-y-6 pb-4">
+      {/* Member greeting */}
+      {greeting.member && greeting.message && (
+        <Card className="p-3">
+          <div className="flex items-center gap-3">
+            <MemberAvatar member={greeting.member} size="sm" />
+            <p className="text-sm text-gray-700 dark:text-gray-300 flex-1">{greeting.message}</p>
+          </div>
+        </Card>
+      )}
+
       {/* Stage background - placeholder gradient */}
       <div className="relative rounded-2xl overflow-hidden bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-400 p-6 text-white">
         <div className="absolute inset-0 opacity-20 bg-[url('/grid.svg')]" />

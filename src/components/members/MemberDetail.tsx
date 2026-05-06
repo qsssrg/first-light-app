@@ -1,5 +1,6 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import { MEMBERS } from '@/lib/members';
 import { STORY_CARDS } from '@/lib/stories';
 import { useProfile } from '@/lib/hooks';
@@ -7,7 +8,56 @@ import { MemberAvatar } from '@/components/common/MemberAvatar';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Lock } from 'lucide-react';
+import { getPlayerName } from '@/lib/player-name';
 import type { Member } from '@/types';
+
+const PERSONAL_MESSAGES: Record<string, (name: string) => string[]> = {
+  haruto: (n) => [
+    `${n}さん、今日はどんな言葉に出会えるかな。`,
+    `${n}さんと一緒に勉強できて…嬉しいです。`,
+    `${n}さんのおかげで、新しい歌詞のアイデアが浮かんできます。`,
+  ],
+  sora: (n) => [
+    `${n}さん…来てくれたんですね。`,
+    `${n}さんと読む英文は、一人で読むより楽しいです。`,
+    `あ、${n}さん。おすすめの本、見つけたんです。`,
+  ],
+  ren: (n) => [
+    `…${n}か。ま、来たなら付き合ってやるよ。`,
+    `${n}と練習してると、なんか調子いいんだよな。`,
+    `${n}、さっき聴いてた曲の歌詞…一緒に訳さないか？`,
+  ],
+  yuuki: (n) => [
+    `${n}〜！ 会いたかったー！`,
+    `${n}のこと、海外ファンにも紹介していい？笑`,
+    `ねえ${n}、今日も一緒に頑張ろ！`,
+  ],
+  kai: (n) => [
+    `${n}、来てくれたか。…頼りにしてるぞ。`,
+    `${n}がいると、メンバーの調子がいいんだ。気づいてたか？`,
+    `${n}のこと、最初から信頼してたよ。`,
+  ],
+};
+
+function PersonalMessage({ memberId }: { memberId: string }) {
+  const [message, setMessage] = useState('');
+  useEffect(() => {
+    const name = getPlayerName();
+    if (!name) return;
+    const msgs = PERSONAL_MESSAGES[memberId];
+    if (msgs) {
+      const list = msgs(name);
+      setMessage(list[Math.floor(Math.random() * list.length)]);
+    }
+  }, [memberId]);
+
+  if (!message) return null;
+  return (
+    <Card className="p-3 border-indigo-200/30 bg-indigo-950/10">
+      <p className="text-sm italic text-indigo-300">「{message}」</p>
+    </Card>
+  );
+}
 
 interface MemberDetailProps {
   memberId: string;
@@ -34,6 +84,9 @@ export function MemberDetail({ memberId }: MemberDetailProps) {
         <p className="text-sm text-gray-600 dark:text-gray-400">{member.name}</p>
         <Badge variant="secondary" className="mt-2">{member.role}</Badge>
       </div>
+
+      {/* Personal message */}
+      <PersonalMessage memberId={memberId} />
 
       {/* Description */}
       <Card className="p-4">

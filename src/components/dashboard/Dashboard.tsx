@@ -5,6 +5,7 @@ import { useProfile, useStudySessions, useVocabCards } from '@/lib/hooks';
 import { Card } from '@/components/ui/card';
 import { MEMBERS, getMember } from '@/lib/members';
 import { MemberAvatar } from '@/components/common/MemberAvatar';
+import { getPlayerName } from '@/lib/player-name';
 import type { SkillAxis } from '@/types';
 
 const AXIS_LABELS: Record<SkillAxis, string> = {
@@ -77,27 +78,28 @@ export function Dashboard() {
         }
 
         // Action message
+        const pName = getPlayerName() || 'マネージャー';
         let actionMessage: string;
         let actionLabel: string;
         let actionHref: string;
 
         if (totalSessions === 0 && masteredCards === 0) {
-          actionMessage = `そのためにまずは単語帳で基本の単語を覚えよう。毎日少しずつやるのがコツだ。`;
+          actionMessage = `${pName}、まずは単語帳で基本の単語を覚えよう。毎日少しずつやるのがコツだ。`;
           actionLabel = '単語学習を始める';
           actionHref = '/vocabulary';
         } else if (totalSessions < 5) {
-          actionMessage = `そのためにチャプターを進めてXPを貯めよう。続けることが一番大事だ。`;
+          actionMessage = `${pName}、チャプターを進めてXPを貯めよう。続けることが一番大事だ。`;
           actionLabel = 'チャプターに挑戦';
           actionHref = '/chapters';
         } else if (weakest && weakest[1] < 40) {
-          actionMessage = `${weakMember?.nameJa || ''}の担当分野「${AXIS_LABELS[weakest[0]]}」を集中的に鍛えると近道だ。`;
+          actionMessage = `${pName}、${weakMember?.nameJa || ''}の担当分野「${AXIS_LABELS[weakest[0]]}」を集中的に鍛えると近道だ。`;
           actionLabel = `${AXIS_LABELS[weakest[0]]}を強化する`;
           actionHref = weakest[0] === 'vocabulary' ? '/vocabulary' :
                        weakest[0] === 'writing' ? '/writing-practice' :
                        weakest[0] === 'listening' ? '/listening' :
                        '/chapters';
         } else {
-          actionMessage = `この調子でバランスよく全スキルを伸ばしていこう。`;
+          actionMessage = `${pName}、この調子でバランスよく全スキルを伸ばしていこう。`;
           actionLabel = '学習を続ける';
           actionHref = '/chapters';
         }
