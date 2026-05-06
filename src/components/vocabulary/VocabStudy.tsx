@@ -16,40 +16,81 @@ import type { VocabCard } from '@/types';
 type QuizStep = 'meaning' | 'meaning-result' | 'example' | 'example-result';
 type SessionPhase = 'study' | 'tokoton-end';
 
-function generateOptions(
+function generateMeaningOptions(
   correctCard: VocabCard,
   allCards: VocabCard[],
-  field: 'meaning'
 ): string[] {
-  const correct = correctCard[field];
-  // Prefer same category, then same difficulty range
+  const correct = correctCard.meaning;
   const sameCategory = allCards.filter(
-    c => c[field] !== correct && c.category === correctCard.category
+    c => c.meaning !== correct && c.category === correctCard.category
   );
   const sameDifficulty = allCards.filter(
-    c => c[field] !== correct && Math.abs(c.difficulty - correctCard.difficulty) <= 1
+    c => c.meaning !== correct && Math.abs(c.difficulty - correctCard.difficulty) <= 1
   );
-  const others = allCards.filter(c => c[field] !== correct);
+  const others = allCards.filter(c => c.meaning !== correct);
 
-  // Pick 3 distractors, preferring same category
   const pool = sameCategory.length >= 3 ? sameCategory :
                sameDifficulty.length >= 3 ? sameDifficulty : others;
   const shuffled = shuffle(pool);
-  const distractors = shuffled.slice(0, 3).map(c => c[field]);
+  const distractors = shuffled.slice(0, 3).map(c => c.meaning);
 
-  // Ensure we have exactly 3 unique distractors
   const unique = [...new Set(distractors)];
   let i = 0;
   while (unique.length < 3 && i < others.length) {
-    const val = others[i][field];
+    const val = others[i].meaning;
     if (val !== correct && !unique.includes(val)) {
       unique.push(val);
     }
     i++;
   }
 
-  const options = shuffle([correct, ...unique.slice(0, 3)]);
-  return options;
+  return shuffle([correct, ...unique.slice(0, 3)]);
+}
+
+/** Generate word options for fill-in-the-blank (example sentence) */
+function generateWordOptions(
+  correctCard: VocabCard,
+  allCards: VocabCard[],
+): string[] {
+  const correct = correctCard.word;
+  const sameCategory = allCards.filter(
+    c => c.word !== correct && c.category === correctCard.category
+  );
+  const sameDifficulty = allCards.filter(
+    c => c.word !== correct && Math.abs(c.difficulty - correctCard.difficulty) <= 1
+  );
+  const others = allCards.filter(c => c.word !== correct);
+
+  const pool = sameCategory.length >= 3 ? sameCategory :
+               sameDifficulty.length >= 3 ? sameDifficulty : others;
+  const shuffled = shuffle(pool);
+  const distractors = shuffled.slice(0, 3).map(c => c.word);
+
+  const unique = [...new Set(distractors)];
+  let i = 0;
+  while (unique.length < 3 && i < others.length) {
+    const val = others[i].word;
+    if (val !== correct && !unique.includes(val)) {
+      unique.push(val);
+    }
+    i++;
+  }
+
+  return shuffle([correct, ...unique.slice(0, 3)]);
+}
+
+/** Replace the target word in the example sentence with a blank */
+function makeBlankSentence(example: string, word: string): string {
+  // Case-insensitive replace of the word (and common forms) with ___
+  const escaped = word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  // Match word with common suffixes (s, ed, ing, etc.)
+  const regex = new RegExp(`\\b${escaped}\\w*\\b`, 'gi');
+  const blanked = example.replace(regex, '______');
+  // If no match found (word form differs), just append blank hint
+  if (blanked === example) {
+    return example.replace(/\.$/, '') + ' (______)';
+  }
+  return blanked;
 }
 
 export function VocabStudy() {
@@ -72,20 +113,33 @@ export function VocabStudy() {
   const startTimeRef = useRef(Date.now());
 
   // Generate options once per card (memoized by index)
+  const getCardForOptions = () => {
+    if (isTokoton) {
+      const pool = allCards.length > 0 ? allCards : dueCards;
+      return pool[currentIndex % Math.max(1, pool.length)] as VocabCard | undefined;
+    }
+    return dueCards[currentIndex] as VocabCard | undefined;
+  };
+
   const meaningOptions = useMemo(() => {
-    const card = isTokoton
-      ? (allCards.length > 0 ? allCards : dueCards)[currentIndex % Math.max(1, (allCards.length > 0 ? allCards : dueCards).length)]
-      : dueCards[currentIndex];
+    const card = getCardForOptions();
     if (!card) return [];
-    return generateOptions(card as VocabCard, allCards, 'meaning');
+    return generateMeaningOptions(card, allCards);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentIndex, allCards, dueCards, isTokoton]);
 
-  const exampleOptions = useMemo(() => {
-    const card = isTokoton
-      ? (allCards.length > 0 ? allCards : dueCards)[currentIndex % Math.max(1, (allCards.length > 0 ? allCards : dueCards).length)]
-      : dueCards[currentIndex];
+  const wordOptions = useMemo(() => {
+    const card = getCardForOptions();
     if (!card) return [];
-    return generateOptions(card as VocabCard, allCards, 'meaning');
+    return generateWordOptions(card, allCards);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentIndex, allCards, dueCards, isTokoton]);
+
+  const blankSentence = useMemo(() => {
+    const card = getCardForOptions();
+    if (!card) return '';
+    return makeBlankSentence(card.example, card.word);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentIndex, allCards, dueCards, isTokoton]);
 
   const getCard = (): VocabCard | undefined => {
@@ -113,12 +167,12 @@ export function VocabStudy() {
       setMeaningCorrect(correct);
       setStep('meaning-result');
     } else if (step === 'example') {
-      const correct = exampleOptions[selected] === currentCard?.meaning;
+      const correct = wordOptions[selected] === currentCard?.word;
       setExampleCorrect(correct);
       setStep('example-result');
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selected, step, meaningOptions, exampleOptions, currentCard]);
+  }, [selected, step, meaningOptions, wordOptions, currentCard]);
 
   const handleNext = useCallback(async () => {
     if (step === 'meaning-result') {
@@ -250,8 +304,8 @@ export function VocabStudy() {
   }
 
   // Get current options based on step
-  const options = (step === 'meaning' || step === 'meaning-result') ? meaningOptions : exampleOptions;
-  const correctAnswer = currentCard?.meaning ?? '';
+  const options = (step === 'meaning' || step === 'meaning-result') ? meaningOptions : wordOptions;
+  const correctAnswer = (step === 'meaning' || step === 'meaning-result') ? (currentCard?.meaning ?? '') : (currentCard?.word ?? '');
   const isResultStep = step === 'meaning-result' || step === 'example-result';
   const isCorrectThisStep = step === 'meaning-result' ? meaningCorrect : exampleCorrect;
 
@@ -268,14 +322,13 @@ export function VocabStudy() {
             <h3 className="text-3xl font-bold mb-2">{currentCard?.word}</h3>
           ) : (
             <div className="mb-2">
-              <p className="text-xs text-gray-500 mb-1">{currentCard?.word}</p>
-              <p className="text-sm text-gray-300 italic px-4">{currentCard?.example}</p>
-              <p className="text-xs text-gray-500 mt-2">この単語の意味は？</p>
+              <p className="text-sm text-gray-300 italic px-4">{blankSentence}</p>
+              <p className="text-xs text-gray-500 mt-2">（{currentCard?.meaning}）</p>
             </div>
           )}
 
           <p className="text-xs text-gray-500 mb-4">
-            {step === 'meaning' ? '意味を選んでください' : '例文中の単語の意味は？'}
+            {step === 'meaning' ? '意味を選んでください' : '空欄に入る単語は？'}
           </p>
 
           <div className="w-full max-w-sm space-y-2">
@@ -397,9 +450,9 @@ export function VocabStudy() {
           </>
         ) : (
           <>
-            <p className="text-xs text-gray-400 mb-2">{currentCard?.word}</p>
-            <p className="text-base text-gray-300 italic mb-1">{currentCard?.example}</p>
-            <p className="text-sm text-gray-500 mt-3">この単語の意味は？</p>
+            <p className="text-base text-gray-300 dark:text-gray-300 italic mb-2">{blankSentence}</p>
+            <p className="text-xs text-gray-500 mb-1">（{currentCard?.meaning}）</p>
+            <p className="text-sm text-gray-500 mt-2">空欄に入る単語は？</p>
           </>
         )}
 
