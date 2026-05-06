@@ -1,4 +1,4 @@
-export type CharacterId = 'haruto' | 'sora' | 'ren' | 'yuuki' | 'kai' | 'narrator' | 'player';
+export type CharacterId = 'haruto' | 'sora' | 'ren' | 'yuuki' | 'kai' | 'narrator' | 'player' | 'mob';
 
 export interface DialogLine {
   type: 'dialog';
@@ -9,6 +9,8 @@ export interface DialogLine {
   isInner?: boolean;
   /** Override scenario background for this line */
   background?: string;
+  /** Full-screen event CG image (shown over background, under text window) */
+  eventImage?: string;
 }
 
 export interface ChoiceLine {

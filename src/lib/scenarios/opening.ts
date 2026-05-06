@@ -1,5 +1,7 @@
 import type { Scenario } from './types';
 
+const basePath = process.env.NEXT_PUBLIC_BASE_PATH || '';
+
 export const openingScenario: Scenario = {
   id: 'opening',
   background: 'night-street',
@@ -12,11 +14,23 @@ export const openingScenario: Scenario = {
     { type: 'dialog', character: 'narrator', text: '突然、目の前に長い黒のリムジンが滑り込んできた。' },
     { type: 'dialog', character: 'player', text: '（え…リムジン？ こんなところに？）', isInner: true },
     { type: 'dialog', character: 'narrator', text: 'リムジンのドアがゆっくりと開く。眩しい光が漏れ出し、中から誰かが降りてくる。', background: 'night-street-limousine' },
-    { type: 'dialog', character: 'player', text: '（うそ…あれって…まさか…！）', isInner: true },
 
-    // --- Scene 3: カイ登場 ---
+    // --- Scene 2.5: グループショット + 群衆の反応 ---
+    { type: 'dialog', character: 'narrator', text: '――5人の若者が、リムジンから降り立った。', background: 'night-street-limousine', eventImage: `${basePath}/members/group-shot.jpg` },
+    { type: 'dialog', character: 'mob', text: 'え…あのアイドルグループじゃない…？', eventImage: `${basePath}/members/group-shot.jpg` },
+    { type: 'dialog', character: 'mob', text: 'FIRST LIGHTだ！ 本物！？ やばい！！' },
+    { type: 'dialog', character: 'mob', text: 'うそ…ここに来るとか聞いてない！ 写真撮っていい！？' },
+    { type: 'dialog', character: 'player', text: '（うそ…あれって…まさか…！ FIRST LIGHTが目の前に…！）', isInner: true },
+    { type: 'dialog', character: 'narrator', text: '周囲が騒然とする中、メンバーたちは群衆を一切見ていなかった。' },
+    { type: 'dialog', character: 'narrator', text: '全員の視線が――真っ直ぐ、あなたに向かっている。' },
+    { type: 'dialog', character: 'player', text: '（え…こっちに来てる…？）', isInner: true },
+    { type: 'dialog', character: 'mob', text: 'あの人、誰…？ 知り合い…？' },
+    { type: 'dialog', character: 'mob', text: 'マネージャーさん…？ いや、あの感じは違う…' },
+    { type: 'dialog', character: 'player', text: '（まさか…自分に？ そんなわけ…）', isInner: true },
+
+    // --- Scene 3: カイ登場（接近）---
     { type: 'dialog', character: 'kai', text: 'ちょっと待って。', expression: 'serious' },
-    { type: 'dialog', character: 'player', text: '（FIRST LIGHTの…カイ…!?）', isInner: true },
+    { type: 'dialog', character: 'player', text: '（FIRST LIGHTの…カイが…目の前に…!?）', isInner: true },
     { type: 'dialog', character: 'kai', text: '…君。名前、教えてくれないか。', expression: 'serious' },
 
     { type: 'input', prompt: 'あなたの名前は？', placeholder: '名前を入力してください', storeKey: 'playerName' },

@@ -78,12 +78,22 @@ export function VNEngine({ scenario, onComplete, skippable = false }: VNEnginePr
         <div className="absolute inset-0" style={{ background: bg.overlay }} />
       )}
 
-      {/* Character sprite */}
-      <CharacterSprite
-        character={currentCharacter}
-        expression={currentExpression}
-        active={line.type === 'dialog' && line.character !== 'narrator' && line.character !== 'player'}
-      />
+      {/* Event CG (full-screen image over background) */}
+      {line.type === 'dialog' && (line as DialogLine).eventImage && (
+        <div
+          className="absolute inset-0 bg-contain bg-center bg-no-repeat transition-opacity duration-700"
+          style={{ backgroundImage: `url(${(line as DialogLine).eventImage})` }}
+        />
+      )}
+
+      {/* Character sprite (hidden when event CG is showing) */}
+      {!(line.type === 'dialog' && (line as DialogLine).eventImage) && (
+        <CharacterSprite
+          character={currentCharacter}
+          expression={currentExpression}
+          active={line.type === 'dialog' && line.character !== 'narrator' && line.character !== 'player' && line.character !== 'mob'}
+        />
+      )}
 
       {/* Text window or choice buttons or input */}
       {line.type === 'dialog' && (
