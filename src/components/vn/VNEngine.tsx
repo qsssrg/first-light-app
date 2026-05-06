@@ -48,11 +48,22 @@ export function VNEngine({ scenario, onComplete, skippable = false }: VNEnginePr
   if (!line) return null;
 
   const currentCharacter = line.type === 'dialog' ? line.character : 'narrator';
+  const currentExpression = line.type === 'dialog' ? line.expression : undefined;
 
-  const bg = getBackground(scenario.background ?? 'practice-room');
+  // Line-level background override
+  const bgId = (line.type === 'dialog' && line.background) || scenario.background || 'practice-room';
+  const bg = getBackground(bgId);
 
   return (
     <div className="fixed inset-0 overflow-hidden" style={{ background: bg.gradient }}>
+      {/* Background image (takes precedence over gradient) */}
+      {bg.imagePath && (
+        <div
+          className="absolute inset-0 bg-cover bg-center"
+          style={{ backgroundImage: `url(${bg.imagePath})` }}
+        />
+      )}
+
       {/* Background overlay */}
       {bg.overlay && (
         <div className="absolute inset-0" style={{ background: bg.overlay }} />
@@ -61,7 +72,8 @@ export function VNEngine({ scenario, onComplete, skippable = false }: VNEnginePr
       {/* Character sprite */}
       <CharacterSprite
         character={currentCharacter}
-        active={line.type === 'dialog' && line.character !== 'narrator'}
+        expression={currentExpression}
+        active={line.type === 'dialog' && line.character !== 'narrator' && line.character !== 'player'}
       />
 
       {/* Text window or choice buttons */}
@@ -71,6 +83,7 @@ export function VNEngine({ scenario, onComplete, skippable = false }: VNEnginePr
           text={(line as DialogLine).text}
           onComplete={advance}
           isActive={true}
+          isInner={(line as DialogLine).isInner}
         />
       )}
 

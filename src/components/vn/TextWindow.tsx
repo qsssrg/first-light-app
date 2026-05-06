@@ -9,15 +9,17 @@ interface TextWindowProps {
   text: string;
   onComplete: () => void;
   isActive: boolean;
+  isInner?: boolean;
 }
 
-export function TextWindow({ character, text, onComplete, isActive }: TextWindowProps) {
+export function TextWindow({ character, text, onComplete, isActive, isInner }: TextWindowProps) {
   const [displayed, setDisplayed] = useState('');
   const [done, setDone] = useState(false);
 
-  const member = character !== 'narrator' ? getMember(character) : null;
-  const name = member?.nameJa ?? '';
-  const color = member?.color ?? '#888';
+  const isPlayer = character === 'player';
+  const member = !isPlayer && character !== 'narrator' ? getMember(character) : null;
+  const name = isPlayer ? 'あなた' : (member?.nameJa ?? '');
+  const color = isPlayer ? '#6366f1' : (member?.color ?? '#888');
 
   useEffect(() => {
     setDisplayed('');
@@ -52,7 +54,7 @@ export function TextWindow({ character, text, onComplete, isActive }: TextWindow
       onClick={handleClick}
     >
       <div className="mx-4 mb-4 rounded-xl bg-black/80 backdrop-blur-sm border border-white/10 p-4 pb-5">
-        {name && (
+        {name && !isInner && (
           <div
             className="absolute -top-3 left-8 px-3 py-0.5 rounded-full text-sm font-bold text-white"
             style={{ backgroundColor: color === '#f8f9fa' ? '#333' : color }}
@@ -60,12 +62,17 @@ export function TextWindow({ character, text, onComplete, isActive }: TextWindow
             {name}
           </div>
         )}
-        {character === 'narrator' && (
+        {character === 'narrator' && !isInner && (
           <div className="absolute -top-3 left-8 px-3 py-0.5 rounded-full text-sm font-bold text-white bg-gray-600">
             ナレーション
           </div>
         )}
-        <p className="text-white text-lg leading-relaxed mt-2 min-h-[3.5rem]">
+        {isInner && (
+          <div className="absolute -top-3 left-8 px-3 py-0.5 rounded-full text-sm font-bold text-indigo-300 bg-indigo-900/80">
+            心の声
+          </div>
+        )}
+        <p className={`text-lg leading-relaxed mt-2 min-h-[3.5rem] ${isInner ? 'text-indigo-200 italic' : 'text-white'}`}>
           {displayed}
           {!done && <span className="animate-pulse">|</span>}
         </p>

@@ -1,10 +1,14 @@
-export type CharacterId = 'haruto' | 'sora' | 'ren' | 'yuuki' | 'kai' | 'narrator';
+export type CharacterId = 'haruto' | 'sora' | 'ren' | 'yuuki' | 'kai' | 'narrator' | 'player';
 
 export interface DialogLine {
   type: 'dialog';
   character: CharacterId;
   text: string;
   expression?: string;
+  /** Inner monologue style (shown in parentheses with distinct styling) */
+  isInner?: boolean;
+  /** Override scenario background for this line */
+  background?: string;
 }
 
 export interface ChoiceLine {
