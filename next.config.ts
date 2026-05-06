@@ -7,6 +7,9 @@ const nextConfig: NextConfig = {
   basePath: isGhPages ? '/first-light-app' : '',
   assetPrefix: isGhPages ? '/first-light-app/' : '',
   trailingSlash: true,
+  images: {
+    unoptimized: true,
+  },
 };
 
 export default nextConfig;
