@@ -1,8 +1,10 @@
 'use client';
 
+import { useRouter } from 'next/navigation';
 import { useProfile, useStudySessions, useVocabCards } from '@/lib/hooks';
 import { Card } from '@/components/ui/card';
-import { MEMBERS } from '@/lib/members';
+import { MEMBERS, getMember } from '@/lib/members';
+import { MemberAvatar } from '@/components/common/MemberAvatar';
 import type { SkillAxis } from '@/types';
 
 const AXIS_LABELS: Record<SkillAxis, string> = {
@@ -18,7 +20,11 @@ export function Dashboard() {
   const sessions = useStudySessions();
   const vocabCards = useVocabCards();
 
+  const router = useRouter();
+
   if (!profile) return null;
+
+  const kai = getMember('kai')!;
 
   // Calculate study calendar (last 30 days)
   const today = new Date();
@@ -42,6 +48,61 @@ export function Dashboard() {
   return (
     <div className="space-y-6 px-4">
       <h2 className="text-lg font-bold">学習分析</h2>
+
+      {/* Character guide */}
+      {(() => {
+        const totalSessions = sessions.length;
+        const axes = Object.entries(profile.skills) as [SkillAxis, number][];
+        const weakest = [...axes].sort((a, b) => a[1] - b[1])[0];
+        const weakMember = MEMBERS.find(m => m.axis === weakest[0]);
+
+        let message: string;
+        let actionLabel: string;
+        let actionHref: string;
+
+        if (totalSessions === 0 && masteredCards === 0) {
+          message = `ようこそ！ まずは単語帳で基本の単語を覚えるところから始めよう。毎日少しずつやるのがコツだ。`;
+          actionLabel = '単語学習を始める';
+          actionHref = '/vocabulary';
+        } else if (totalSessions < 5) {
+          message = `いい調子だ。まだ始めたばかりだから、チャプターを進めてXPを貯めよう。続けることが一番大事だ。`;
+          actionLabel = 'チャプターに挑戦';
+          actionHref = '/chapters';
+        } else if (weakest && weakest[1] < 40) {
+          message = `${weakMember?.nameJa || ''}の担当分野「${AXIS_LABELS[weakest[0]]}」がまだ伸びしろがある。集中して取り組んでみよう。`;
+          actionLabel = `${AXIS_LABELS[weakest[0]]}を強化する`;
+          actionHref = weakest[0] === 'vocabulary' ? '/vocabulary' :
+                       weakest[0] === 'writing' ? '/writing-practice' :
+                       weakest[0] === 'listening' ? '/listening' :
+                       '/chapters';
+        } else {
+          message = `順調に成長しているな。この調子で毎日続けよう。バランスよく全スキルを伸ばすのが理想だ。`;
+          actionLabel = '学習を続ける';
+          actionHref = '/chapters';
+        }
+
+        return (
+          <Card className="p-4">
+            <div className="flex gap-3 items-start">
+              <div className="shrink-0 pt-1">
+                <MemberAvatar member={kai} size="lg" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-xs font-medium text-gray-500 mb-1">{kai.nameJa}（リーダー）</p>
+                <div className="relative bg-gray-100 dark:bg-gray-800 rounded-xl rounded-tl-none px-3 py-2.5">
+                  <p className="text-sm leading-relaxed">{message}</p>
+                </div>
+                <button
+                  onClick={() => router.push(actionHref)}
+                  className="mt-3 w-full py-2.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium transition-colors"
+                >
+                  {actionLabel}
+                </button>
+              </div>
+            </div>
+          </Card>
+        );
+      })()}
 
       {/* Radar chart placeholder - simple bar representation */}
       <Card className="p-4">
