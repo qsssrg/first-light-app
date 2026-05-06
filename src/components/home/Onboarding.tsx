@@ -18,7 +18,7 @@ interface Question {
   options: { text: string; score: number }[];
 }
 
-const ASSESSMENT_QUESTIONS: Question[] = [
+export const ASSESSMENT_QUESTIONS: Question[] = [
   {
     axis: 'vocabulary',
     question: '英単語を見たとき、どのくらい意味がわかりますか？',
@@ -66,7 +66,7 @@ const ASSESSMENT_QUESTIONS: Question[] = [
   },
 ];
 
-function determineLearnerType(skills: Record<SkillAxis, number>): LearnerType {
+export function determineLearnerType(skills: Record<SkillAxis, number>): LearnerType {
   const entries = Object.entries(skills) as [SkillAxis, number][];
   const max = entries.reduce((a, b) => b[1] > a[1] ? b : a);
   const min = entries.reduce((a, b) => b[1] < a[1] ? b : a);

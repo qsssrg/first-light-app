@@ -7,10 +7,15 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from '@/components/ui/dialog';
-import { Download, Upload, AlertCircle, CheckCircle, RotateCcw, BookOpen, UserPen } from 'lucide-react';
+import { Download, Upload, AlertCircle, CheckCircle, RotateCcw, BookOpen, UserPen, RefreshCw } from 'lucide-react';
 import { exportAllData, downloadBackup, validateBackup, importData, type BackupData } from '@/lib/backup';
 import { getPlayerName, setPlayerName } from '@/lib/player-name';
 import { openingScenario, preAssessmentScenario, postAssessmentScenario } from '@/lib/scenarios/opening';
+import { ASSESSMENT_QUESTIONS, determineLearnerType } from '@/components/home/Onboarding';
+import { Progress } from '@/components/ui/progress';
+import { MEMBERS } from '@/lib/members';
+import { MemberAvatar } from '@/components/common/MemberAvatar';
+import type { SkillAxis } from '@/types';
 
 export function Settings() {
   const profile = useProfile();
@@ -68,6 +73,8 @@ export function Settings() {
 
       <NameChangeSection currentName={profile.name || getPlayerName() || ''} />
 
+      <ReAssessmentSection currentType={profile.learnerType} currentSkills={profile.skills} />
+
       <StoryRecollectionSection />
 
       <BackupSection />
@@ -123,6 +130,126 @@ function NameChangeSection({ currentName }: { currentName: string }) {
           <CheckCircle className="w-3 h-3" /> 名前を変更しました
         </p>
       )}
+    </Card>
+  );
+}
+
+function ReAssessmentSection({ currentType, currentSkills }: { currentType: string; currentSkills: Record<SkillAxis, number> }) {
+  const [phase, setPhase] = useState<'idle' | 'assessing' | 'result'>('idle');
+  const [questionIndex, setQuestionIndex] = useState(0);
+  const [scores, setScores] = useState<Record<SkillAxis, number>>({
+    vocabulary: 0, reading: 0, listening: 0, writing: 0, grammar: 0,
+  });
+  const [saved, setSaved] = useState(false);
+
+  const handleAnswer = (axis: SkillAxis, score: number) => {
+    setScores(prev => ({ ...prev, [axis]: score }));
+    if (questionIndex < ASSESSMENT_QUESTIONS.length - 1) {
+      setQuestionIndex(questionIndex + 1);
+    } else {
+      setPhase('result');
+    }
+  };
+
+  const handleSave = async () => {
+    const newType = determineLearnerType(scores);
+    await updateProfile({ learnerType: newType, skills: scores });
+    setSaved(true);
+    setTimeout(() => {
+      setSaved(false);
+      setPhase('idle');
+      setQuestionIndex(0);
+    }, 1500);
+  };
+
+  const handleCancel = () => {
+    setPhase('idle');
+    setQuestionIndex(0);
+    setScores({ vocabulary: 0, reading: 0, listening: 0, writing: 0, grammar: 0 });
+  };
+
+  if (phase === 'assessing') {
+    const q = ASSESSMENT_QUESTIONS[questionIndex];
+    return (
+      <Card className="p-4">
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <h3 className="text-sm font-medium">タイプ再診断</h3>
+            <button onClick={handleCancel} className="text-xs text-gray-400 hover:text-gray-600">やめる</button>
+          </div>
+          <Progress value={((questionIndex + 1) / ASSESSMENT_QUESTIONS.length) * 100} className="h-1.5" />
+          <p className="text-xs text-gray-500 text-right">{questionIndex + 1} / {ASSESSMENT_QUESTIONS.length}</p>
+          <h4 className="text-sm font-medium">{q.question}</h4>
+          <div className="space-y-2">
+            {q.options.map((opt, i) => (
+              <button
+                key={i}
+                onClick={() => handleAnswer(q.axis, opt.score)}
+                className="w-full text-left p-3 rounded-lg border border-gray-200 dark:border-gray-700 hover:border-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950 transition-colors text-xs"
+              >
+                {opt.text}
+              </button>
+            ))}
+          </div>
+        </div>
+      </Card>
+    );
+  }
+
+  if (phase === 'result') {
+    const newType = determineLearnerType(scores);
+    const changed = newType !== currentType;
+    const strongAxis = (Object.entries(scores) as [SkillAxis, number][])
+      .reduce((a, b) => b[1] > a[1] ? b : a)[0];
+    const strongMember = MEMBERS.find(m => m.axis === strongAxis)!;
+
+    return (
+      <Card className="p-4">
+        <div className="space-y-4 text-center">
+          <h3 className="text-sm font-medium">診断結果</h3>
+          <MemberAvatar member={strongMember} size="lg" showName />
+          <p className="text-sm">
+            あなたのタイプは <span className="font-bold">{newType}</span>
+          </p>
+          {changed && (
+            <p className="text-xs text-amber-600 dark:text-amber-400">
+              {currentType} → {newType} に変わります
+            </p>
+          )}
+          <div className="space-y-1">
+            {(Object.entries(scores) as [SkillAxis, number][]).map(([axis, score]) => {
+              const member = MEMBERS.find(m => m.axis === axis);
+              return (
+                <div key={axis} className="flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full" style={{ backgroundColor: member?.color }} />
+                  <span className="text-xs flex-1">{member?.role}</span>
+                  <span className="text-xs font-medium">{score}</span>
+                </div>
+              );
+            })}
+          </div>
+          <div className="flex gap-2">
+            <Button size="sm" variant="outline" onClick={handleCancel} className="flex-1">やめる</Button>
+            <Button size="sm" onClick={handleSave} className="flex-1">
+              {saved ? '保存しました ✓' : '保存する'}
+            </Button>
+          </div>
+        </div>
+      </Card>
+    );
+  }
+
+  return (
+    <Card className="p-4">
+      <h3 className="text-sm font-medium mb-2 flex items-center gap-2">
+        <RefreshCw className="w-4 h-4" /> タイプ再診断
+      </h3>
+      <p className="text-xs text-gray-500 mb-3">
+        現在のタイプ: <span className="font-medium">{currentType}</span>。英語力の変化に合わせて診断し直せます。
+      </p>
+      <Button size="sm" variant="outline" onClick={() => setPhase('assessing')}>
+        診断し直す
+      </Button>
     </Card>
   );
 }
