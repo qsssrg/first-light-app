@@ -12,6 +12,7 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Check, X, Sparkles } from 'lucide-react';
+import { SpeakButton } from '@/components/common/SpeakButton';
 import type { VocabCard } from '@/types';
 import { EXAMPLE_TRANSLATIONS } from '@/lib/example-translations-data';
 import { getPlayerName } from '@/lib/player-name';
@@ -405,10 +406,14 @@ export function VocabStudy() {
 
         <div className="flex flex-col justify-center items-center text-center py-4">
           {step === 'meaning' ? (
-            <h3 className="text-3xl font-bold mb-2">{currentCard?.word}</h3>
+            <div className="flex items-center gap-2 mb-2">
+              <h3 className="text-3xl font-bold">{currentCard?.word}</h3>
+              {currentCard?.word && <SpeakButton text={currentCard.word} />}
+            </div>
           ) : (
-            <div className="mb-2">
-              <p className="text-sm text-gray-300 italic px-4">{currentCard?.example}</p>
+            <div className="mb-2 flex items-center gap-2 px-4">
+              <p className="text-sm text-gray-300 italic">{currentCard?.example}</p>
+              {currentCard?.example && <SpeakButton text={currentCard.example} className="shrink-0" />}
             </div>
           )}
 
@@ -485,11 +490,17 @@ export function VocabStudy() {
           </div>
 
           {/* Word info */}
-          <h3 className="text-2xl font-bold mb-1">{currentCard?.word}</h3>
+          <div className="flex items-center justify-center gap-2 mb-1">
+            <h3 className="text-2xl font-bold">{currentCard?.word}</h3>
+            {currentCard?.word && <SpeakButton text={currentCard.word} />}
+          </div>
           <p className="text-lg text-green-400 font-medium mb-2">{currentCard?.meaning}</p>
 
           {step === 'example-result' && (
-            <p className="text-sm text-gray-400 italic mb-2">{currentCard?.example}</p>
+            <div className="flex items-center justify-center gap-2 mb-2">
+              <p className="text-sm text-gray-400 italic">{currentCard?.example}</p>
+              {currentCard?.example && <SpeakButton text={currentCard.example} className="shrink-0" />}
+            </div>
           )}
 
           {/* Show what they selected if wrong */}
@@ -530,13 +541,19 @@ export function VocabStudy() {
         {step === 'meaning' ? (
           <>
             <p className="text-xs text-gray-400 mb-2">{currentCard?.category}</p>
-            <h3 className="text-2xl font-bold mb-1">{currentCard?.word}</h3>
+            <div className="flex items-center justify-center gap-2 mb-1">
+              <h3 className="text-2xl font-bold">{currentCard?.word}</h3>
+              {currentCard?.word && <SpeakButton text={currentCard.word} />}
+            </div>
             <p className="text-sm text-gray-500 mt-3">この単語の意味は？</p>
           </>
         ) : (
           <>
             <p className="text-xs text-gray-400 mb-2">{currentCard?.word}（{currentCard?.meaning}）</p>
-            <p className="text-base text-gray-700 dark:text-gray-300 italic mb-2">{currentCard?.example}</p>
+            <div className="flex items-center justify-center gap-2 mb-2">
+              <p className="text-base text-gray-700 dark:text-gray-300 italic">{currentCard?.example}</p>
+              {currentCard?.example && <SpeakButton text={currentCard.example} className="shrink-0" />}
+            </div>
             <p className="text-sm text-gray-500 mt-2">正しい和訳を選んでください</p>
           </>
         )}
