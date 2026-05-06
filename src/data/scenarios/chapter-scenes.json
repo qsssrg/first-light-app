@@ -1,0 +1,87 @@
+[
+  {
+    "id": "chapter-01",
+    "scenes": [
+      {
+        "character": "kai",
+        "expression": "confident",
+        "text": "Chapter 1 — 語彙の大陸へようこそ。まずは言葉を集めることから始めよう。",
+        "background": "practice-room"
+      },
+      {
+        "character": "haruto",
+        "expression": "smile",
+        "text": "一つ一つの単語が、やがて歌になる。まずは50語から。",
+        "background": "studio"
+      }
+    ]
+  },
+  {
+    "id": "chapter-02",
+    "scenes": [
+      {
+        "character": "kai",
+        "expression": "confident",
+        "text": "Chapter 2 — 読解の海へ。文章を読む力をつけていこう。",
+        "background": "practice-room"
+      },
+      {
+        "character": "sora",
+        "expression": "smile",
+        "text": "短い文から始めて、いつか長編小説を原文で。一歩ずつね。",
+        "background": "library"
+      }
+    ]
+  },
+  {
+    "id": "chapter-03",
+    "scenes": [
+      {
+        "character": "kai",
+        "expression": "confident",
+        "text": "Chapter 3 — リスニングの森。音の中から意味を拾おう。",
+        "background": "practice-room"
+      },
+      {
+        "character": "ren",
+        "expression": "cool",
+        "text": "音楽を聴くように、英語を聴く。まずは好きな曲の歌詞から。",
+        "background": "studio"
+      }
+    ]
+  },
+  {
+    "id": "chapter-04",
+    "scenes": [
+      {
+        "character": "kai",
+        "expression": "confident",
+        "text": "Chapter 4 — ライティングの空。自分の言葉で世界に届けよう。",
+        "background": "practice-room"
+      },
+      {
+        "character": "yuuki",
+        "expression": "excited",
+        "text": "完璧じゃなくていい。気持ちが伝われば、それでOK！",
+        "background": "rooftop"
+      }
+    ]
+  },
+  {
+    "id": "chapter-05",
+    "scenes": [
+      {
+        "character": "kai",
+        "expression": "serious",
+        "text": "Final Chapter — 全てを統合する時が来た。俺たちの言葉で、世界とつながろう。",
+        "background": "stage"
+      },
+      {
+        "character": "kai",
+        "expression": "smile",
+        "text": "ここまで来たんだ。あとは、舞台に立つだけ。",
+        "background": "stage"
+      }
+    ]
+  }
+]

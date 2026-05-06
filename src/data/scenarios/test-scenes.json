@@ -1,0 +1,167 @@
+[
+  {
+    "id": "test-pre-01",
+    "scenes": [
+      {
+        "character": "haruto",
+        "expression": "confident",
+        "text": "よし、力試しだ。今まで覚えた単語、ちゃんと身についてるか確かめよう。",
+        "background": "practice-room"
+      }
+    ]
+  },
+  {
+    "id": "test-pass-01",
+    "scenes": [
+      {
+        "character": "haruto",
+        "expression": "happy",
+        "text": "すごい！単語の力がしっかりついてる。次のステージに行こう。",
+        "background": "practice-room"
+      }
+    ]
+  },
+  {
+    "id": "test-fail-01",
+    "scenes": [
+      {
+        "character": "haruto",
+        "expression": "encourage",
+        "text": "惜しかった。もう少し単語を復習してから、もう一回やってみよう。",
+        "background": "practice-room"
+      }
+    ]
+  },
+  {
+    "id": "test-pre-02",
+    "scenes": [
+      {
+        "character": "sora",
+        "expression": "confident",
+        "text": "読解テストだよ。焦らなくていい、じっくり読んで答えてね。",
+        "background": "practice-room"
+      }
+    ]
+  },
+  {
+    "id": "test-pass-02",
+    "scenes": [
+      {
+        "character": "sora",
+        "expression": "happy",
+        "text": "読解力、確実に伸びてるよ。もっと長い文章にも挑戦できるね。",
+        "background": "practice-room"
+      }
+    ]
+  },
+  {
+    "id": "test-fail-02",
+    "scenes": [
+      {
+        "character": "sora",
+        "expression": "encourage",
+        "text": "難しかったね。でも、読み返してみれば分かるところも増えてるはず。",
+        "background": "practice-room"
+      }
+    ]
+  },
+  {
+    "id": "test-pre-03",
+    "scenes": [
+      {
+        "character": "ren",
+        "expression": "confident",
+        "text": "リスニングテスト。集中して聴いて。音の中に答えがある。",
+        "background": "practice-room"
+      }
+    ]
+  },
+  {
+    "id": "test-pass-03",
+    "scenes": [
+      {
+        "character": "ren",
+        "expression": "happy",
+        "text": "聴く力がレベルアップした。次はもっと速い英語に挑戦だ。",
+        "background": "practice-room"
+      }
+    ]
+  },
+  {
+    "id": "test-fail-03",
+    "scenes": [
+      {
+        "character": "ren",
+        "expression": "encourage",
+        "text": "聴き取れなかった部分、もう一度聴いてみよう。繰り返しが力になる。",
+        "background": "practice-room"
+      }
+    ]
+  },
+  {
+    "id": "test-pre-04",
+    "scenes": [
+      {
+        "character": "yuuki",
+        "expression": "confident",
+        "text": "ライティングチャレンジ！思いっきり書いてみて。間違いは成長の証拠だから。",
+        "background": "practice-room"
+      }
+    ]
+  },
+  {
+    "id": "test-pass-04",
+    "scenes": [
+      {
+        "character": "yuuki",
+        "expression": "happy",
+        "text": "書く力がついたね！海外のファンにもっと伝えられるよ。",
+        "background": "practice-room"
+      }
+    ]
+  },
+  {
+    "id": "test-fail-04",
+    "scenes": [
+      {
+        "character": "yuuki",
+        "expression": "encourage",
+        "text": "今回は思うように書けなかったかも。でも、書こうとしたこと自体が前進だよ。",
+        "background": "practice-room"
+      }
+    ]
+  },
+  {
+    "id": "test-pre-05",
+    "scenes": [
+      {
+        "character": "kai",
+        "expression": "confident",
+        "text": "総合テストだ。全員の力を合わせて。大丈夫、やれるよ。",
+        "background": "practice-room"
+      }
+    ]
+  },
+  {
+    "id": "test-pass-05",
+    "scenes": [
+      {
+        "character": "kai",
+        "expression": "happy",
+        "text": "全員合格！チームとしてのレベルが上がった。次の挑戦へ。",
+        "background": "practice-room"
+      }
+    ]
+  },
+  {
+    "id": "test-fail-05",
+    "scenes": [
+      {
+        "character": "kai",
+        "expression": "encourage",
+        "text": "全員で成長するんだ。苦手なところを見つけられたのは収穫だよ。もう一回。",
+        "background": "practice-room"
+      }
+    ]
+  }
+]

@@ -1,0 +1,321 @@
+[
+  {
+    "id": "vocab-start-01",
+    "scenes": [
+      {
+        "character": "haruto",
+        "expression": "smile",
+        "text": "今日も単語の旅に出よう。一つずつ、大切に。",
+        "background": "studio"
+      }
+    ]
+  },
+  {
+    "id": "vocab-start-02",
+    "scenes": [
+      {
+        "character": "haruto",
+        "expression": "neutral",
+        "text": "新しい言葉との出会い。どんな発見があるかな。",
+        "background": "studio"
+      }
+    ]
+  },
+  {
+    "id": "vocab-start-03",
+    "scenes": [
+      {
+        "character": "haruto",
+        "expression": "smile",
+        "text": "昨日覚えた単語、覚えてるかな？復習から始めよう。",
+        "background": "studio"
+      }
+    ]
+  },
+  {
+    "id": "vocab-start-04",
+    "scenes": [
+      {
+        "character": "haruto",
+        "expression": "confident",
+        "text": "今日は少し難しい単語にも挑戦してみない？",
+        "background": "studio"
+      }
+    ]
+  },
+  {
+    "id": "vocab-start-05",
+    "scenes": [
+      {
+        "character": "haruto",
+        "expression": "smile",
+        "text": "言葉は音楽みたいなもの。リズムで覚えると忘れにくいよ。",
+        "background": "studio"
+      }
+    ]
+  },
+  {
+    "id": "vocab-combo-05",
+    "scenes": [
+      {
+        "character": "haruto",
+        "expression": "happy",
+        "text": "5問連続正解！いいリズムだね。",
+        "background": "studio"
+      }
+    ]
+  },
+  {
+    "id": "vocab-combo-10",
+    "scenes": [
+      {
+        "character": "haruto",
+        "expression": "happy",
+        "text": "10問連続！集中力がすごい。このまま行こう。",
+        "background": "studio"
+      }
+    ]
+  },
+  {
+    "id": "vocab-combo-20",
+    "scenes": [
+      {
+        "character": "haruto",
+        "expression": "excited",
+        "text": "20問連続正解…！単語が体に染み込んでる感じだね。",
+        "background": "studio"
+      }
+    ]
+  },
+  {
+    "id": "vocab-combo-50",
+    "scenes": [
+      {
+        "character": "haruto",
+        "expression": "excited",
+        "text": "50問連続…！もう言葉が自然に出てきてるよ。すごい。",
+        "background": "studio"
+      }
+    ]
+  },
+  {
+    "id": "vocab-end-high",
+    "scenes": [
+      {
+        "character": "haruto",
+        "expression": "happy",
+        "text": "今日の成果、しっかり積み上がったね。また明日。",
+        "background": "studio"
+      }
+    ]
+  },
+  {
+    "id": "vocab-end-mid",
+    "scenes": [
+      {
+        "character": "haruto",
+        "expression": "smile",
+        "text": "難しい単語もあったね。でも、間違えたところが次の伸びしろだよ。",
+        "background": "studio"
+      }
+    ]
+  },
+  {
+    "id": "vocab-end-low",
+    "scenes": [
+      {
+        "character": "haruto",
+        "expression": "encourage",
+        "text": "今日は苦戦したね。でも、やろうとしたこと自体が前進だから。",
+        "background": "studio"
+      }
+    ]
+  },
+  {
+    "id": "reading-start-01",
+    "scenes": [
+      {
+        "character": "sora",
+        "expression": "smile",
+        "text": "今日の英文を読んでみよう。分からない単語があっても、前後の文脈から推測してみて。",
+        "background": "library"
+      }
+    ]
+  },
+  {
+    "id": "reading-start-02",
+    "scenes": [
+      {
+        "character": "sora",
+        "expression": "neutral",
+        "text": "この文章、ちょっと長いけど大丈夫。段落ごとに区切って読めばいいから。",
+        "background": "library"
+      }
+    ]
+  },
+  {
+    "id": "reading-correct",
+    "scenes": [
+      {
+        "character": "sora",
+        "expression": "happy",
+        "text": "正解！文脈をちゃんと掴めてるね。",
+        "background": "library"
+      }
+    ]
+  },
+  {
+    "id": "reading-wrong",
+    "scenes": [
+      {
+        "character": "sora",
+        "expression": "encourage",
+        "text": "惜しいな。もう一度この段落を読み返してみて。答えのヒントがあるよ。",
+        "background": "library"
+      }
+    ]
+  },
+  {
+    "id": "listening-start-01",
+    "scenes": [
+      {
+        "character": "ren",
+        "expression": "cool",
+        "text": "音をよく聴いて。最初は全部聴き取れなくていい。キーワードだけ拾ってみよう。",
+        "background": "studio"
+      }
+    ]
+  },
+  {
+    "id": "listening-start-02",
+    "scenes": [
+      {
+        "character": "ren",
+        "expression": "neutral",
+        "text": "今日の曲、歌詞を聴き取ってみよう。リズムに乗れば自然と入ってくるよ。",
+        "background": "studio"
+      }
+    ]
+  },
+  {
+    "id": "listening-correct",
+    "scenes": [
+      {
+        "character": "ren",
+        "expression": "smile",
+        "text": "聴き取れたな。耳が育ってきてる。",
+        "background": "studio"
+      }
+    ]
+  },
+  {
+    "id": "listening-wrong",
+    "scenes": [
+      {
+        "character": "ren",
+        "expression": "encourage",
+        "text": "もう一回聴いてみよう。今度はここに注目して。",
+        "background": "studio"
+      }
+    ]
+  },
+  {
+    "id": "writing-start-01",
+    "scenes": [
+      {
+        "character": "yuuki",
+        "expression": "excited",
+        "text": "英語で書いてみよう！完璧じゃなくていいからね。気持ちが伝わればOK！",
+        "background": "rooftop"
+      }
+    ]
+  },
+  {
+    "id": "writing-start-02",
+    "scenes": [
+      {
+        "character": "yuuki",
+        "expression": "smile",
+        "text": "今日のお題に挑戦！まずは思いつくままに書いてみて。",
+        "background": "rooftop"
+      }
+    ]
+  },
+  {
+    "id": "writing-good",
+    "scenes": [
+      {
+        "character": "yuuki",
+        "expression": "happy",
+        "text": "いいね！気持ちがちゃんと伝わる文だよ。",
+        "background": "rooftop"
+      }
+    ]
+  },
+  {
+    "id": "writing-improve",
+    "scenes": [
+      {
+        "character": "yuuki",
+        "expression": "smile",
+        "text": "伝えたいことは分かるよ！ここをちょっと直すともっと自然になるかも。",
+        "background": "rooftop"
+      }
+    ]
+  },
+  {
+    "id": "side-culture",
+    "scenes": [
+      {
+        "character": "kai",
+        "expression": "smile",
+        "text": "英語圏の文化を知ると、言葉の背景が見えてくる。ちょっと覗いてみよう。",
+        "background": "cafe"
+      }
+    ]
+  },
+  {
+    "id": "side-music",
+    "scenes": [
+      {
+        "character": "ren",
+        "expression": "cool",
+        "text": "音楽と英語は切り離せない。この曲の歌詞から学べることがある。",
+        "background": "studio"
+      }
+    ]
+  },
+  {
+    "id": "side-travel",
+    "scenes": [
+      {
+        "character": "sora",
+        "expression": "excited",
+        "text": "旅先で使える英語フレーズ。いつか必ず役に立つよ。",
+        "background": "street"
+      }
+    ]
+  },
+  {
+    "id": "side-movie",
+    "scenes": [
+      {
+        "character": "ren",
+        "expression": "smile",
+        "text": "この映画のワンシーン、字幕なしで聴いてみよう。",
+        "background": "cafe"
+      }
+    ]
+  },
+  {
+    "id": "side-sns",
+    "scenes": [
+      {
+        "character": "yuuki",
+        "expression": "excited",
+        "text": "海外のファンからメッセージが来た時の返し方、教えるね！",
+        "background": "rooftop"
+      }
+    ]
+  }
+]

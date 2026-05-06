@@ -1,0 +1,116 @@
+import type { Chapter } from '@/types';
+
+export const CHAPTERS: Chapter[] = [
+  {
+    id: 'ch1',
+    number: 1,
+    title: 'Vocabulary Continent',
+    titleJa: '語彙の大陸',
+    description: 'ハルトと一緒に、単語の海を渡ろう。まずは土台を固めてから、より高度な語彙へ。',
+    axis: 'vocabulary',
+    memberId: 'haruto',
+    stages: [
+      {
+        id: 'ch1-s1',
+        chapterId: 'ch1',
+        number: 1,
+        title: '基礎語彙（2級復習）',
+        description: '英検2級レベルの基本単語を確認。知っている単語をどんどん通過していこう。',
+        wordCount: 500,
+        level: 'eiken2',
+      },
+      {
+        id: 'ch1-s2',
+        chapterId: 'ch1',
+        number: 2,
+        title: '準一級コア前半',
+        description: '準一級の頻出語彙1,000語のうち、前半500語。学術的な単語が増えてくる。',
+        wordCount: 500,
+        level: 'eiken_pre1',
+      },
+      {
+        id: 'ch1-s3',
+        chapterId: 'ch1',
+        number: 3,
+        title: '準一級コア後半',
+        description: '準一級の頻出語彙の後半500語。抽象概念や専門用語が登場。',
+        wordCount: 500,
+        level: 'eiken_pre1',
+      },
+      {
+        id: 'ch1-s4',
+        chapterId: 'ch1',
+        number: 4,
+        title: 'TOEFL アカデミック語彙',
+        description: 'TOEFLで頻出の学術語彙。自然科学・社会科学・人文科学の基盤。',
+        wordCount: 500,
+        level: 'toefl',
+      },
+      {
+        id: 'ch1-s5',
+        chapterId: 'ch1',
+        number: 5,
+        title: '一級挑戦語彙',
+        description: '英検1級レベルの高難度語彙。ここまで来ればネイティブの文章も怖くない。',
+        wordCount: 500,
+        level: 'eiken1',
+      },
+    ],
+  },
+  {
+    id: 'ch2',
+    number: 2,
+    title: 'Reading Kingdom',
+    titleJa: '読解の王国',
+    description: 'ソラと一緒に、英文を読み解く力を鍛えよう。',
+    axis: 'reading',
+    memberId: 'sora',
+    stages: [
+      { id: 'ch2-s1', chapterId: 'ch2', number: 1, title: '短文読解（2級レベル）', description: 'SNS投稿やメール文の読み取り。基本的な文構造を掴む。', wordCount: 10, level: 'eiken2' },
+      { id: 'ch2-s2', chapterId: 'ch2', number: 2, title: 'パラグラフ読解（準1級）', description: 'ニュース記事や論説文のパラグラフ単位の読解。', wordCount: 10, level: 'eiken_pre1' },
+      { id: 'ch2-s3', chapterId: 'ch2', number: 3, title: 'アカデミック読解（TOEFL）', description: '学術論文スタイルの長文読解。要旨と論理構造を把握する。', wordCount: 10, level: 'toefl' },
+    ],
+  },
+  {
+    id: 'ch3',
+    number: 3,
+    title: 'Listening Harbor',
+    titleJa: 'リスニングの港',
+    description: 'レンと一緒に、英語の音を掴む力を養おう。',
+    axis: 'listening',
+    memberId: 'ren',
+    stages: [
+      { id: 'ch3-s1', chapterId: 'ch3', number: 1, title: '短い会話（2級レベル）', description: '日常会話の聞き取り。要点を素早くキャッチ。', wordCount: 10, level: 'eiken2' },
+      { id: 'ch3-s2', chapterId: 'ch3', number: 2, title: 'モノローグ（準1級）', description: 'スピーチやプレゼンの聞き取り。話者の意図を掴む。', wordCount: 10, level: 'eiken_pre1' },
+      { id: 'ch3-s3', chapterId: 'ch3', number: 3, title: '講義聞き取り（TOEFL）', description: '大学講義スタイルのリスニング。メモを取りながら聴く。', wordCount: 10, level: 'toefl' },
+    ],
+  },
+  {
+    id: 'ch4',
+    number: 4,
+    title: 'Writing Studio',
+    titleJa: 'ライティングの工房',
+    description: 'ユウキと一緒に、自分の言葉で英語を紡ごう。',
+    axis: 'writing',
+    memberId: 'yuuki',
+    stages: [
+      { id: 'ch4-s1', chapterId: 'ch4', number: 1, title: 'メール・メッセージ（2級）', description: '友人や同僚への短い英文メッセージの書き方。', wordCount: 5, level: 'eiken2' },
+      { id: 'ch4-s2', chapterId: 'ch4', number: 2, title: '意見文（準1級）', description: '自分の意見を論理的に述べるエッセイの基本形。', wordCount: 5, level: 'eiken_pre1' },
+      { id: 'ch4-s3', chapterId: 'ch4', number: 3, title: 'アカデミックエッセイ（TOEFL）', description: 'TOEFL Independent/Integrated Writing対策。', wordCount: 5, level: 'toefl' },
+    ],
+  },
+  {
+    id: 'ch5',
+    number: 5,
+    title: 'Grammar Tower',
+    titleJa: '文法の塔',
+    description: 'カイと一緒に、英語の構造を見抜く目を養おう。',
+    axis: 'grammar',
+    memberId: 'kai',
+    stages: [],
+  },
+];
+
+export function getChapter(id: string) {
+  return CHAPTERS.find(c => c.id === id);
+}
