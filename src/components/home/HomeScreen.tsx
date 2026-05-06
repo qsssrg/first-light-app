@@ -11,6 +11,35 @@ import { BookOpen, Flame, Target, Sparkles, ArrowRight, Lightbulb } from 'lucide
 import Link from 'next/link';
 import { getPlayerName } from '@/lib/player-name';
 
+function TypewriterText({ text }: { text: string }) {
+  const [displayed, setDisplayed] = useState('');
+  const [done, setDone] = useState(false);
+
+  useEffect(() => {
+    setDisplayed('');
+    setDone(false);
+    let i = 0;
+    const interval = setInterval(() => {
+      i++;
+      if (i >= text.length) {
+        setDisplayed(text);
+        setDone(true);
+        clearInterval(interval);
+      } else {
+        setDisplayed(text.slice(0, i));
+      }
+    }, 60);
+    return () => clearInterval(interval);
+  }, [text]);
+
+  return (
+    <p className="text-sm text-gray-700 dark:text-gray-300 flex-1">
+      {displayed}
+      {!done && <span className="animate-pulse text-indigo-400">|</span>}
+    </p>
+  );
+}
+
 function NextActionGuide({ profile, dueCardCount }: { profile: any; dueCardCount: number }) {
   const getNextAction = () => {
     if (!profile.learnerType || profile.learnerType === 'balanced' && profile.totalXp === 0) {
@@ -96,12 +125,12 @@ export function HomeScreen() {
 
   return (
     <div className="space-y-6 pb-4">
-      {/* Member greeting */}
+      {/* Member greeting with typewriter effect */}
       {greeting.member && greeting.message && (
         <Card className="p-3">
           <div className="flex items-center gap-3">
             <MemberAvatar member={greeting.member} size="sm" />
-            <p className="text-sm text-gray-700 dark:text-gray-300 flex-1">{greeting.message}</p>
+            <TypewriterText text={greeting.message} />
           </div>
         </Card>
       )}
