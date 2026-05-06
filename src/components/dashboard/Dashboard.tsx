@@ -49,34 +49,55 @@ export function Dashboard() {
     <div className="space-y-6 px-4">
       <h2 className="text-lg font-bold">学習分析</h2>
 
-      {/* Character guide */}
+      {/* Character guide with milestone */}
       {(() => {
         const totalSessions = sessions.length;
         const axes = Object.entries(profile.skills) as [SkillAxis, number][];
+        const avgSkill = Math.round(axes.reduce((sum, [, v]) => sum + v, 0) / axes.length);
         const weakest = [...axes].sort((a, b) => a[1] - b[1])[0];
         const weakMember = MEMBERS.find(m => m.axis === weakest[0]);
 
-        let message: string;
+        // Milestone based on skill level
+        let milestone: string;
+        let milestoneProgress: number;
+
+        if (avgSkill <= 25) {
+          milestone = '基礎単語200語マスター';
+          milestoneProgress = Math.min(100, Math.round((masteredCards / 200) * 100));
+        } else if (avgSkill <= 50) {
+          milestone = '英検3級レベル到達';
+          milestoneProgress = Math.min(100, Math.round((avgSkill / 50) * 100));
+        } else if (avgSkill <= 70) {
+          milestone = '英検準2級レベル到達';
+          milestoneProgress = Math.min(100, Math.round(((avgSkill - 50) / 20) * 100));
+        } else {
+          milestone = '全スキル80以上でバランス型達成';
+          const above80 = axes.filter(([, v]) => v >= 80).length;
+          milestoneProgress = Math.round((above80 / axes.length) * 100);
+        }
+
+        // Action message
+        let actionMessage: string;
         let actionLabel: string;
         let actionHref: string;
 
         if (totalSessions === 0 && masteredCards === 0) {
-          message = `ようこそ！ まずは単語帳で基本の単語を覚えるところから始めよう。毎日少しずつやるのがコツだ。`;
+          actionMessage = `そのためにまずは単語帳で基本の単語を覚えよう。毎日少しずつやるのがコツだ。`;
           actionLabel = '単語学習を始める';
           actionHref = '/vocabulary';
         } else if (totalSessions < 5) {
-          message = `いい調子だ。まだ始めたばかりだから、チャプターを進めてXPを貯めよう。続けることが一番大事だ。`;
+          actionMessage = `そのためにチャプターを進めてXPを貯めよう。続けることが一番大事だ。`;
           actionLabel = 'チャプターに挑戦';
           actionHref = '/chapters';
         } else if (weakest && weakest[1] < 40) {
-          message = `${weakMember?.nameJa || ''}の担当分野「${AXIS_LABELS[weakest[0]]}」がまだ伸びしろがある。集中して取り組んでみよう。`;
+          actionMessage = `${weakMember?.nameJa || ''}の担当分野「${AXIS_LABELS[weakest[0]]}」を集中的に鍛えると近道だ。`;
           actionLabel = `${AXIS_LABELS[weakest[0]]}を強化する`;
           actionHref = weakest[0] === 'vocabulary' ? '/vocabulary' :
                        weakest[0] === 'writing' ? '/writing-practice' :
                        weakest[0] === 'listening' ? '/listening' :
                        '/chapters';
         } else {
-          message = `順調に成長しているな。この調子で毎日続けよう。バランスよく全スキルを伸ばすのが理想だ。`;
+          actionMessage = `この調子でバランスよく全スキルを伸ばしていこう。`;
           actionLabel = '学習を続ける';
           actionHref = '/chapters';
         }
@@ -89,9 +110,28 @@ export function Dashboard() {
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-xs font-medium text-gray-500 mb-1">{kai.nameJa}（リーダー）</p>
-                <div className="relative bg-gray-100 dark:bg-gray-800 rounded-xl rounded-tl-none px-3 py-2.5">
-                  <p className="text-sm leading-relaxed">{message}</p>
+
+                {/* Milestone */}
+                <div className="relative bg-gray-100 dark:bg-gray-800 rounded-xl rounded-tl-none px-3 py-2.5 mb-2">
+                  <p className="text-sm leading-relaxed">
+                    あなたの当面の目標は<span className="font-bold text-indigo-400">「{milestone}」</span>だ。
+                  </p>
+                  <div className="mt-2 flex items-center gap-2">
+                    <div className="flex-1 h-1.5 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                      <div
+                        className="h-full bg-indigo-500 rounded-full transition-all"
+                        style={{ width: `${milestoneProgress}%` }}
+                      />
+                    </div>
+                    <span className="text-xs text-gray-500 shrink-0">{milestoneProgress}%</span>
+                  </div>
                 </div>
+
+                {/* Action guidance */}
+                <div className="relative bg-gray-100 dark:bg-gray-800 rounded-xl px-3 py-2.5">
+                  <p className="text-sm leading-relaxed">{actionMessage}</p>
+                </div>
+
                 <button
                   onClick={() => router.push(actionHref)}
                   className="mt-3 w-full py-2.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium transition-colors"
