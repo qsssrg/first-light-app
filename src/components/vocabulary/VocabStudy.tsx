@@ -12,6 +12,7 @@ import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Check, X, Sparkles } from 'lucide-react';
 import type { VocabCard } from '@/types';
+import { EXAMPLE_TRANSLATIONS } from '@/lib/example-translations-data';
 
 type QuizStep = 'meaning' | 'meaning-result' | 'example' | 'example-result';
 type SessionPhase = 'study' | 'tokoton-end';
@@ -47,50 +48,21 @@ function generateMeaningOptions(
   return shuffle([correct, ...unique.slice(0, 3)]);
 }
 
-/** Generate word options for fill-in-the-blank (example sentence) */
-function generateWordOptions(
+/** Generate translation options for example sentence quiz */
+function generateTranslationOptions(
   correctCard: VocabCard,
-  allCards: VocabCard[],
 ): string[] {
-  const correct = correctCard.word;
-  const sameCategory = allCards.filter(
-    c => c.word !== correct && c.category === correctCard.category
-  );
-  const sameDifficulty = allCards.filter(
-    c => c.word !== correct && Math.abs(c.difficulty - correctCard.difficulty) <= 1
-  );
-  const others = allCards.filter(c => c.word !== correct);
-
-  const pool = sameCategory.length >= 3 ? sameCategory :
-               sameDifficulty.length >= 3 ? sameDifficulty : others;
-  const shuffled = shuffle(pool);
-  const distractors = shuffled.slice(0, 3).map(c => c.word);
-
-  const unique = [...new Set(distractors)];
-  let i = 0;
-  while (unique.length < 3 && i < others.length) {
-    const val = others[i].word;
-    if (val !== correct && !unique.includes(val)) {
-      unique.push(val);
-    }
-    i++;
+  const entry = EXAMPLE_TRANSLATIONS[correctCard.word];
+  if (!entry) {
+    // Fallback: just show the correct answer with generic wrongs
+    return shuffle([
+      correctCard.meaning + 'に関する例文。',
+      correctCard.meaning + 'とは異なる意味。',
+      correctCard.meaning + 'の反対の意味。',
+      correctCard.meaning + 'を含む別の文。',
+    ]);
   }
-
-  return shuffle([correct, ...unique.slice(0, 3)]);
-}
-
-/** Replace the target word in the example sentence with a blank */
-function makeBlankSentence(example: string, word: string): string {
-  // Case-insensitive replace of the word (and common forms) with ___
-  const escaped = word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  // Match word with common suffixes (s, ed, ing, etc.)
-  const regex = new RegExp(`\\b${escaped}\\w*\\b`, 'gi');
-  const blanked = example.replace(regex, '______');
-  // If no match found (word form differs), just append blank hint
-  if (blanked === example) {
-    return example.replace(/\.$/, '') + ' (______)';
-  }
-  return blanked;
+  return shuffle([entry.correct, ...entry.wrong]);
 }
 
 export function VocabStudy() {
@@ -128,17 +100,10 @@ export function VocabStudy() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentIndex, allCards, dueCards, isTokoton]);
 
-  const wordOptions = useMemo(() => {
+  const translationOptions = useMemo(() => {
     const card = getCardForOptions();
     if (!card) return [];
-    return generateWordOptions(card, allCards);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentIndex, allCards, dueCards, isTokoton]);
-
-  const blankSentence = useMemo(() => {
-    const card = getCardForOptions();
-    if (!card) return '';
-    return makeBlankSentence(card.example, card.word);
+    return generateTranslationOptions(card);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentIndex, allCards, dueCards, isTokoton]);
 
@@ -167,12 +132,13 @@ export function VocabStudy() {
       setMeaningCorrect(correct);
       setStep('meaning-result');
     } else if (step === 'example') {
-      const correct = wordOptions[selected] === currentCard?.word;
+      const entry = EXAMPLE_TRANSLATIONS[currentCard?.word ?? ''];
+      const correct = entry ? translationOptions[selected] === entry.correct : false;
       setExampleCorrect(correct);
       setStep('example-result');
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selected, step, meaningOptions, wordOptions, currentCard]);
+  }, [selected, step, meaningOptions, translationOptions, currentCard]);
 
   const handleNext = useCallback(async () => {
     if (step === 'meaning-result') {
@@ -304,8 +270,10 @@ export function VocabStudy() {
   }
 
   // Get current options based on step
-  const options = (step === 'meaning' || step === 'meaning-result') ? meaningOptions : wordOptions;
-  const correctAnswer = (step === 'meaning' || step === 'meaning-result') ? (currentCard?.meaning ?? '') : (currentCard?.word ?? '');
+  const options = (step === 'meaning' || step === 'meaning-result') ? meaningOptions : translationOptions;
+  const correctAnswer = (step === 'meaning' || step === 'meaning-result')
+    ? (currentCard?.meaning ?? '')
+    : (EXAMPLE_TRANSLATIONS[currentCard?.word ?? '']?.correct ?? '');
   const isResultStep = step === 'meaning-result' || step === 'example-result';
   const isCorrectThisStep = step === 'meaning-result' ? meaningCorrect : exampleCorrect;
 
@@ -322,13 +290,12 @@ export function VocabStudy() {
             <h3 className="text-3xl font-bold mb-2">{currentCard?.word}</h3>
           ) : (
             <div className="mb-2">
-              <p className="text-sm text-gray-300 italic px-4">{blankSentence}</p>
-              <p className="text-xs text-gray-500 mt-2">（{currentCard?.meaning}）</p>
+              <p className="text-sm text-gray-300 italic px-4">{currentCard?.example}</p>
             </div>
           )}
 
           <p className="text-xs text-gray-500 mb-4">
-            {step === 'meaning' ? '意味を選んでください' : '空欄に入る単語は？'}
+            {step === 'meaning' ? '意味を選んでください' : '正しい和訳を選んでください'}
           </p>
 
           <div className="w-full max-w-sm space-y-2">
@@ -450,9 +417,9 @@ export function VocabStudy() {
           </>
         ) : (
           <>
-            <p className="text-base text-gray-300 dark:text-gray-300 italic mb-2">{blankSentence}</p>
-            <p className="text-xs text-gray-500 mb-1">（{currentCard?.meaning}）</p>
-            <p className="text-sm text-gray-500 mt-2">空欄に入る単語は？</p>
+            <p className="text-xs text-gray-400 mb-2">{currentCard?.word}（{currentCard?.meaning}）</p>
+            <p className="text-base text-gray-700 dark:text-gray-300 italic mb-2">{currentCard?.example}</p>
+            <p className="text-sm text-gray-500 mt-2">正しい和訳を選んでください</p>
           </>
         )}
 
