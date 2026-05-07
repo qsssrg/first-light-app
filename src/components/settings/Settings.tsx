@@ -43,6 +43,42 @@ export function Settings() {
         </div>
       </div>
 
+      {/* 1. 推しメンバー */}
+      <OshiMemberSection currentOshi={profile.settings.oshiMemberId} />
+
+      {/* 2. プロフィール */}
+      <Card className="p-4">
+        <h3 className="text-sm font-medium mb-3">プロフィール</h3>
+        <div className="flex items-center gap-4">
+          <div className="flex-1 text-xs text-gray-600 dark:text-gray-400 space-y-1">
+            <p>名前: {profile.name || getPlayerName() || '未設定'}</p>
+            <p>タイプ: {profile.learnerType}</p>
+            <p>開始日: {new Date(profile.createdAt).toLocaleDateString('ja-JP')}</p>
+          </div>
+          <div className="w-16 h-16 rounded-full bg-gradient-to-br from-indigo-500/20 to-purple-500/20 border border-indigo-400/30 flex items-center justify-center shrink-0">
+            <svg viewBox="0 0 64 64" className="w-10 h-10 text-indigo-300/70" fill="currentColor">
+              <circle cx="32" cy="20" r="10" />
+              <path d="M16 52c0-8.8 7.2-16 16-16s16 7.2 16 16" />
+            </svg>
+          </div>
+        </div>
+        <div className="flex gap-2 mt-3">
+          <a href="#name-change" className="flex-1">
+            <Button variant="outline" size="sm" className="w-full text-xs"><UserPen className="w-3 h-3 mr-1" />名前を変更</Button>
+          </a>
+          <a href="#re-assessment" className="flex-1">
+            <Button variant="outline" size="sm" className="w-full text-xs"><RefreshCw className="w-3 h-3 mr-1" />タイプ再診断</Button>
+          </a>
+        </div>
+      </Card>
+
+      {/* 3. 学習目標 */}
+      <GoalSettingSection />
+
+      {/* 4. ストーリー回想 */}
+      <StoryRecollectionSection />
+
+      {/* 5. トグル設定 */}
       <Card className="divide-y divide-gray-100 dark:divide-gray-800">
         <SettingRow
           label="ダークモード"
@@ -77,42 +113,13 @@ export function Settings() {
         <PsychologyEventToggle />
       </Card>
 
-      {/* Profile info */}
-      <Card className="p-4">
-        <h3 className="text-sm font-medium mb-3">プロフィール</h3>
-        <div className="flex items-center gap-4">
-          <div className="flex-1 text-xs text-gray-600 dark:text-gray-400 space-y-1">
-            <p>名前: {profile.name || getPlayerName() || '未設定'}</p>
-            <p>タイプ: {profile.learnerType}</p>
-            <p>開始日: {new Date(profile.createdAt).toLocaleDateString('ja-JP')}</p>
-          </div>
-          <div className="w-16 h-16 rounded-full bg-gradient-to-br from-indigo-500/20 to-purple-500/20 border border-indigo-400/30 flex items-center justify-center shrink-0">
-            <svg viewBox="0 0 64 64" className="w-10 h-10 text-indigo-300/70" fill="currentColor">
-              <circle cx="32" cy="20" r="10" />
-              <path d="M16 52c0-8.8 7.2-16 16-16s16 7.2 16 16" />
-            </svg>
-          </div>
-        </div>
-        <div className="flex gap-2 mt-3">
-          <a href="#name-change" className="flex-1">
-            <Button variant="outline" size="sm" className="w-full text-xs"><UserPen className="w-3 h-3 mr-1" />名前を変更</Button>
-          </a>
-          <a href="#re-assessment" className="flex-1">
-            <Button variant="outline" size="sm" className="w-full text-xs"><RefreshCw className="w-3 h-3 mr-1" />タイプ再診断</Button>
-          </a>
-        </div>
-      </Card>
-
-      <GoalSettingSection />
-
+      {/* 6. APIキー */}
       <ApiKeySection />
 
-      <OshiMemberSection currentOshi={profile.settings.oshiMemberId} />
-
-      <StoryRecollectionSection />
-
+      {/* 7. データ管理 */}
       <BackupSection />
 
+      {/* 8. データリセット */}
       <DataResetSection />
     </div>
   );
