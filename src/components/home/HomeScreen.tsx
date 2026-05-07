@@ -248,7 +248,7 @@ export function HomeScreen() {
       </Link>
 
       {/* Members row */}
-      <div className="flex justify-around px-2">
+      <div className="flex justify-around px-2 mt-2">
         {MEMBERS.map(member => (
           <Link key={member.id} href={`/members?id=${member.id}`}>
             <MemberAvatar member={member} size="md" showName />
