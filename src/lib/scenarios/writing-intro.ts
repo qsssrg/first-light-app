@@ -20,7 +20,7 @@ const WRITING_INTROS: Scenario[] = [
     lines: [
       { type: 'dialog', character: 'yuuki', text: '{playerName}…やばいことになった…', expression: 'default' },
       { type: 'dialog', character: 'kai', text: '何があった。', expression: 'serious' },
-      { type: 'dialog', character: 'yuuki', text: 'マネージャーのクライアントに「英語できます」って言っちゃって…', expression: 'surprised' },
+      { type: 'dialog', character: 'yuuki', text: 'クライアントの偉い人に「英語できます」って言っちゃって…', expression: 'surprised' },
       { type: 'dialog', character: 'yuuki', text: '…そしたらその人の息子さんの英語の宿題を手伝うことに…', expression: 'default' },
       { type: 'dialog', character: 'ren', text: '…自業自得だろ。', expression: 'default' },
       { type: 'dialog', character: 'haruto', text: '…ユウキくんらしいですね。', expression: 'default' },
