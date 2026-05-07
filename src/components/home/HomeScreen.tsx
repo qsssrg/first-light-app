@@ -227,6 +227,9 @@ export function HomeScreen() {
               <div className="flex-1 min-w-0 pt-1">
                 <p className="text-xs text-gray-500 mb-1">カイ</p>
                 <TypewriterText text={`ビッグニュースだ！ ${getPlayerName() || 'マネージャー'}、すぐにオフィスに来て！`} className="text-sm font-bold text-purple-700 dark:text-purple-300 flex-1" />
+                <div className="mt-2">
+                  <span className="inline-block px-4 py-1.5 rounded-full bg-purple-600 text-white text-xs font-bold tracking-wider shadow-md">GO →</span>
+                </div>
               </div>
             </div>
           </Card>
