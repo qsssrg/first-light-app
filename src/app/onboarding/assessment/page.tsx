@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { VNEngine } from '@/components/vn/VNEngine';
 import { preAssessmentScenario, postAssessmentScenario } from '@/lib/scenarios/opening';
-import { Onboarding } from '@/components/home/Onboarding';
+import { AdaptiveAssessment } from '@/components/home/AdaptiveAssessment';
 
 export default function AssessmentPage() {
   const [phase, setPhase] = useState<'pre-story' | 'assessment' | 'result'>('pre-story');
@@ -22,7 +22,7 @@ export default function AssessmentPage() {
 
   if (phase === 'assessment') {
     return (
-      <Onboarding
+      <AdaptiveAssessment
         onComplete={() => setPhase('result')}
       />
     );
