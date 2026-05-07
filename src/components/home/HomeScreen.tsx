@@ -73,8 +73,10 @@ function useGreeting(dueCardCount: number, totalXp: number): { member: ReturnTyp
           { id: 'kai', msg: `${name}、まだ起きてるのか。${dueCardCount}語の学習が待ってる。少しだけやって寝よう。` },
         ],
         earlymorning: [
-          { id: 'kai', msg: `${name}、朝早いな。${dueCardCount}語の学習が待ってる。朝の頭はよく回るぞ。` },
-          { id: 'sora', msg: `早起きですね、${name}さん。${dueCardCount}語、朝のうちに片付けちゃいましょう。` },
+          { id: 'kai', msg: `おはよう、${name}。朝の頭はよく回る。${dueCardCount}語、一気に片付けよう。` },
+          { id: 'sora', msg: `おはようございます…${name}さん。${dueCardCount}語ありますね。静かな朝に一緒にやりましょう。` },
+          { id: 'yuuki', msg: `おはよ〜${name}！ まだ眠いけど…${dueCardCount}語やっちゃおう！` },
+          { id: 'ren', msg: `…ん、${name}か。俺もまだ半分寝てるけど、${dueCardCount}語やるか。` },
         ],
         morning: [
           { id: 'haruto', msg: `おはよう、${name}さん！ ${dueCardCount}語の学習が溜まってるよ。一緒にやろう。` },
@@ -101,8 +103,10 @@ function useGreeting(dueCardCount: number, totalXp: number): { member: ReturnTyp
           { id: 'ren', msg: `${name}…あと${dueCardCount}語か。サクッと終わらせて寝ようぜ。` },
         ],
         earlymorning: [
-          { id: 'haruto', msg: `早起きだね、${name}さん。あと${dueCardCount}語、朝のうちにやっちゃおう。` },
-          { id: 'yuuki', msg: `${name}、早起き！ あと${dueCardCount}語だよ！ サクッとやろ！` },
+          { id: 'haruto', msg: `おはよう、${name}さん。あと${dueCardCount}語、朝の空気の中でやると気持ちいいよ。` },
+          { id: 'yuuki', msg: `おはよ〜${name}！ あと${dueCardCount}語！ 朝からサクッと行こ！` },
+          { id: 'sora', msg: `おはようございます、${name}さん…。あと${dueCardCount}語ですね。僕もまだ眠いけど頑張りましょう。` },
+          { id: 'ren', msg: `${name}…おはよう。あと${dueCardCount}語か。コーヒー飲みながらやるか。` },
         ],
         morning: [
           { id: 'sora', msg: `おはようございます、${name}さん。${dueCardCount}語の学習があります。` },
@@ -128,8 +132,9 @@ function useGreeting(dueCardCount: number, totalXp: number): { member: ReturnTyp
           { id: 'kai', msg: `${name}、夜中に始めるのか…。まぁ、付き合うよ。チャプターを進めてみよう。` },
         ],
         earlymorning: [
-          { id: 'kai', msg: `${name}、早起きだな。朝イチでチャプターを進めよう。頭が冴えてるうちに。` },
-          { id: 'yuuki', msg: `${name}、早起き偉い！ 朝からチャプター行っちゃおう！` },
+          { id: 'kai', msg: `おはよう、${name}。朝イチでチャプターを進めよう。頭が冴えてるうちに。` },
+          { id: 'yuuki', msg: `おはよ〜${name}！ 朝からチャプター行っちゃおう！ まだ眠いけど…笑` },
+          { id: 'haruto', msg: `おはよう、${name}さん。朝の時間に始められるのは素敵ですね。一緒にやりましょう。` },
         ],
         morning: [
           { id: 'kai', msg: `おはよう、${name}。まだ始めたばかりだな。チャプターを進めてみよう。` },
@@ -154,8 +159,10 @@ function useGreeting(dueCardCount: number, totalXp: number): { member: ReturnTyp
           { id: 'kai', msg: `${name}、夜中まで頑張ってるのか。…俺も付き合うよ。` },
         ],
         earlymorning: [
-          { id: 'sora', msg: `早起きですね、${name}さん。朝の静かな時間に新しい単語…いいですね。` },
-          { id: 'ren', msg: `${name}、朝早いな。…嫌いじゃないぜ、そういうの。新しい単語やるか。` },
+          { id: 'sora', msg: `おはようございます、${name}さん…。朝の静かな時間に新しい単語、いいですね。` },
+          { id: 'ren', msg: `…おはよう、${name}。まだ眠いけど、嫌いじゃないぜこの時間。新しい単語やるか。` },
+          { id: 'haruto', msg: `おはよう、${name}さん。朝の空気って、言葉がよく染み込む気がします。新しい単語に出会いましょう。` },
+          { id: 'kai', msg: `おはよう、${name}。こんな時間からやるのか…。さすがだな。単語帳を開こう。` },
         ],
         morning: [
           { id: 'haruto', msg: `おはよう、${name}さん。新しい単語に出会いませんか？` },
