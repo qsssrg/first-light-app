@@ -24,6 +24,7 @@ import { shouldExcludeWord } from '@/lib/vocab-source';
 import { useProfile } from '@/lib/hooks';
 import { ENGLISH_DEFINITIONS } from '@/lib/english-definitions-data';
 import { addNewVocabCards } from '@/lib/vocab-add';
+import { TypewriterText } from '@/components/common/TypewriterText';
 import { addAffinityPoints } from '@/lib/affinity';
 import { AFFINITY_LABELS } from '@/lib/db';
 import { getMember } from '@/lib/members';
@@ -178,10 +179,45 @@ function pickExampleVariant(word: string): { example: string; correct: string; w
   return null;
 }
 
+/** Negate an English sentence (simple heuristic) */
+function negateSentence(sentence: string): string {
+  // "He/She/It verbs" → "He/She/It doesn't verb"
+  const s = sentence.replace(/\.$/, '');
+  if (/\b(is|are|was|were)\b/i.test(s)) {
+    return s.replace(/\b(is|are|was|were)\b/i, (m) => {
+      const neg: Record<string, string> = { is: 'is not', are: 'are not', was: 'was not', were: 'were not',
+        Is: 'Is not', Are: 'Are not', Was: 'Was not', Were: 'Were not' };
+      return neg[m] ?? m + ' not';
+    }) + '.';
+  }
+  if (/\b(has|have|had)\b/i.test(s)) {
+    return s.replace(/\b(has|have|had)\b/i, (m) => m + ' not') + '.';
+  }
+  // Simple past/present: insert "did not" + base form
+  const words = s.split(' ');
+  if (words.length >= 2) {
+    // Insert "did not" after subject (first word)
+    return words[0] + " didn't " + words.slice(1).join(' ') + '.';
+  }
+  return 'not ' + s + '.';
+}
+
+/** Negate a Japanese sentence (simple heuristic) */
+function negateJapanese(sentence: string): string {
+  return sentence
+    .replace(/した。$/, 'しなかった。')
+    .replace(/する。$/, 'しない。')
+    .replace(/ている。$/, 'ていない。')
+    .replace(/である。$/, 'ではない。')
+    .replace(/できる。$/, 'できない。')
+    .replace(/た。$/, 'なかった。')
+    .replace(/。$/, 'のではない。');
+}
+
 /** Generate translation options for example sentence quiz */
 function generateTranslationOptions(
   correctCard: VocabCard,
-): { options: string[]; correctAnswer: string; exampleOverride?: string } {
+): { options: string[]; correctAnswer: string; exampleOverride?: string; isNegated?: boolean } {
   const variant = pickExampleVariant(correctCard.word);
   if (!variant) {
     return {
@@ -194,6 +230,21 @@ function generateTranslationOptions(
       correctAnswer: correctCard.meaning + 'に関する例文。',
     };
   }
+
+  // 30% chance of negation
+  const shouldNegate = Math.random() < 0.3;
+  if (shouldNegate) {
+    const negatedExample = negateSentence(variant.example || correctCard.example);
+    const negatedCorrect = negateJapanese(variant.correct);
+    const negatedWrong = variant.wrong.slice(0, 3).map(w => negateJapanese(w));
+    return {
+      options: shuffle([negatedCorrect, ...negatedWrong]),
+      correctAnswer: negatedCorrect,
+      exampleOverride: negatedExample,
+      isNegated: true,
+    };
+  }
+
   return {
     options: shuffle([variant.correct, ...variant.wrong.slice(0, 3)]),
     correctAnswer: variant.correct,
@@ -610,7 +661,7 @@ export function VocabStudy() {
                   </div>
                   <div className="flex-1">
                     <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">{encouragement.member.nameJa}</p>
-                    <p className="text-sm font-medium text-gray-800 dark:text-gray-100">{encouragement.message}</p>
+                    <TypewriterText text={encouragement.message} speed={40} className="text-sm font-medium text-gray-800 dark:text-gray-100" />
                   </div>
                 </div>
               </div>
