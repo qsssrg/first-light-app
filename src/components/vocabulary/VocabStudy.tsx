@@ -597,185 +597,229 @@ export function VocabStudy() {
     );
   }
 
-  // ─── 結果表示 (トコトンモード含む) ───
+  // ─── 結果表示 (ゲーム風) ───
   if (isResultStep) {
     return (
-      <div className="space-y-4 px-4">
+      <div className="min-h-[85vh] flex flex-col px-4 py-3">
         {/* Progress */}
         {!isTokoton && (
-          <div className="space-y-1">
-            <div className="flex justify-between text-xs text-gray-500">
-              <span>{currentIndex + 1} / {totalCards}</span>
-              {combo > 0 && <span className="text-orange-500 font-medium">🔥 {combo} combo</span>}
+          <div className="mb-4">
+            <div className="flex items-center justify-between mb-1.5">
+              <span className="text-xs font-bold tracking-wider text-gray-400">RESULT</span>
+              <div className="flex items-center gap-3">
+                {combo > 0 && <span className="text-xs font-black text-orange-400">🔥 {combo}</span>}
+                <span className="text-xs font-medium text-gray-400">{currentIndex + 1} / {totalCards}</span>
+              </div>
             </div>
-            <Progress value={((currentIndex + 1) / totalCards) * 100} className="h-1.5" />
+            <div className="h-2 bg-gray-800/50 rounded-full overflow-hidden">
+              <div className="h-full rounded-full bg-gradient-to-r from-indigo-500 via-purple-500 to-fuchsia-500 transition-all duration-500" style={{ width: `${((currentIndex + 1) / totalCards) * 100}%` }} />
+            </div>
           </div>
         )}
         {isTokoton && (
-          <div className="text-center">
-            <span className="text-xs text-orange-400 font-mono">🔥 {combo}</span>
+          <div className="text-center mb-4">
+            <span className="text-sm font-black text-orange-400">🔥 {combo}</span>
           </div>
         )}
 
-        <Card className={`p-6 text-center ${isCorrectThisStep ? 'border-green-500/50' : 'border-red-500/50'}`}>
-          {/* Result header */}
-          <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full mb-4 ${
+        {/* Result card */}
+        <div className={`rounded-2xl p-6 text-center border-2 backdrop-blur-md shadow-xl ${
+          isCorrectThisStep
+            ? 'border-emerald-400/50 bg-emerald-500/5 shadow-emerald-500/10'
+            : 'border-red-400/50 bg-red-500/5 shadow-red-500/10'
+        }`}>
+          {/* Big result icon */}
+          <div className={`inline-flex items-center justify-center w-16 h-16 rounded-full mb-4 ${
             isCorrectThisStep
-              ? 'bg-green-500/10 text-green-400'
-              : 'bg-red-500/10 text-red-400'
+              ? 'bg-emerald-500/20 text-emerald-400'
+              : 'bg-red-500/20 text-red-400'
           }`}>
-            {isCorrectThisStep ? <Check className="w-5 h-5" /> : <X className="w-5 h-5" />}
-            <span className="font-bold">{isCorrectThisStep ? '正解！' : '不正解'}</span>
+            {isCorrectThisStep ? <Check className="w-8 h-8" /> : <X className="w-8 h-8" />}
           </div>
+          <p className={`text-lg font-black mb-4 ${isCorrectThisStep ? 'text-emerald-400' : 'text-red-400'}`}>
+            {isCorrectThisStep ? 'Correct!' : 'Incorrect'}
+          </p>
 
           {/* Word info */}
           <div className="flex items-center justify-center gap-2 mb-1">
-            <h3 className="text-2xl font-bold">{currentCard?.word}</h3>
+            <h3 className="text-2xl font-black tracking-tight">{currentCard?.word}</h3>
             {currentCard?.word && <SpeakButton text={currentCard.word} />}
           </div>
-          <p className="text-lg text-green-400 font-medium mb-2">{currentCard?.meaning}</p>
+          <p className="text-base text-indigo-300 font-medium mb-3">{currentCard?.meaning}</p>
 
-          {step === 'example-result' && (
-            <div className="flex items-center justify-center gap-2 mb-2">
+          {(step === 'example-result' || step === 'cloze-result' || step === 'word-to-def-result') && (
+            <div className="flex items-center justify-center gap-2 mb-3 px-2">
               <p className="text-sm text-gray-400 italic">{displayExample}</p>
               {displayExample && <SpeakButton text={displayExample} className="shrink-0" />}
             </div>
           )}
 
-          {/* Show selected answer and correct answer */}
+          {/* Selected vs correct */}
           {selected !== null && (
-            <div className="mt-3 space-y-2 text-left">
+            <div className="mt-3 space-y-2 text-left px-2">
               {!isCorrectThisStep && (
-                <p className="text-sm text-red-400 flex items-start gap-2">
-                  <X className="w-4 h-4 shrink-0 mt-0.5" />
-                  <span>{options[selected]}</span>
-                </p>
+                <div className="flex items-start gap-2 px-3 py-2 rounded-lg bg-red-500/10">
+                  <X className="w-4 h-4 text-red-400 shrink-0 mt-0.5" />
+                  <span className="text-sm text-red-300">{options[selected]}</span>
+                </div>
               )}
-              <p className="text-sm text-green-400 flex items-start gap-2">
-                <Check className="w-4 h-4 shrink-0 mt-0.5" />
-                <span>{correctAnswer}</span>
-              </p>
+              <div className="flex items-start gap-2 px-3 py-2 rounded-lg bg-emerald-500/10">
+                <Check className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                <span className="text-sm text-emerald-300">{correctAnswer}</span>
+              </div>
             </div>
           )}
+        </div>
 
-          {/* Step indicator */}
-          <div className="flex justify-center gap-2 mt-4">
-            <div className={`w-2 h-2 rounded-full ${step === 'meaning-result' ? 'bg-white' : 'bg-gray-600'}`} />
-            <div className={`w-2 h-2 rounded-full ${step === 'example-result' ? 'bg-white' : 'bg-gray-600'}`} />
-          </div>
-        </Card>
-
-        <Button onClick={handleNext} className="w-full">
-          {step === 'meaning-result' ? '例文クイズへ'
-            : step === 'def-to-word-result' ? 'Definition Quiz →'
-            : step === 'word-to-def-result' ? 'Cloze Quiz →'
-            : '次の問題'}
-        </Button>
+        {/* Next button */}
+        <div className="mt-auto pt-4 pb-2">
+          <button
+            onClick={handleNext}
+            className="w-full py-3.5 rounded-xl text-sm font-bold tracking-wide bg-gradient-to-r from-indigo-500 via-purple-500 to-fuchsia-500 text-white shadow-lg shadow-purple-500/30 hover:shadow-xl active:scale-[0.98] transition-all"
+          >
+            {step === 'meaning-result' ? '例文クイズへ →'
+              : step === 'def-to-word-result' ? 'Definition Quiz →'
+              : step === 'word-to-def-result' ? 'Cloze Quiz →'
+              : '次の問題 →'}
+          </button>
+        </div>
       </div>
     );
   }
 
-  // ─── 通常モード: 4択クイズ UI ───
+  // ─── 通常モード: 4択クイズ UI（ゲーム風） ───
+  const stepLabels: Record<string, string> = {
+    meaning: 'STEP 1',
+    example: 'STEP 2',
+    'def-to-word': 'STEP 1',
+    'word-to-def': 'STEP 2',
+    cloze: 'STEP 3',
+  };
+
   return (
-    <div className="space-y-4 px-4">
+    <div className="min-h-[85vh] flex flex-col px-4 py-3">
       {/* Game effects overlay */}
       <ComboFlash combo={combo} />
       <XpFloat xp={lastXp} trigger={xpTrigger} />
       <TokotonActivation active={tokotonJustActivated} />
 
-      {/* Progress bar */}
-      <div className="space-y-1">
-        <div className="flex justify-between text-xs text-gray-500">
-          <span>{currentIndex + 1} / {totalCards}</span>
-          {combo > 0 && <span className="text-orange-500 font-medium">🔥 {combo} combo</span>}
+      {/* Progress header */}
+      <div className="mb-4">
+        <div className="flex items-center justify-between mb-1.5">
+          <span className="text-xs font-bold tracking-wider text-indigo-400">{stepLabels[step] ?? ''}</span>
+          <div className="flex items-center gap-3">
+            {combo > 0 && (
+              <span className="text-xs font-black text-orange-400 animate-pulse">🔥 {combo}</span>
+            )}
+            <span className="text-xs font-medium text-gray-400">{currentIndex + 1} / {totalCards}</span>
+          </div>
         </div>
-        <Progress value={((currentIndex + 1) / totalCards) * 100} className="h-1.5" />
+        <div className="h-2 bg-gray-800/50 rounded-full overflow-hidden">
+          <div
+            className="h-full rounded-full bg-gradient-to-r from-indigo-500 via-purple-500 to-fuchsia-500 transition-all duration-500"
+            style={{ width: `${((currentIndex + 1) / totalCards) * 100}%` }}
+          />
+        </div>
       </div>
 
-      {/* Question */}
-      <Card className="p-6 text-center">
+      {/* Question card — glassmorphism */}
+      <div className="rounded-2xl bg-white/5 dark:bg-white/5 backdrop-blur-md border border-white/10 p-6 text-center shadow-xl mb-4">
         {step === 'def-to-word' ? (
           <>
-            <p className="text-xs text-gray-400 mb-2">Definition → Word</p>
-            <p className="text-base text-gray-700 dark:text-gray-300 italic mb-2">
+            <p className="text-[10px] font-bold tracking-widest text-purple-400 uppercase mb-3">Definition → Word</p>
+            <p className="text-base leading-relaxed text-gray-200 italic px-2">
               {ENGLISH_DEFINITIONS[currentCard?.word ?? '']?.definition ?? currentCard?.meaning}
             </p>
-            <p className="text-sm text-gray-500 mt-3">Which word matches this definition?</p>
+            <p className="text-xs text-gray-500 mt-4">Which word matches this definition?</p>
           </>
         ) : step === 'word-to-def' ? (
           <>
-            <p className="text-xs text-gray-400 mb-2">Word → Definition</p>
+            <p className="text-[10px] font-bold tracking-widest text-purple-400 uppercase mb-3">Word → Definition</p>
             <div className="flex items-center justify-center gap-2 mb-1">
-              <h3 className="text-2xl font-bold">{currentCard?.word}</h3>
+              <h3 className="text-3xl font-black tracking-tight">{currentCard?.word}</h3>
               {currentCard?.word && <SpeakButton text={currentCard.word} />}
             </div>
-            <p className="text-sm text-gray-500 mt-3">Choose the correct definition.</p>
+            <p className="text-xs text-gray-500 mt-3">Choose the correct definition.</p>
           </>
         ) : step === 'cloze' ? (
           <>
-            <p className="text-xs text-gray-400 mb-2">Fill in the blank</p>
-            <p className="text-base text-gray-700 dark:text-gray-300 italic mb-2">{engCloze.sentence}</p>
-            <p className="text-sm text-gray-500 mt-3">Which word completes the sentence?</p>
+            <p className="text-[10px] font-bold tracking-widest text-purple-400 uppercase mb-3">Fill in the blank</p>
+            <p className="text-base leading-relaxed text-gray-200 italic px-2">{engCloze.sentence}</p>
+            <p className="text-xs text-gray-500 mt-4">Which word completes the sentence?</p>
           </>
         ) : step === 'meaning' ? (
           <>
-            <p className="text-xs text-gray-400 mb-2">{currentCard?.category}</p>
-            <div className="flex items-center justify-center gap-2 mb-1">
-              <h3 className="text-2xl font-bold">{currentCard?.word}</h3>
+            <p className="text-[10px] font-bold tracking-widest text-indigo-400 uppercase mb-3">{currentCard?.category}</p>
+            <div className="flex items-center justify-center gap-2">
+              <h3 className="text-3xl font-black tracking-tight">{currentCard?.word}</h3>
               {currentCard?.word && <SpeakButton text={currentCard.word} />}
             </div>
-            <p className="text-sm text-gray-500 mt-3">この単語の意味は？</p>
+            <p className="text-xs text-gray-500 mt-4">この単語の意味は？</p>
           </>
         ) : (
           <>
             <p className="text-xs text-gray-400 mb-2">{currentCard?.word}（{currentCard?.meaning}）</p>
-            <div className="flex items-center justify-center gap-2 mb-2">
-              <p className="text-base text-gray-700 dark:text-gray-300 italic">{displayExample}</p>
+            <div className="flex items-center justify-center gap-2 mb-2 px-2">
+              <p className="text-base leading-relaxed text-gray-200 italic">{displayExample}</p>
               {displayExample && <SpeakButton text={displayExample} className="shrink-0" />}
             </div>
-            <p className="text-sm text-gray-500 mt-2">正しい和訳を選んでください</p>
+            <p className="text-xs text-gray-500 mt-3">正しい和訳を選んでください</p>
           </>
         )}
 
-        {/* Step indicator */}
-        <div className="flex justify-center gap-2 mt-3">
-          <div className={`w-2 h-2 rounded-full ${step === 'meaning' ? 'bg-white' : 'bg-gray-600'}`} />
-          <div className={`w-2 h-2 rounded-full ${step === 'example' ? 'bg-white' : 'bg-gray-600'}`} />
+        {/* Step dots */}
+        <div className="flex justify-center gap-1.5 mt-4">
+          {(isEnglishMode ? ['def-to-word', 'word-to-def', 'cloze'] : ['meaning', 'example']).map((s, i) => (
+            <div key={i} className={`w-1.5 h-1.5 rounded-full transition-colors ${step === s ? 'bg-indigo-400' : 'bg-gray-700'}`} />
+          ))}
         </div>
-      </Card>
+      </div>
 
-      {/* Options */}
-      <div className="space-y-2">
+      {/* Options — game-style buttons */}
+      <div className="space-y-2.5 flex-1">
         {options.map((opt, i) => (
           <button
             key={`${currentIndex}-${step}-${i}`}
             onClick={() => handleSelect(i)}
-            className={`w-full text-left px-4 py-3 rounded-lg border transition-colors text-sm ${
+            className={`w-full text-left px-5 py-3.5 rounded-xl border-2 transition-all duration-200 text-sm font-medium ${
               selected === i
-                ? 'border-indigo-500 bg-indigo-500/10'
-                : 'border-gray-200 dark:border-gray-700 hover:border-gray-400 dark:hover:border-gray-500'
+                ? 'border-indigo-400 bg-indigo-500/20 text-white shadow-lg shadow-indigo-500/20 scale-[1.02]'
+                : 'border-gray-700/50 bg-gray-800/30 hover:border-gray-500 hover:bg-gray-800/50 text-gray-200 active:scale-[0.98]'
             }`}
           >
-            {opt}
+            <span className="inline-flex items-center gap-2.5">
+              <span className={`w-6 h-6 rounded-full border-2 flex items-center justify-center text-xs font-bold shrink-0 ${
+                selected === i ? 'border-indigo-400 bg-indigo-500 text-white' : 'border-gray-600 text-gray-500'
+              }`}>
+                {String.fromCharCode(65 + i)}
+              </span>
+              {opt}
+            </span>
           </button>
         ))}
       </div>
 
-      {/* Confirm button */}
-      <Button
-        onClick={handleConfirm}
-        disabled={selected === null}
-        className="w-full"
-      >
-        決定
-      </Button>
+      {/* Confirm button — gradient */}
+      <div className="mt-4 pb-2">
+        <button
+          onClick={handleConfirm}
+          disabled={selected === null}
+          className={`w-full py-3.5 rounded-xl text-sm font-bold tracking-wide transition-all duration-200 ${
+            selected !== null
+              ? 'bg-gradient-to-r from-indigo-500 via-purple-500 to-fuchsia-500 text-white shadow-lg shadow-purple-500/30 hover:shadow-xl hover:shadow-purple-500/40 active:scale-[0.98]'
+              : 'bg-gray-800 text-gray-600 cursor-not-allowed'
+          }`}
+        >
+          決定
+        </button>
 
-      {/* XP indicator */}
-      {sessionXp > 0 && (
-        <p className="text-center text-sm text-gray-500">
-          +{sessionXp} XP
-        </p>
-      )}
+        {/* XP indicator */}
+        {sessionXp > 0 && (
+          <p className="text-center text-xs text-indigo-400/70 font-medium mt-2">
+            +{sessionXp} XP
+          </p>
+        )}
+      </div>
     </div>
   );
 }
