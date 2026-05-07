@@ -97,29 +97,37 @@ export function Dashboard() {
           milestoneProgress = Math.round((above80 / axes.length) * 100);
         }
 
-        // Action message
+        // Action message — member-specific voice
         const pName = getPlayerName() || 'マネージャー';
+        const voice: Record<string, { start: string; chapter: string; weak: (axis: string) => string; good: string }> = {
+          kai: { start: `${pName}、まずは単語で基本を固めよう。毎日少しずつ、それが一番のコツだ。`, chapter: `${pName}、チャプターを進めてXPを貯めよう。続けることが一番大事だ。`, weak: (a) => `${pName}、「${a}」を集中的に鍛えると近道だ。俺が見てるから安心しろ。`, good: `${pName}、この調子だ。バランスよく全スキルを伸ばしていこう。` },
+          yuuki: { start: `${pName}〜！ まずは単語から始めよう！ 楽しくやろ〜！`, chapter: `${pName}、チャプター進めよ〜！ XP貯まるの楽しいよ！`, weak: (a) => `${pName}〜、「${a}」一緒に頑張ろ！ オレが応援するから！`, good: `${pName}、すごいじゃん！ この調子で行こ〜！` },
+          haruto: { start: `${pName}さん、まずは単語から始めましょう。一つひとつ、大切に覚えていきたいです。`, chapter: `${pName}さん、チャプターを進めませんか。新しい言葉に出会えますよ。`, weak: (a) => `${pName}さん、「${a}」を一緒に頑張りましょう。僕も得意じゃないんです…。`, good: `${pName}さん、着実に成長してますね。僕も嬉しいです。` },
+          ren: { start: `…${pName}、まずは単語からだな。基礎は大事だ。`, chapter: `${pName}、チャプター進めるか。XPも貯まるしな。`, weak: (a) => `…${pName}、「${a}」か。俺と一緒にやるか。`, good: `…${pName}、いい感じだな。このまま続けてくれ。` },
+          sora: { start: `${pName}さん、単語から始めましょう。僕と一緒に一歩ずつ。`, chapter: `${pName}さん、チャプターを読み進めませんか。`, weak: (a) => `${pName}さん、「${a}」を一緒に学びましょう。本にもよく出てくる分野です。`, good: `${pName}さん、順調ですね。今日も一緒に頑張りましょう。` },
+        };
+        const v = voice[guideMember.id] ?? voice.kai;
         let actionMessage: string;
         let actionLabel: string;
         let actionHref: string;
 
         if (totalSessions === 0 && masteredCards === 0) {
-          actionMessage = `${pName}、まずは単語帳で基本の単語を覚えよう。毎日少しずつやるのがコツだ。`;
+          actionMessage = v.start;
           actionLabel = '単語学習を始める';
-          actionHref = '/vocabulary';
+          actionHref = '/vocab-study';
         } else if (totalSessions < 5) {
-          actionMessage = `${pName}、チャプターを進めてXPを貯めよう。続けることが一番大事だ。`;
+          actionMessage = v.chapter;
           actionLabel = 'チャプターに挑戦';
           actionHref = '/chapters';
         } else if (weakest && weakest[1] < 40) {
-          actionMessage = `${pName}、${weakMember?.nameJa || ''}の担当分野「${AXIS_LABELS[weakest[0]]}」を集中的に鍛えると近道だ。`;
+          actionMessage = v.weak(AXIS_LABELS[weakest[0]]);
           actionLabel = `${AXIS_LABELS[weakest[0]]}を強化する`;
-          actionHref = weakest[0] === 'vocabulary' ? '/vocabulary' :
+          actionHref = weakest[0] === 'vocabulary' ? '/vocab-study' :
                        weakest[0] === 'writing' ? '/writing-practice' :
                        weakest[0] === 'listening' ? '/listening' :
                        '/chapters';
         } else {
-          actionMessage = `${pName}、この調子でバランスよく全スキルを伸ばしていこう。`;
+          actionMessage = v.good;
           actionLabel = '学習を続ける';
           actionHref = '/chapters';
         }
@@ -386,8 +394,8 @@ export function Dashboard() {
               {weeks.length > 1 && <span>{weeks[weeks.length - 1][0].slice(5)}</span>}
             </div>
             {/* Growth message */}
-            <div className="mt-3 bg-gray-800/50 rounded-lg p-2">
-              <p className="text-xs text-gray-400">
+            <div className="mt-3 bg-gray-100 dark:bg-gray-800 rounded-lg p-2.5">
+              <p className="text-xs text-gray-700 dark:text-gray-200 font-medium">
                 学習セッション: {sessions.length}回 / 習得単語: {masteredCards}語 / 累計XP: {profile.totalXp.toLocaleString()}
               </p>
             </div>
@@ -408,7 +416,7 @@ export function Dashboard() {
                   {new Date(session.date).toLocaleDateString('ja-JP', { month: 'numeric', day: 'numeric' })} {new Date(session.date).toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' })}
                 </span>
                 <span>{AXIS_LABELS[session.axis]}</span>
-                <span className="text-green-600">+{session.xpEarned} XP</span>
+                <span className="text-green-600 font-mono w-16 text-right inline-block">+{session.xpEarned} XP</span>
               </div>
             ))}
           </div>
