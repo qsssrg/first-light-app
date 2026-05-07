@@ -326,10 +326,7 @@ export function HomeScreen() {
               <Sparkles className="w-5 h-5 text-purple-600 dark:text-purple-400" />
             </div>
             <div className="flex-1">
-              <p className="text-sm font-bold text-purple-900 dark:text-purple-100">単語学習を進める</p>
-              <p className="text-xs text-purple-600 dark:text-purple-400">
-                {dueCards.length > 0 ? `${dueCards.length}語が学習待ち` : '新しい単語に挑戦しよう'}
-              </p>
+              <p className="text-sm font-bold text-purple-900 dark:text-purple-100">ハルトと単語学習を進める</p>
             </div>
             <ArrowRight className="w-4 h-4 text-purple-400" />
           </div>
