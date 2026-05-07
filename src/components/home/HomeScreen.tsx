@@ -254,15 +254,17 @@ export function HomeScreen() {
 
       {/* Streak & Daily */}
       <div className="flex gap-3">
-        <Card className="flex-1 p-4">
-          <div className="flex items-center gap-2">
-            <Flame className="w-5 h-5 text-orange-500" />
-            <div>
-              <p className="text-lg font-bold">{profile.streak}</p>
-              <p className="text-xs text-gray-500">日連続</p>
+        <Link href="/streak-rewards">
+          <Card className="flex-1 p-4 cursor-pointer hover:shadow-md transition-shadow">
+            <div className="flex items-center gap-2">
+              <Flame className="w-5 h-5 text-orange-500" />
+              <div>
+                <p className="text-lg font-bold">{profile.streak}</p>
+                <p className="text-xs text-gray-500">日連続 &gt;</p>
+              </div>
             </div>
-          </div>
-        </Card>
+          </Card>
+        </Link>
         <Link href="/xp-history">
           <Card className="flex-1 p-4 cursor-pointer hover:shadow-md transition-shadow">
             <div className="flex items-center gap-2">
