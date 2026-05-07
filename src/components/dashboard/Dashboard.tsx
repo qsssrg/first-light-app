@@ -6,7 +6,7 @@ import { Card } from '@/components/ui/card';
 import { MEMBERS, getMember } from '@/lib/members';
 import { MemberAvatar } from '@/components/common/MemberAvatar';
 import { getPlayerName } from '@/lib/player-name';
-import { getStudyGoal, getGradeRequirement, getToeflTier, EIKEN_GRADES } from '@/lib/study-goals';
+import { getStudyGoal, getGradeRequirement, getToeflTier, isEikenGrade, isToeflScore } from '@/lib/study-goals';
 import { Progress } from '@/components/ui/progress';
 import type { SkillAxis } from '@/types';
 
@@ -65,12 +65,12 @@ export function Dashboard() {
         let milestone: string;
         let milestoneProgress: number;
 
-        if (goal.eiken) {
+        if (isEikenGrade(goal.eiken)) {
           const req = getGradeRequirement(goal.eiken);
           const targetVocab = Math.min(req.vocabCount, vocabCards.length > 0 ? vocabCards.length : req.vocabCount);
           milestone = `英検${req.label}合格`;
           milestoneProgress = targetVocab > 0 ? Math.min(100, Math.round((masteredCards / targetVocab) * 100)) : 0;
-        } else if (goal.toeflTarget) {
+        } else if (isToeflScore(goal.toeflTarget)) {
           const tier = getToeflTier(goal.toeflTarget);
           const targetVocab = Math.min(tier.vocabCount, vocabCards.length > 0 ? vocabCards.length : tier.vocabCount);
           milestone = `TOEFL ${goal.toeflTarget}点到達`;
@@ -162,7 +162,7 @@ export function Dashboard() {
       {/* Study goal progress */}
       {(() => {
         const goal = getStudyGoal();
-        if (!goal.eiken && !goal.toeflTarget) return null;
+        if (!isEikenGrade(goal.eiken) && !isToeflScore(goal.toeflTarget)) return null;
 
         return (
           <Card className="p-4">
@@ -170,7 +170,7 @@ export function Dashboard() {
               🎯 目標進捗
             </h3>
             <div className="space-y-4">
-              {goal.eiken && (() => {
+              {isEikenGrade(goal.eiken) && (() => {
                 const req = getGradeRequirement(goal.eiken);
                 // Use mastered cards as progress towards vocab goal
                 const targetVocab = Math.min(req.vocabCount, vocabCards.length > 0 ? vocabCards.length : req.vocabCount);
@@ -186,7 +186,7 @@ export function Dashboard() {
                   </div>
                 );
               })()}
-              {goal.toeflTarget && (() => {
+              {isToeflScore(goal.toeflTarget) && (() => {
                 const tier = getToeflTier(goal.toeflTarget);
                 const targetVocab = Math.min(tier.vocabCount, vocabCards.length > 0 ? vocabCards.length : tier.vocabCount);
                 const rate = targetVocab > 0 ? Math.min(100, Math.round((masteredCards / targetVocab) * 100)) : 0;

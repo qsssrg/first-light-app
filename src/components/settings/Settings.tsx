@@ -17,7 +17,7 @@ import { Progress } from '@/components/ui/progress';
 import { MEMBERS } from '@/lib/members';
 import { MemberAvatar } from '@/components/common/MemberAvatar';
 import type { SkillAxis } from '@/types';
-import { getStudyGoal, setStudyGoal, EIKEN_GRADES, type EikenGrade, type StudyGoal } from '@/lib/study-goals';
+import { getStudyGoal, setStudyGoal, EIKEN_GRADES, type StudyGoal, type EikenSetting, type ToeflSetting } from '@/lib/study-goals';
 import { isPsychologyEventEnabled, setPsychologyEventEnabled } from '@/lib/psychology-settings';
 
 export function Settings() {
@@ -148,16 +148,55 @@ function NameChangeSection({ currentName }: { currentName: string }) {
   );
 }
 
+function HelpPopover({ text }: { text: string }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <span className="relative inline-block">
+      <button
+        onClick={(e) => { e.stopPropagation(); setOpen(!open); }}
+        className="w-4 h-4 rounded-full bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400 text-[10px] font-bold inline-flex items-center justify-center hover:bg-gray-300 dark:hover:bg-gray-600"
+      >
+        ?
+      </button>
+      {open && (
+        <>
+          <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
+          <div className="absolute left-0 top-6 z-50 w-56 p-3 rounded-lg bg-white dark:bg-gray-800 shadow-lg border border-gray-200 dark:border-gray-700 text-xs text-gray-600 dark:text-gray-300">
+            {text}
+          </div>
+        </>
+      )}
+    </span>
+  );
+}
+
 function GoalSettingSection() {
   const [goal, setGoalState] = useState<StudyGoal>(() => getStudyGoal());
   const [saved, setSaved] = useState(false);
+  const [warning, setWarning] = useState('');
 
   const handleSave = (newGoal: StudyGoal) => {
+    // Prevent both being 'none'
+    if (newGoal.eiken === 'none' && newGoal.toeflTarget === 'none') {
+      setWarning('英検とTOEFLの両方を「なし」にはできません。片方は設定してください。');
+      return;
+    }
+    setWarning('');
     setStudyGoal(newGoal);
     setGoalState(newGoal);
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);
   };
+
+  const eikenBtnClass = (val: EikenSetting | undefined, target: EikenSetting) =>
+    `py-2 px-1 rounded-lg text-xs font-medium transition-colors ${
+      val === target ? 'bg-indigo-600 text-white' : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700'
+    }`;
+
+  const toeflBtnClass = (val: ToeflSetting | undefined, target: ToeflSetting) =>
+    `py-2 rounded-lg text-xs font-medium transition-colors ${
+      val === target ? 'bg-indigo-600 text-white' : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700'
+    }`;
 
   return (
     <Card className="p-4">
@@ -168,69 +207,59 @@ function GoalSettingSection() {
 
       {/* 英検 */}
       <div className="mb-4">
-        <p className="text-xs font-medium text-gray-600 dark:text-gray-400 mb-2">英検の目標</p>
-        <div className="grid grid-cols-4 gap-1.5">
+        <p className="text-xs font-medium text-gray-600 dark:text-gray-400 mb-2">
+          英検の目標 <HelpPopover text="おまかせ: スキルレベルに応じて自動設定。なし: 英検関連の単語は出題されません。各級: その級の合格を目標に学習します。" />
+        </p>
+        <div className="grid grid-cols-5 gap-1.5">
           {EIKEN_GRADES.map(g => (
-            <button
-              key={g.grade}
-              onClick={() => handleSave({ ...goal, eiken: g.grade })}
-              className={`py-2 px-1 rounded-lg text-xs font-medium transition-colors ${
-                goal.eiken === g.grade
-                  ? 'bg-indigo-600 text-white'
-                  : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700'
-              }`}
-            >
+            <button key={g.grade} onClick={() => handleSave({ ...goal, eiken: g.grade })} className={eikenBtnClass(goal.eiken, g.grade)}>
               {g.label}
             </button>
           ))}
-          <button
-            onClick={() => handleSave({ ...goal, eiken: undefined })}
-            className={`py-2 px-1 rounded-lg text-xs font-medium transition-colors ${
-              !goal.eiken
-                ? 'bg-gray-300 dark:bg-gray-600 text-gray-700 dark:text-gray-200'
-                : 'bg-gray-100 dark:bg-gray-800 text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700'
-            }`}
-          >
+          <button onClick={() => handleSave({ ...goal, eiken: 'auto' })} className={eikenBtnClass(goal.eiken, 'auto')}>
+            おまかせ
+          </button>
+          <button onClick={() => handleSave({ ...goal, eiken: 'none' })} className={eikenBtnClass(goal.eiken, 'none')}>
             なし
           </button>
         </div>
-        {goal.eiken && (
+        {goal.eiken && goal.eiken !== 'auto' && goal.eiken !== 'none' && (
           <p className="text-xs text-gray-500 mt-1.5">
             {EIKEN_GRADES.find(g => g.grade === goal.eiken)?.description}
             （目標語彙: {EIKEN_GRADES.find(g => g.grade === goal.eiken)?.vocabCount.toLocaleString()}語）
           </p>
         )}
+        {goal.eiken === 'auto' && <p className="text-xs text-indigo-500 mt-1.5">スキルレベルに応じて自動設定</p>}
+        {goal.eiken === 'none' && <p className="text-xs text-orange-500 mt-1.5">英検関連の単語は出題されません</p>}
       </div>
 
       {/* TOEFL */}
       <div>
-        <p className="text-xs font-medium text-gray-600 dark:text-gray-400 mb-2">TOEFL目標スコア</p>
-        <div className="grid grid-cols-5 gap-1.5">
+        <p className="text-xs font-medium text-gray-600 dark:text-gray-400 mb-2">
+          TOEFL目標スコア <HelpPopover text="おまかせ: スキルレベルに応じて自動設定。なし: TOEFL関連の単語は出題されません。スコア: そのスコア到達を目標に学習します。" />
+        </p>
+        <div className="grid grid-cols-4 gap-1.5">
           {[60, 80, 90, 100].map(score => (
-            <button
-              key={score}
-              onClick={() => handleSave({ ...goal, toeflTarget: score })}
-              className={`py-2 rounded-lg text-xs font-medium transition-colors ${
-                goal.toeflTarget === score
-                  ? 'bg-indigo-600 text-white'
-                  : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700'
-              }`}
-            >
+            <button key={score} onClick={() => handleSave({ ...goal, toeflTarget: score })} className={toeflBtnClass(goal.toeflTarget, score)}>
               {score}
             </button>
           ))}
-          <button
-            onClick={() => handleSave({ ...goal, toeflTarget: undefined })}
-            className={`py-2 rounded-lg text-xs font-medium transition-colors ${
-              !goal.toeflTarget
-                ? 'bg-gray-300 dark:bg-gray-600 text-gray-700 dark:text-gray-200'
-                : 'bg-gray-100 dark:bg-gray-800 text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700'
-            }`}
-          >
+          <button onClick={() => handleSave({ ...goal, toeflTarget: 'auto' })} className={toeflBtnClass(goal.toeflTarget, 'auto')}>
+            おまかせ
+          </button>
+          <button onClick={() => handleSave({ ...goal, toeflTarget: 'none' })} className={toeflBtnClass(goal.toeflTarget, 'none')}>
             なし
           </button>
         </div>
+        {goal.toeflTarget === 'auto' && <p className="text-xs text-indigo-500 mt-1.5">スキルレベルに応じて自動設定</p>}
+        {goal.toeflTarget === 'none' && <p className="text-xs text-orange-500 mt-1.5">TOEFL関連の単語は出題されません</p>}
       </div>
+
+      {warning && (
+        <p className="text-xs text-red-500 mt-3 flex items-center gap-1">
+          <AlertCircle className="w-3 h-3" /> {warning}
+        </p>
+      )}
 
       {saved && (
         <p className="text-xs text-green-500 mt-3 flex items-center gap-1">

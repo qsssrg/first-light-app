@@ -2,9 +2,24 @@
 
 export type EikenGrade = '5' | '4' | '3' | 'pre2' | '2' | 'pre1' | '1';
 
+/** 'auto' = おまかせ（スキルベース自動設定）, 'none' = なし（出題除外）, grade = 特定級 */
+export type EikenSetting = EikenGrade | 'auto' | 'none';
+/** number = 目標スコア, 'auto' = おまかせ, 'none' = なし（出題除外） */
+export type ToeflSetting = number | 'auto' | 'none';
+
 export interface StudyGoal {
-  eiken?: EikenGrade;
-  toeflTarget?: number;
+  eiken?: EikenSetting;
+  toeflTarget?: ToeflSetting;
+}
+
+/** Check if eiken setting is an actual grade */
+export function isEikenGrade(s: EikenSetting | undefined): s is EikenGrade {
+  return s !== undefined && s !== 'auto' && s !== 'none';
+}
+
+/** Check if toefl setting is an actual score */
+export function isToeflScore(s: ToeflSetting | undefined): s is number {
+  return typeof s === 'number';
 }
 
 export interface GradeRequirement {
