@@ -27,7 +27,7 @@ export function Dashboard() {
 
   if (!profile) return null;
 
-  const kai = getMember('kai')!;
+  const guideMember = MEMBERS[Math.floor(Math.random() * MEMBERS.length)];
 
   // Calculate study calendar (last 30 days)
   const today = new Date();
@@ -128,10 +128,10 @@ export function Dashboard() {
           <Card className="p-4 backdrop-blur-sm bg-white/80 dark:bg-gray-900/80">
             <div className="flex gap-3 items-start">
               <div className="shrink-0 pt-1">
-                <MemberAvatar member={kai} size="lg" />
+                <MemberAvatar member={guideMember} size="lg" />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-xs font-medium text-gray-500 mb-1">{kai.nameJa}（リーダー）</p>
+                <p className="text-xs font-medium text-gray-500 mb-1">{guideMember.nameJa}</p>
 
                 {/* Milestone */}
                 <div className="relative bg-gray-100 dark:bg-gray-800 rounded-xl rounded-tl-none px-3 py-2.5 mb-2">
@@ -405,7 +405,7 @@ export function Dashboard() {
             {sessions.slice(0, 10).map((session, i) => (
               <div key={i} className="flex justify-between items-center text-xs py-1 border-b border-gray-100 dark:border-gray-800 last:border-0">
                 <span className="text-gray-600 dark:text-gray-400">
-                  {new Date(session.date).toLocaleDateString('ja-JP')}
+                  {new Date(session.date).toLocaleDateString('ja-JP', { month: 'numeric', day: 'numeric' })} {new Date(session.date).toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' })}
                 </span>
                 <span>{AXIS_LABELS[session.axis]}</span>
                 <span className="text-green-600">+{session.xpEarned} XP</span>

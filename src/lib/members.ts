@@ -47,7 +47,7 @@ export const MEMBERS: Member[] = [
     nameJa: 'カイ',
     role: '文法/リーダー',
     axis: 'grammar',
-    color: '#f8f9fa', // White (with dark text)
+    color: '#6b7280', // Gray (visible on both light/dark backgrounds)
     description: 'FINEBOYSのモデルっぽいけど、気取らない。後輩に慕われるタイプ。',
     personality: 'リーダー。全体を見渡して構造的に考えるのが得意。文法は「仕組みを理解する楽しさ」で教える。',
   },

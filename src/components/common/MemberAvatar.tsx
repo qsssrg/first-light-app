@@ -21,7 +21,7 @@ const basePath = process.env.NEXT_PUBLIC_BASE_PATH || '';
 export function MemberAvatar({ member, size = 'md', showName = false }: MemberAvatarProps) {
   const [imgError, setImgError] = useState(false);
   const initial = member.name[0];
-  const isLight = member.id === 'kai';
+  const isLight = false; // All member colors are now dark enough
   const imgSrc = `${basePath}/members/${member.id}.png`;
 
   return (
