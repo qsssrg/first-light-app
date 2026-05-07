@@ -520,7 +520,7 @@ export const PAST_EXAM_QUESTIONS: PastExamQuestion[] = [
     question: 'The word "paradigm" in the passage is closest in meaning to:',
     options: ['contradiction', 'model', 'limitation', 'coincidence'],
     correctIndex: 1,
-    explanation: 'paradigmは「パラダイム、模範」。modelが最も近い。出典: オリジナル問題',
+    explanation: 'paradigmは「思考の枠組み、模範」。modelが最も近い。出典: オリジナル問題',
   },
   {
     id: 'toefl-r-4-2',
