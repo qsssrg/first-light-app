@@ -13,6 +13,7 @@ import Link from 'next/link';
 import { getPlayerName } from '@/lib/player-name';
 import { TypewriterText } from '@/components/common/TypewriterText';
 import { isPsychologyEventEnabled, isPsychologyUnlocked } from '@/lib/psychology-settings';
+import { grantDailyAffinityBonus } from '@/lib/affinity';
 import { FAKE_NEWS } from '@/data/fake-news';
 import { Newspaper, RefreshCw } from 'lucide-react';
 
@@ -199,6 +200,11 @@ export function HomeScreen() {
   const profile = useProfile();
   const dueCards = useDueCards();
   const greeting = useGreeting(dueCards.length, profile?.totalXp ?? 0);
+
+  // Daily affinity bonus (once per day, all members +2pt)
+  useEffect(() => {
+    grantDailyAffinityBonus(2);
+  }, []);
 
   if (!profile) return null;
 

@@ -48,3 +48,34 @@ export async function addAffinityPoints(
     memberId,
   };
 }
+
+const DAILY_BONUS_KEY = 'firstlight_daily_affinity';
+const ALL_MEMBERS = ['haruto', 'sora', 'ren', 'yuuki', 'kai'];
+
+/**
+ * Grant daily affinity bonus to all members (once per day).
+ * Returns true if bonus was granted, false if already granted today.
+ */
+export async function grantDailyAffinityBonus(pointsPerMember: number = 2): Promise<boolean> {
+  if (typeof window === 'undefined') return false;
+
+  const today = new Date().toISOString().split('T')[0];
+  const lastGranted = localStorage.getItem(DAILY_BONUS_KEY);
+  if (lastGranted === today) return false;
+
+  for (const memberId of ALL_MEMBERS) {
+    let record = await db.memberAffinity.where('memberId').equals(memberId).first();
+    if (!record) {
+      const id = await db.memberAffinity.add({ memberId, level: 1, points: 0 });
+      record = { id, memberId, level: 1, points: 0 };
+    }
+    const newPoints = record.points + pointsPerMember;
+    await db.memberAffinity.update(record.id!, {
+      points: newPoints,
+      level: getAffinityLevel(newPoints),
+    });
+  }
+
+  localStorage.setItem(DAILY_BONUS_KEY, today);
+  return true;
+}
