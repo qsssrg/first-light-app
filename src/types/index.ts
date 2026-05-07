@@ -33,6 +33,7 @@ export interface UserSettings {
   dailyChallengeEnabled: boolean;
   soundEnabled: boolean;
   englishSpeakerMode: boolean;
+  oshiMemberId?: string;
 }
 
 // SRS SM-2 Algorithm

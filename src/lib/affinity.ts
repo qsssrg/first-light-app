@@ -20,6 +20,11 @@ export async function addAffinityPoints(
 ): Promise<{ leveled: boolean; newLevel: number; memberId: string }> {
   const memberId = AXIS_TO_MEMBER[axis] ?? 'kai';
 
+  // 推しメンバーなら2倍
+  const profile = await db.userProfile.toCollection().first();
+  const oshiId = profile?.settings?.oshiMemberId;
+  const finalPoints = oshiId === memberId ? points * 2 : points;
+
   let record = await db.memberAffinity.where('memberId').equals(memberId).first();
 
   if (!record) {
@@ -29,7 +34,7 @@ export async function addAffinityPoints(
   }
 
   const oldLevel = getAffinityLevel(record.points);
-  const newPoints = record.points + points;
+  const newPoints = record.points + finalPoints;
   const newLevel = getAffinityLevel(newPoints);
 
   await db.memberAffinity.update(record.id!, {

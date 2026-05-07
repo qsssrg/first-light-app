@@ -101,6 +101,8 @@ export function Settings() {
 
       <ApiKeySection />
 
+      <OshiMemberSection currentOshi={profile.settings.oshiMemberId} />
+
       <ReAssessmentSection currentType={profile.learnerType} currentSkills={profile.skills} />
 
       <StoryRecollectionSection />
@@ -278,6 +280,58 @@ function GoalSettingSection() {
       {saved && (
         <p className="text-xs text-green-500 mt-3 flex items-center gap-1">
           <CheckCircle className="w-3 h-3" /> 目標を設定しました
+        </p>
+      )}
+    </Card>
+  );
+}
+
+function OshiMemberSection({ currentOshi }: { currentOshi?: string }) {
+  const [saved, setSaved] = useState(false);
+
+  const handleSelect = async (memberId: string) => {
+    const profile = await import('@/lib/db').then(m => m.db.userProfile.toCollection().first());
+    if (profile?.id) {
+      const newOshi = currentOshi === memberId ? undefined : memberId;
+      await updateProfile({
+        settings: { ...profile.settings, oshiMemberId: newOshi },
+      });
+      setSaved(true);
+      setTimeout(() => setSaved(false), 1500);
+    }
+  };
+
+  return (
+    <Card className="p-4">
+      <h3 className="text-sm font-medium mb-2 flex items-center gap-2">
+        ⭐ 推しメンバー
+      </h3>
+      <p className="text-xs text-gray-500 mb-3">
+        推しメンバーはホーム画面で優先表示され、親密度が2倍たまります。
+        {currentOshi ? '' : 'タップして選んでね。'}
+      </p>
+      <div className="flex gap-2 justify-center">
+        {MEMBERS.map(m => (
+          <button
+            key={m.id}
+            onClick={() => handleSelect(m.id)}
+            className={`relative flex flex-col items-center gap-1 p-2 rounded-xl transition-all ${
+              currentOshi === m.id
+                ? 'bg-yellow-500/10 border-2 border-yellow-400 scale-105'
+                : 'hover:bg-white/5 border-2 border-transparent'
+            }`}
+          >
+            <MemberAvatar member={m} size="md" />
+            <span className="text-[10px] text-gray-500">{m.nameJa}</span>
+            {currentOshi === m.id && (
+              <span className="absolute -top-1 -right-1 text-sm">⭐</span>
+            )}
+          </button>
+        ))}
+      </div>
+      {saved && (
+        <p className="text-xs text-green-500 mt-2 text-center flex items-center justify-center gap-1">
+          <CheckCircle className="w-3 h-3" /> 推しメンバーを更新しました
         </p>
       )}
     </Card>

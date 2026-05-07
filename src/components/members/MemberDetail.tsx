@@ -13,6 +13,7 @@ import { getPlayerName } from '@/lib/player-name';
 import { getAffinityLevel, AFFINITY_LABELS, AFFINITY_THRESHOLDS } from '@/lib/db';
 import Link from 'next/link';
 import { memberMemoryScenarios } from '@/lib/scenarios/member-memories';
+import { getAvailableStories, getScenarioById } from '@/lib/scenarios/special-stories';
 import { VNEngine } from '@/components/vn/VNEngine';
 import type { Member } from '@/types';
 import type { Scenario } from '@/lib/scenarios/types';
@@ -170,6 +171,8 @@ export function MemberDetail({ memberId }: { memberId: string }) {
                 </Card>
               );
             })}
+            {/* Special stories by affinity */}
+            <SpecialStoriesSection memberId={memberId} onPlay={setPlayingScenario} />
             {/* Album stories */}
             {stories.map(story => {
               const unlocked = userLevel >= story.unlockedAt;
@@ -237,6 +240,47 @@ function PersonalMessage({ memberId }: { memberId: string }) {
   );
 }
 
+function SpecialStoriesSection({ memberId, onPlay }: { memberId: string; onPlay: (s: Scenario) => void }) {
+  const affinities = useMemberAffinities();
+  const aff = affinities.find(a => a.memberId === memberId);
+  const level = aff ? getAffinityLevel(aff.points) : 1;
+  const stories = getAvailableStories(memberId, level);
+
+  if (stories.length === 0) return null;
+
+  return (
+    <div className="space-y-2">
+      <h4 className="text-xs font-bold text-pink-400 uppercase tracking-wider flex items-center gap-1">
+        <Heart className="w-3 h-3" /> 特別ストーリー
+      </h4>
+      {stories.map(s => {
+        const scenario = s.unlocked ? getScenarioById(s.id) : null;
+        return (
+          <Card
+            key={s.id}
+            className={`p-3 ${s.unlocked ? 'cursor-pointer hover:shadow-md' : 'opacity-40'}`}
+            onClick={() => scenario && onPlay(scenario)}
+          >
+            <div className="flex items-center gap-3">
+              <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${
+                s.unlocked ? 'bg-pink-500/20' : 'bg-gray-500/20'
+              }`}>
+                {s.unlocked ? <Play className="w-4 h-4 text-pink-400" /> : <Lock className="w-3 h-3 text-gray-500" />}
+              </div>
+              <div className="flex-1">
+                <h5 className="text-sm font-medium">{s.title}</h5>
+                <p className="text-[10px] text-gray-500">
+                  {s.unlocked ? '再生可能' : `親密度Lv.${s.requiredLevel}で解放`}
+                </p>
+              </div>
+            </div>
+          </Card>
+        );
+      })}
+    </div>
+  );
+}
+
 function AffinityCard({ memberId }: { memberId: string }) {
   const affinities = useMemberAffinities();
   const aff = affinities.find(a => a.memberId === memberId);
@@ -267,8 +311,10 @@ function AffinityCard({ memberId }: { memberId: string }) {
 }
 
 export function MemberList() {
+  const profile = useProfile();
   const affinities = useMemberAffinities();
   const affinityMap = new Map(affinities.map(a => [a.memberId, a]));
+  const oshiId = profile?.settings?.oshiMemberId;
 
   return (
     <div className="space-y-5 px-4">
@@ -280,7 +326,7 @@ export function MemberList() {
         {MEMBERS.map(member => {
           const aff = affinityMap.get(member.id);
           const level = aff ? getAffinityLevel(aff.points) : 1;
-          return <MemberCard key={member.id} member={member} affinityLevel={level} />;
+          return <MemberCard key={member.id} member={member} affinityLevel={level} isOshi={oshiId === member.id} />;
         })}
       </div>
     </div>
@@ -295,12 +341,15 @@ const AXIS_ICONS: Record<string, string> = {
   grammar: '🔤',
 };
 
-function MemberCard({ member, affinityLevel }: { member: Member; affinityLevel: number }) {
+function MemberCard({ member, affinityLevel, isOshi }: { member: Member; affinityLevel: number; isOshi?: boolean }) {
   return (
     <Link href={`/members?id=${member.id}`}>
       <div
-        className="rounded-xl overflow-hidden bg-white/5 backdrop-blur-md border border-white/10 hover:shadow-lg hover:shadow-indigo-500/10 hover:border-white/20 transition-all active:scale-[0.97] relative"
+        className={`rounded-xl overflow-hidden bg-white/5 backdrop-blur-md border hover:shadow-lg hover:shadow-indigo-500/10 hover:border-white/20 transition-all active:scale-[0.97] relative ${
+          isOshi ? 'border-yellow-400/50 ring-1 ring-yellow-400/30' : 'border-white/10'
+        }`}
       >
+        {isOshi && <span className="absolute top-1 left-1 z-10 text-sm">⭐</span>}
         <div
           className="h-28 flex items-center justify-center relative"
           style={{ background: `linear-gradient(135deg, ${member.color}25, ${member.color}50)` }}
