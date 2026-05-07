@@ -429,11 +429,13 @@ export function VocabStudy() {
 
     if ((step === 'example-result' || step === 'cloze-result') && currentCard?.id) {
       // Both steps done — calculate SRS quality
-      const quality = (meaningCorrect && exampleCorrect) ? 5 :
+      const bothCorrect = meaningCorrect && exampleCorrect;
+      const quality = bothCorrect ? 5 :
                       (meaningCorrect || exampleCorrect) ? 3 : 1;
       const correct = quality >= 3;
-      const newCombo = correct ? combo + 1 : 0;
-      const xp = calculateXp(correct, newCombo);
+      // Combo only increments when BOTH steps are correct
+      const newCombo = bothCorrect ? combo + 1 : 0;
+      const xp = bothCorrect ? calculateXp(true, newCombo) : (correct ? 1 : 0);
       const srsUpdate = calculateNextReview(currentCard, quality);
 
       await db.vocabCards.update(currentCard.id, {
@@ -478,7 +480,7 @@ export function VocabStudy() {
       setMaxCombo(Math.max(maxCombo, newCombo));
       setSessionXp(sessionXp + xp);
       setStudied(studied + 1);
-      if (correct) setSessionCorrect(prev => prev + 1);
+      if (bothCorrect) setSessionCorrect(prev => prev + 1);
       setStep(isEnglishMode ? 'def-to-word' : 'meaning');
       setSelected(null);
       setMeaningCorrect(false);
