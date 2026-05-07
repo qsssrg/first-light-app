@@ -140,18 +140,16 @@ export function HomeScreen() {
       {/* Next action guide - directly below member greeting */}
       <NextActionGuide profile={profile} dueCardCount={dueCards.length} />
 
-      {/* Spacer between action guide and level display */}
-      <div className="pt-2" />
-
-      {/* Stage background - placeholder gradient */}
-      <div className="relative rounded-2xl overflow-hidden bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-400 p-6 text-white">
-        <div className="absolute inset-0 opacity-20 bg-[url('/grid.svg')]" />
+      {/* Level card - game style */}
+      <div className="relative rounded-2xl overflow-hidden bg-gradient-to-br from-indigo-600 via-purple-600 to-fuchsia-500 p-6 text-white shadow-xl shadow-indigo-500/20">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(255,255,255,0.1)_0%,transparent_50%)]" />
+        <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/2" />
         <div className="relative">
-          <p className="text-sm opacity-80">FIRST LIGHT</p>
-          <h2 className="text-2xl font-bold mt-1">Lv.{profile.level}</h2>
-          <div className="mt-3">
-            <Progress value={progress} className="h-2 bg-white/30" />
-            <p className="text-xs mt-1 opacity-80">次のレベルまで {toNext} XP</p>
+          <p className="text-xs font-medium tracking-widest uppercase opacity-70">FIRST LIGHT</p>
+          <h2 className="text-3xl font-black mt-1">Lv.{profile.level}</h2>
+          <div className="mt-4">
+            <Progress value={progress} className="h-2.5 bg-white/20" />
+            <p className="text-xs mt-1.5 opacity-70 font-medium">次のレベルまで {toNext} XP</p>
           </div>
         </div>
       </div>
