@@ -3,7 +3,7 @@
 import { useState, useCallback, useRef, useMemo } from 'react';
 import { useDueCards, useVocabCards } from '@/lib/hooks';
 import { calculateNextReview } from '@/lib/srs';
-import { calculateXp } from '@/lib/xp';
+import { calculateXp, getLevelFromXp } from '@/lib/xp';
 import { getAdaptiveCards, shuffle } from '@/lib/adaptive';
 import { db } from '@/lib/db';
 import { MEMBERS } from '@/lib/members';
@@ -317,6 +317,7 @@ export function VocabStudy() {
   const [lastXp, setLastXp] = useState(0);
   const [xpTrigger, setXpTrigger] = useState(0);
   const [affinityLevelUp, setAffinityLevelUp] = useState<{ memberId: string; level: number } | null>(null);
+  const [levelUpDisplay, setLevelUpDisplay] = useState<number | null>(null);
   const startTimeRef = useRef(Date.now());
 
   // Generate options once per card (memoized by index)
@@ -448,10 +449,18 @@ export function VocabStudy() {
       if (xp > 0) {
         const profile = await db.userProfile.toCollection().first();
         if (profile?.id) {
+          const newTotalXp = profile.totalXp + xp;
+          const oldLevel = getLevelFromXp(profile.totalXp);
+          const newLevel = getLevelFromXp(newTotalXp);
           await db.userProfile.update(profile.id, {
             xp: profile.xp + xp,
-            totalXp: profile.totalXp + xp,
+            totalXp: newTotalXp,
+            level: newLevel,
           });
+          if (newLevel > oldLevel) {
+            setLevelUpDisplay(newLevel);
+            setTimeout(() => setLevelUpDisplay(null), 3000);
+          }
         }
         // Record study session for XP history
         await db.studySessions.add({
@@ -840,6 +849,21 @@ export function VocabStudy() {
       <ComboFlash combo={combo} />
       <XpFloat xp={lastXp} trigger={xpTrigger} />
       <TokotonActivation active={tokotonJustActivated} />
+
+      {/* Level-up notification */}
+      {levelUpDisplay && (
+        <div className="fixed inset-0 pointer-events-none z-50 flex items-center justify-center">
+          <div className="animate-combo-flash text-center">
+            <div className="w-28 h-28 mx-auto rounded-2xl bg-gradient-to-br from-yellow-400 via-amber-300 to-yellow-500 flex items-center justify-center shadow-2xl shadow-yellow-500/50 mb-3">
+              <span className="text-4xl font-black text-yellow-900">Lv.{levelUpDisplay}</span>
+            </div>
+            <p className="text-2xl font-black bg-gradient-to-r from-yellow-300 to-amber-400 bg-clip-text text-transparent drop-shadow-lg">
+              LEVEL UP!
+            </p>
+            <p className="text-sm text-yellow-200/80 mt-1">新しいレベルに到達しました</p>
+          </div>
+        </div>
+      )}
 
       {/* Affinity level-up notification */}
       {affinityLevelUp && (() => {

@@ -26,6 +26,15 @@ export default function Page() {
           await db.open();
         }
         const p = await db.userProfile.toCollection().first();
+        // Fix level from totalXp for existing users (one-time migration)
+        if (p?.id && p.totalXp > 0) {
+          const { getLevelFromXp } = await import('@/lib/xp');
+          const correctLevel = getLevelFromXp(p.totalXp);
+          if (p.level !== correctLevel) {
+            await db.userProfile.update(p.id, { level: correctLevel });
+            p.level = correctLevel;
+          }
+        }
         if (!cancelled) {
           setProfile(p ?? null);
           setReady(true);
