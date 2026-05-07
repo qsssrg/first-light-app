@@ -69,11 +69,11 @@ interface MemberDetailProps {
 }
 
 const MEMBER_REPLAY_SCENARIOS: Record<string, { id: string; label: string }[]> = {
-  kai: [{ id: 'opening', label: 'オープニング' }, { id: 'pre-assessment', label: 'アセスメント前' }],
-  haruto: [{ id: 'opening', label: 'オープニング' }],
-  sora: [{ id: 'opening', label: 'オープニング' }],
-  ren: [{ id: 'opening', label: 'オープニング' }],
-  yuuki: [{ id: 'opening', label: 'オープニング' }],
+  kai: [{ id: 'kai-memory', label: 'リーダーの責任' }, { id: 'opening', label: 'オープニング' }],
+  haruto: [{ id: 'haruto-memory', label: '最初のノート' }, { id: 'vocab-intro', label: '単語練習' }],
+  sora: [{ id: 'sora-memory', label: '洋書との出会い' }],
+  ren: [{ id: 'ren-memory', label: 'ヘッドフォンの向こう側' }],
+  yuuki: [{ id: 'yuuki-memory', label: '海外ファンへのDM' }],
 };
 
 export function MemberDetail({ memberId }: MemberDetailProps) {

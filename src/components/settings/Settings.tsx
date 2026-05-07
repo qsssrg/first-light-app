@@ -364,32 +364,19 @@ function ReAssessmentSection({ currentType, currentSkills }: { currentType: stri
 function StoryRecollectionSection() {
   const router = useRouter();
 
-  const stories = [
-    { id: 'opening', label: 'オープニング', desc: '夜の街でFIRST LIGHTと出会う' },
-    { id: 'pre-assessment', label: 'アセスメント前', desc: '翌日、芸能オフィスに呼ばれて' },
-    { id: 'post-assessment', label: 'アセスメント後', desc: '英語力判定の結果を受けて' },
-    { id: 'vocab-intro', label: 'ハルトと単語練習', desc: '練習スタジオでハルトと出会う' },
-    { id: 'psychology-offer', label: '心理学番組オファー', desc: 'YouTube番組の出演依頼が来る' },
-  ];
-
   return (
     <Card className="p-4">
       <h3 className="text-sm font-medium mb-2 flex items-center gap-2">
         <BookOpen className="w-4 h-4" /> ストーリー回想
       </h3>
       <p className="text-xs text-gray-500 mb-3">過去に見たストーリーをもう一度再生できます。</p>
-      <div className="space-y-2">
-        {stories.map((s) => (
-          <button
-            key={s.id}
-            onClick={() => router.push(`/story-replay?id=${s.id}`)}
-            className="w-full text-left px-3 py-2.5 rounded-lg border border-gray-200 dark:border-gray-700 hover:border-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-950 transition-colors"
-          >
-            <p className="text-sm font-medium">{s.label}</p>
-            <p className="text-xs text-gray-500">{s.desc}</p>
-          </button>
-        ))}
-      </div>
+      <Button
+        variant="outline"
+        className="w-full justify-start"
+        onClick={() => router.push('/story-replay')}
+      >
+        <BookOpen className="w-4 h-4 mr-2" /> ストーリー一覧を見る
+      </Button>
     </Card>
   );
 }
