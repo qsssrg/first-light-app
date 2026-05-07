@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { useProfile, useDueCards } from '@/lib/hooks';
-import { getLevelProgress, xpToNextLevel } from '@/lib/xp';
+import { getLevelProgress, xpToNextLevel, getLevelFromXp } from '@/lib/xp';
+import { LEVEL_THRESHOLDS } from '@/types';
 import { MEMBERS, getMember } from '@/lib/members';
 import { MemberAvatar } from '@/components/common/MemberAvatar';
 import { Progress } from '@/components/ui/progress';
@@ -224,19 +225,24 @@ export function HomeScreen() {
       {/* Next action guide - directly below member greeting */}
       <NextActionGuide profile={profile} dueCardCount={dueCards.length} />
 
-      {/* Level card - game style */}
-      <div className="relative rounded-2xl overflow-hidden bg-gradient-to-br from-indigo-600 via-purple-600 to-fuchsia-500 p-6 text-white shadow-xl shadow-indigo-500/20">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(255,255,255,0.1)_0%,transparent_50%)]" />
-        <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/2" />
-        <div className="relative">
-          <p className="text-xs font-medium tracking-widest uppercase opacity-70">FIRST LIGHT</p>
-          <h2 className="text-3xl font-black mt-1">Lv.{profile.level}</h2>
-          <div className="mt-4">
-            <Progress value={progress} className="h-2.5 bg-white/20" />
-            <p className="text-xs mt-1.5 opacity-70 font-medium">次のレベルまで {toNext} XP</p>
+      {/* Level card - game style, tap for level info */}
+      <Link href="/level-info">
+        <div className="relative rounded-2xl overflow-hidden bg-gradient-to-br from-indigo-600 via-purple-600 to-fuchsia-500 p-6 text-white shadow-xl shadow-indigo-500/20 cursor-pointer hover:shadow-2xl transition-shadow">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(255,255,255,0.1)_0%,transparent_50%)]" />
+          <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/2" />
+          <div className="relative">
+            <p className="text-xs font-medium tracking-widest uppercase opacity-70">FIRST LIGHT</p>
+            <div className="flex items-baseline gap-3 mt-1">
+              <h2 className="text-3xl font-black">Lv.{profile.level}</h2>
+              <p className="text-sm opacity-80 font-bold">{profile.totalXp - (LEVEL_THRESHOLDS[profile.level - 1] ?? 0)} / {(LEVEL_THRESHOLDS[profile.level] ?? LEVEL_THRESHOLDS[profile.level - 1] ?? 0) - (LEVEL_THRESHOLDS[profile.level - 1] ?? 0)} XP</p>
+            </div>
+            <div className="mt-3">
+              <Progress value={progress} className="h-2.5 bg-white/20" />
+              <p className="text-xs mt-1.5 opacity-70 font-medium">次のレベルまで {toNext} XP &gt;</p>
+            </div>
           </div>
         </div>
-      </div>
+      </Link>
 
       {/* Members row */}
       <div className="flex justify-around px-2">
