@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useProfile, useStudySessions, useVocabCards } from '@/lib/hooks';
 import { Card } from '@/components/ui/card';
@@ -17,6 +18,40 @@ const AXIS_LABELS: Record<SkillAxis, string> = {
   writing: 'ライティング',
   grammar: '文法',
 };
+
+function SM2HelpLabel() {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="relative">
+      <p className="text-xs text-gray-500 flex items-center justify-center gap-1">
+        習得済み
+        <button
+          onClick={() => setOpen(!open)}
+          className="w-3.5 h-3.5 rounded-full bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400 text-[9px] font-bold inline-flex items-center justify-center hover:bg-gray-300 dark:hover:bg-gray-600"
+        >
+          ?
+        </button>
+      </p>
+      {open && (
+        <>
+          <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
+          <div className="absolute left-1/2 -translate-x-1/2 top-6 z-50 w-64 p-3 rounded-lg bg-white dark:bg-gray-800 shadow-xl border border-gray-200 dark:border-gray-700 text-xs text-gray-600 dark:text-gray-300 space-y-1.5">
+            <p className="font-bold text-gray-800 dark:text-gray-100">間隔反復（SM-2）</p>
+            <p>5回以上連続正解で「習得済み」になります。</p>
+            <div className="space-y-0.5 text-[10px]">
+              <p>1回正解 → 1日後に復習</p>
+              <p>2回正解 → 6日後</p>
+              <p>3回正解 → 約2週間後</p>
+              <p>4回正解 → 約1ヶ月後</p>
+              <p>5回正解 → 約2ヶ月後（習得済み）</p>
+            </div>
+            <p className="text-[10px] text-amber-500">途中で間違えるとリセットされます</p>
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
 
 export function Dashboard() {
   const profile = useProfile();
@@ -283,7 +318,7 @@ export function Dashboard() {
         <div className="grid grid-cols-3 gap-4 text-center">
           <div>
             <p className="text-2xl font-bold text-green-600">{masteredCards}</p>
-            <p className="text-xs text-gray-500">習得済み</p>
+            <SM2HelpLabel />
           </div>
           <div>
             <p className="text-2xl font-bold text-yellow-600">{learningCards}</p>
