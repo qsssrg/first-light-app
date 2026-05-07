@@ -13,7 +13,7 @@ import { getPlayerName } from '@/lib/player-name';
 import { TypewriterText } from '@/components/common/TypewriterText';
 import { isPsychologyEventEnabled, isPsychologyUnlocked } from '@/lib/psychology-settings';
 import { FAKE_NEWS } from '@/data/fake-news';
-import { Newspaper } from 'lucide-react';
+import { Newspaper, RefreshCw } from 'lucide-react';
 
 function NextActionGuide({ profile, dueCardCount }: { profile: any; dueCardCount: number }) {
   const getNextAction = () => {
@@ -313,20 +313,35 @@ function NewsItem({ news, index }: { news: typeof FAKE_NEWS[0]; index: number })
 }
 
 function NewsSection() {
-  const [news] = useState(() => {
+  const [news, setNews] = useState(() => {
     const shuffled = [...FAKE_NEWS].sort(() => Math.random() - 0.5);
     return shuffled.slice(0, 3);
   });
+  const [spinning, setSpinning] = useState(false);
+
+  const refresh = () => {
+    setSpinning(true);
+    const shuffled = [...FAKE_NEWS].sort(() => Math.random() - 0.5);
+    setNews(shuffled.slice(0, 3));
+    setTimeout(() => setSpinning(false), 600);
+  };
 
   return (
     <div>
       <h3 className="text-sm font-bold mb-3 flex items-center gap-2">
         <Newspaper className="w-4 h-4" /> FIRST LIGHT NEWS
+        <button
+          onClick={refresh}
+          className="ml-1 p-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors active:scale-90"
+          title="ニュースを更新"
+        >
+          <RefreshCw className={`w-3.5 h-3.5 text-gray-400 transition-transform duration-500 ${spinning ? 'animate-spin' : ''}`} />
+        </button>
         <span className="text-[10px] text-gray-400 font-normal ml-auto">タップで日英切替</span>
       </h3>
       <div className="space-y-2">
         {news.map((n, i) => (
-          <NewsItem key={i} news={n} index={i} />
+          <NewsItem key={`${n.title}-${i}`} news={n} index={i} />
         ))}
       </div>
     </div>
