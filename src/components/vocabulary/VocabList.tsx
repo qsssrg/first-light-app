@@ -8,6 +8,7 @@ import { SpeakButton } from '@/components/common/SpeakButton';
 import { ChevronDown, ChevronRight, BookOpen, BookX, Settings } from 'lucide-react';
 import { MEMBERS } from '@/lib/members';
 import { MemberAvatar } from '@/components/common/MemberAvatar';
+import { TypewriterText } from '@/components/common/TypewriterText';
 import Link from 'next/link';
 import { EIKEN5_VOCAB } from '@/lib/eiken5-vocab';
 import { EIKEN4_VOCAB } from '@/lib/eiken4-vocab';
@@ -101,12 +102,12 @@ const CATEGORY_LABELS: Record<string, string> = {
   culture: '文化',
 };
 
-const MEMBER_INTRO_TEMPLATES: Record<string, (word: string, example: string) => string> = {
-  kai: (w, e) => `俺が注目したのは「${w}」。例えば "${e}" のように使う。覚えておいて損はない。`,
-  yuuki: (w, e) => `ねえ見て！「${w}」って面白くない？ "${e}" って使うんだって！`,
-  haruto: (w, e) => `僕の気になった単語は「${w}」。"${e}" …言葉って奥深いですね。`,
-  ren: (w, e) => `…「${w}」か。"${e}" 洋楽の歌詞でも見たことある気がする。`,
-  sora: (w, e) => `僕が気になったのは「${w}」。"${e}" 本で出てきそうな表現ですね。`,
+const MEMBER_INTRO_TEMPLATES: Record<string, (word: string, meaning: string, example: string) => string> = {
+  kai: (w, m, e) => `俺が注目したのは「${w}（${m}）」。例えば "${e}" のように使う。覚えておいて損はない。`,
+  yuuki: (w, m, e) => `ねえ見て！「${w}（${m}）」って面白くない？ "${e}" って使うんだって！`,
+  haruto: (w, m, e) => `僕の気になった単語は「${w}（${m}）」。"${e}" …言葉って奥深いですね。`,
+  ren: (w, m, e) => `…「${w}（${m}）」か。"${e}" 洋楽の歌詞でも見たことある気がする。`,
+  sora: (w, m, e) => `僕が気になったのは「${w}（${m}）」。"${e}" 本で出てきそうな表現ですね。`,
 };
 
 function MemberWordCard({ seeds }: { seeds: { word: string; meaning: string; example: string }[] }) {
@@ -115,7 +116,7 @@ function MemberWordCard({ seeds }: { seeds: { word: string; meaning: string; exa
     const seed = seeds[Math.floor(Math.random() * seeds.length)];
     const member = MEMBERS[Math.floor(Math.random() * MEMBERS.length)];
     const template = MEMBER_INTRO_TEMPLATES[member.id] ?? MEMBER_INTRO_TEMPLATES.kai;
-    return { member, text: template(seed.word, seed.example) };
+    return { member, text: template(seed.word, seed.meaning, seed.example) };
   });
 
   if (!data) return null;
@@ -128,9 +129,7 @@ function MemberWordCard({ seeds }: { seeds: { word: string; meaning: string; exa
         </div>
         <div className="flex-1 min-w-0">
           <p className="text-xs text-gray-500 mb-0.5">{data.member.nameJa}</p>
-          <p className="text-xs text-gray-700 dark:text-gray-300 leading-relaxed">
-            {data.text}
-          </p>
+          <TypewriterText text={data.text} className="text-xs text-gray-700 dark:text-gray-300 leading-relaxed" speed={35} />
         </div>
       </div>
     </Card>
