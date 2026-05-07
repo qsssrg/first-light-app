@@ -103,49 +103,55 @@ export function MemberDetail({ memberId }: MemberDetailProps) {
   const userLevel = profile?.level ?? 1;
 
   return (
-    <div className="space-y-6 px-4">
-      {/* Member header */}
+    <div className="space-y-5 px-4 pb-6">
+      {/* Member header — gradient card */}
       <div
-        className="rounded-2xl p-6 text-center"
-        style={{ background: `linear-gradient(135deg, ${member.color}20, ${member.color}40)` }}
+        className="rounded-2xl p-6 text-center relative overflow-hidden shadow-xl"
+        style={{ background: `linear-gradient(135deg, ${member.color}30, ${member.color}60)` }}
       >
-        <MemberAvatar member={member} size="xl" />
-        <h2 className="text-xl font-bold mt-3">{member.nameJa}</h2>
-        <p className="text-sm text-gray-600 dark:text-gray-400">{member.name}</p>
-        <Badge variant="secondary" className="mt-2">{member.role}</Badge>
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(255,255,255,0.08)_0%,transparent_50%)]" />
+        <div className="relative">
+          <MemberAvatar member={member} size="xl" />
+          <h2 className="text-2xl font-black mt-3 tracking-tight">{member.nameJa}</h2>
+          <p className="text-sm text-gray-300/70">{member.name}</p>
+          <span className="inline-block mt-2 px-3 py-1 rounded-full text-[10px] font-bold tracking-wider uppercase bg-white/10 backdrop-blur-sm border border-white/20 text-white/80">
+            {member.role}
+          </span>
+        </div>
       </div>
 
-      {/* Personal message */}
+      {/* Personal message — glassmorphism */}
       <PersonalMessage memberId={memberId} />
 
-      {/* Description */}
-      <Card className="p-4">
-        <p className="text-sm text-gray-700 dark:text-gray-300">{member.description}</p>
-        <p className="text-sm text-gray-500 mt-2 italic">{member.personality}</p>
-      </Card>
+      {/* Description — glassmorphism */}
+      <div className="rounded-xl bg-white/5 backdrop-blur-md border border-white/10 p-4">
+        <p className="text-sm text-gray-200 leading-relaxed">{member.description}</p>
+        <p className="text-sm text-gray-400 mt-2 italic">{member.personality}</p>
+      </div>
 
-      {/* Memory Stories (inline VN playback) */}
+      {/* Memory Stories */}
       {(MEMBER_MEMORIES[memberId] ?? []).length > 0 && (
         <div>
-          <h3 className="font-bold text-sm mb-3 px-1">思い出ストーリー</h3>
+          <h3 className="text-[10px] font-bold tracking-[0.2em] text-gray-500 uppercase mb-3 px-1">Memory Story</h3>
           <div className="space-y-2">
             {(MEMBER_MEMORIES[memberId] ?? []).map(m => {
               const scenario = memberMemoryScenarios[m.scenarioId];
               return (
-                <Card
+                <button
                   key={m.scenarioId}
-                  className="p-4 cursor-pointer hover:shadow-md transition-shadow border-indigo-200/30 hover:border-indigo-400/50"
+                  className="w-full text-left rounded-xl bg-white/5 backdrop-blur-md border border-indigo-400/20 hover:border-indigo-400/50 p-4 transition-all hover:shadow-lg hover:shadow-indigo-500/10 active:scale-[0.98]"
                   onClick={() => scenario && setPlayingScenario(scenario)}
                 >
                   <div className="flex items-center gap-3">
-                    <Play className="w-4 h-4 text-indigo-400 shrink-0" />
+                    <div className="w-8 h-8 rounded-full bg-indigo-500/20 flex items-center justify-center shrink-0">
+                      <Play className="w-4 h-4 text-indigo-400" />
+                    </div>
                     <div className="flex-1">
-                      <h4 className="text-sm font-bold">{m.title}</h4>
-                      <p className="text-xs text-gray-600 dark:text-gray-400">{m.line1}</p>
-                      <p className="text-xs text-gray-500">{m.line2}</p>
+                      <h4 className="text-sm font-bold text-gray-200">{m.title}</h4>
+                      <p className="text-xs text-gray-400">{m.line1}</p>
                     </div>
                   </div>
-                </Card>
+                </button>
               );
             })}
           </div>
@@ -154,30 +160,27 @@ export function MemberDetail({ memberId }: MemberDetailProps) {
 
       {/* Stories (Album) */}
       <div>
-        <h3 className="font-bold text-sm mb-3 px-1">ストーリー</h3>
-        <div className="space-y-3">
+        <h3 className="text-[10px] font-bold tracking-[0.2em] text-gray-500 uppercase mb-3 px-1">Story Album</h3>
+        <div className="space-y-2.5">
           {stories.map(story => {
             const unlocked = userLevel >= story.unlockedAt;
             return (
-              <Card key={story.id} className={`p-4 ${!unlocked ? 'opacity-50' : ''}`}>
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <h4 className="text-sm font-medium flex items-center gap-2">
-                      {!unlocked && <Lock className="w-3 h-3" />}
-                      {story.title}
-                    </h4>
-                    {unlocked ? (
-                      <p className="text-xs text-gray-600 dark:text-gray-400 mt-1 whitespace-pre-line">
-                        {story.content}
-                      </p>
-                    ) : (
-                      <p className="text-xs text-gray-400 mt-1">
-                        Lv.{story.unlockedAt} で解放
-                      </p>
-                    )}
-                  </div>
-                </div>
-              </Card>
+              <div
+                key={story.id}
+                className={`rounded-xl bg-white/5 backdrop-blur-md border border-white/10 p-4 ${!unlocked ? 'opacity-40' : ''}`}
+              >
+                <h4 className="text-sm font-bold text-gray-200 flex items-center gap-2">
+                  {!unlocked && <Lock className="w-3 h-3 text-gray-500" />}
+                  {story.title}
+                </h4>
+                {unlocked ? (
+                  <p className="text-xs text-gray-400 mt-1.5 whitespace-pre-line leading-relaxed">
+                    {story.content}
+                  </p>
+                ) : (
+                  <p className="text-xs text-gray-600 mt-1">Lv.{story.unlockedAt} で解放</p>
+                )}
+              </div>
             );
           })}
         </div>
@@ -188,13 +191,10 @@ export function MemberDetail({ memberId }: MemberDetailProps) {
 
 export function MemberList() {
   return (
-    <div className="space-y-4 px-4">
-      <div className="relative rounded-2xl overflow-hidden bg-gradient-to-br from-indigo-600 via-purple-500 to-pink-400 p-5 text-white shadow-lg mb-2">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_40%,rgba(255,255,255,0.08)_0%,transparent_50%)]" />
-        <div className="relative">
-          <h2 className="text-xl font-black tracking-wide">FIRST LIGHT</h2>
-          <p className="text-xs opacity-60 mt-0.5">Members</p>
-        </div>
+    <div className="space-y-5 px-4">
+      <div className="text-center">
+        <p className="text-[10px] font-bold tracking-[0.3em] text-gray-500 uppercase">Members</p>
+        <h2 className="text-2xl font-black tracking-tight mt-1">FIRST LIGHT</h2>
       </div>
       <div className="grid grid-cols-1 gap-3">
         {MEMBERS.map(member => (
@@ -207,15 +207,18 @@ export function MemberList() {
 
 function MemberCard({ member }: { member: Member }) {
   return (
-    <Card className="p-4 hover:shadow-md transition-shadow">
+    <div
+      className="rounded-xl bg-white/5 backdrop-blur-md border border-white/10 p-4 hover:shadow-lg hover:shadow-indigo-500/5 hover:border-white/20 transition-all active:scale-[0.98]"
+      style={{ borderLeftColor: member.color, borderLeftWidth: 3 }}
+    >
       <div className="flex items-center gap-4">
         <MemberAvatar member={member} size="lg" />
         <div className="flex-1">
-          <h3 className="font-bold">{member.nameJa} <span className="text-sm font-normal text-gray-500">{member.name}</span></h3>
-          <p className="text-xs text-gray-500">{member.role}</p>
-          <p className="text-xs text-gray-600 dark:text-gray-400 mt-1 line-clamp-2">{member.description}</p>
+          <h3 className="font-bold text-gray-200">{member.nameJa} <span className="text-sm font-normal text-gray-500">{member.name}</span></h3>
+          <span className="text-[10px] font-bold tracking-wider uppercase text-gray-500">{member.role}</span>
+          <p className="text-xs text-gray-400 mt-1 line-clamp-2">{member.description}</p>
         </div>
       </div>
-    </Card>
+    </div>
   );
 }

@@ -84,34 +84,36 @@ function StoryList() {
 
   return (
     <div className="pb-20">
-      <div className="max-w-lg md:max-w-2xl lg:max-w-3xl mx-auto py-6 px-4 space-y-4">
-        <div className="relative rounded-2xl overflow-hidden bg-gradient-to-br from-indigo-700 via-blue-600 to-cyan-500 p-5 text-white shadow-lg mb-2">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_40%,rgba(255,255,255,0.08)_0%,transparent_50%)]" />
-        <div className="relative">
-          <h2 className="text-xl font-black tracking-wide">ストーリー回想</h2>
-          <p className="text-xs opacity-60 mt-0.5">Story Replay</p>
+      <div className="max-w-lg md:max-w-2xl lg:max-w-3xl mx-auto py-6 px-4 space-y-5">
+        <div className="text-center">
+          <p className="text-[10px] font-bold tracking-[0.3em] text-gray-500 uppercase">Replay</p>
+          <h2 className="text-2xl font-black tracking-tight mt-1">ストーリー回想</h2>
+          <p className="text-xs text-gray-500 mt-1">過去に見たストーリーをもう一度再生できます</p>
         </div>
-      </div>
-        <p className="text-xs text-gray-500">過去に見たストーリーをもう一度再生できます</p>
 
-        <div className="space-y-3">
-          {visibleStories.map(story => {
+        <div className="space-y-2.5">
+          {visibleStories.map((story, i) => {
             const member = story.memberId ? getMember(story.memberId) : null;
             return (
-              <Card
+              <button
                 key={story.id}
-                className="p-4 cursor-pointer hover:shadow-md transition-shadow"
+                className="w-full text-left rounded-xl bg-white/5 backdrop-blur-md border border-white/10 p-4 hover:border-indigo-400/40 hover:shadow-lg hover:shadow-indigo-500/10 transition-all active:scale-[0.98]"
                 onClick={() => router.push(`/story-replay?id=${story.id}`)}
               >
                 <div className="flex items-center gap-3">
-                  {member && <MemberAvatar member={member} size="sm" />}
+                  {member ? (
+                    <MemberAvatar member={member} size="sm" />
+                  ) : (
+                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500/30 to-purple-500/30 flex items-center justify-center shrink-0">
+                      <span className="text-xs font-bold text-indigo-300">{i + 1}</span>
+                    </div>
+                  )}
                   <div className="flex-1">
-                    <h3 className="text-sm font-bold">{story.title}</h3>
-                    <p className="text-xs text-gray-600 dark:text-gray-400">{story.line1}</p>
-                    <p className="text-xs text-gray-500">{story.line2}</p>
+                    <h3 className="text-sm font-bold text-gray-200">{story.title}</h3>
+                    <p className="text-xs text-gray-400">{story.line1}</p>
                   </div>
                 </div>
-              </Card>
+              </button>
             );
           })}
         </div>
