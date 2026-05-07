@@ -11,7 +11,8 @@ import { MemberAvatar } from '@/components/common/MemberAvatar';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { Check, X, Sparkles } from 'lucide-react';
+import { Check, X, Sparkles, Home, RotateCcw, Star } from 'lucide-react';
+import Link from 'next/link';
 import { SpeakButton } from '@/components/common/SpeakButton';
 import { ComboFlash, XpFloat, TokotonActivation } from '@/components/common/GameEffects';
 import type { VocabCard } from '@/types';
@@ -440,78 +441,114 @@ export function VocabStudy() {
     startTimeRef.current = Date.now();
   };
 
-  // Tokoton End screen
-  if (phase === 'tokoton-end') {
+  // ─── 完了画面（ゲーム風・共通） ───
+  const renderCompletionScreen = (isNoCards = false) => {
     const elapsed = Math.floor((Date.now() - startTimeRef.current) / 60000);
     const correctRate = studied > 0 ? maxCombo / studied : 0;
-    const encouragement = getEncouragement(studied, correctRate);
+    const rank = correctRate >= 0.9 ? 'S' : correctRate >= 0.7 ? 'A' : correctRate >= 0.5 ? 'B' : 'C';
+    const rankColors: Record<string, string> = {
+      S: 'from-yellow-400 via-amber-300 to-yellow-500 text-yellow-900',
+      A: 'from-indigo-400 via-purple-400 to-fuchsia-400 text-white',
+      B: 'from-emerald-400 via-green-400 to-teal-400 text-white',
+      C: 'from-gray-400 via-gray-300 to-gray-400 text-gray-800',
+    };
+    const encouragement = studied > 0 ? getEncouragement(studied, correctRate) : null;
 
     return (
-      <div className="flex flex-col items-center justify-center min-h-[70vh] px-6 space-y-6">
-        <div className="w-full max-w-sm md:max-w-lg space-y-4">
-          <p className="text-sm text-gray-500 text-center">今日の学習 ───</p>
-          <div className="space-y-2 text-center">
-            <p className="text-sm text-gray-700 dark:text-gray-300">{studied}問に取り組みました</p>
-            {newWordsEncountered > 0 && (
-              <p className="text-sm text-gray-700 dark:text-gray-300">新しく{newWordsEncountered}語に出会いました</p>
-            )}
-            <p className="text-sm text-gray-700 dark:text-gray-300">最大コンボ {maxCombo}</p>
-            <p className="text-sm text-gray-700 dark:text-gray-300">{elapsed > 0 ? `${elapsed}分間` : '1分未満'}</p>
+      <div className="min-h-[85vh] flex flex-col px-4 py-6">
+        {/* Header */}
+        <p className="text-center text-[10px] font-bold tracking-[0.3em] text-gray-500 uppercase mb-6">
+          Session Complete
+        </p>
+
+        {isNoCards && studied === 0 ? (
+          <div className="flex-1 flex flex-col items-center justify-center space-y-4">
+            <Sparkles className="w-16 h-16 text-yellow-400" />
+            <p className="text-lg font-bold text-gray-300">復習する単語がありません</p>
+            <p className="text-sm text-gray-500">新しい単語を追加するか、時間をおいて戻ってきてください</p>
           </div>
-          <Card className="p-4 mt-6">
-            <div className="flex gap-3 items-start">
-              <div className="shrink-0">
-                <MemberAvatar member={encouragement.member} size="md" />
+        ) : (
+          <div className="flex-1 space-y-5">
+            {/* Rank badge */}
+            {studied > 0 && (
+              <div className="flex justify-center">
+                <div className={`w-24 h-24 rounded-2xl bg-gradient-to-br ${rankColors[rank]} flex items-center justify-center shadow-2xl`}>
+                  <span className="text-5xl font-black">{rank}</span>
+                </div>
               </div>
-              <div className="flex-1">
-                <p className="text-xs text-gray-500 mb-1">{encouragement.member.nameJa}</p>
-                <p className="text-sm text-gray-700 dark:text-gray-300">{encouragement.message}</p>
+            )}
+
+            {/* Stats grid */}
+            <div className="grid grid-cols-2 gap-3">
+              <div className="rounded-xl bg-white/5 backdrop-blur-md border border-white/10 p-4 text-center">
+                <p className="text-2xl font-black text-indigo-400">{studied}</p>
+                <p className="text-[10px] text-gray-500 tracking-wider uppercase mt-1">Questions</p>
+              </div>
+              <div className="rounded-xl bg-white/5 backdrop-blur-md border border-white/10 p-4 text-center">
+                <p className="text-2xl font-black text-purple-400">{sessionXp}</p>
+                <p className="text-[10px] text-gray-500 tracking-wider uppercase mt-1">XP Earned</p>
+              </div>
+              <div className="rounded-xl bg-white/5 backdrop-blur-md border border-white/10 p-4 text-center">
+                <p className="text-2xl font-black text-orange-400">🔥 {maxCombo}</p>
+                <p className="text-[10px] text-gray-500 tracking-wider uppercase mt-1">Max Combo</p>
+              </div>
+              <div className="rounded-xl bg-white/5 backdrop-blur-md border border-white/10 p-4 text-center">
+                <p className="text-2xl font-black text-fuchsia-400">{elapsed > 0 ? `${elapsed}m` : '<1m'}</p>
+                <p className="text-[10px] text-gray-500 tracking-wider uppercase mt-1">Time</p>
               </div>
             </div>
-          </Card>
-        </div>
-        <Button variant="outline" onClick={resetSession} className="mt-4">
-          もう一度
-        </Button>
-      </div>
-    );
-  }
 
-  // Session complete (non-tokoton)
-  if (!isTokoton && (!currentCard || currentIndex >= totalCards)) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-4 px-4">
-        <Sparkles className="w-12 h-12 text-yellow-500" />
-        <h2 className="text-xl font-bold">
-          {totalCards === 0 ? '復習する単語がありません' : ''}
-        </h2>
-        {studied > 0 && (() => {
-          const correctRate = studied > 0 ? maxCombo / studied : 0;
-          const encouragement = getEncouragement(studied, correctRate);
-          return (
-            <div className="w-full max-w-sm md:max-w-lg space-y-4">
-              <div className="text-center space-y-2 text-sm text-gray-600 dark:text-gray-400">
-                <p>{studied}問に取り組みました</p>
-                {newWordsEncountered > 0 && <p>新しく{newWordsEncountered}語に出会いました</p>}
-                <p>最大コンボ: {maxCombo}</p>
+            {newWordsEncountered > 0 && (
+              <div className="text-center">
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-500/10 text-indigo-300 text-xs font-medium">
+                  <Star className="w-3 h-3" /> 新しく{newWordsEncountered}語に出会いました
+                </span>
               </div>
-              <Card className="p-4">
+            )}
+
+            {/* Member encouragement */}
+            {encouragement && (
+              <div className="rounded-xl bg-white/5 backdrop-blur-md border border-white/10 p-4">
                 <div className="flex gap-3 items-start">
                   <div className="shrink-0">
                     <MemberAvatar member={encouragement.member} size="md" />
                   </div>
                   <div className="flex-1">
                     <p className="text-xs text-gray-500 mb-1">{encouragement.member.nameJa}</p>
-                    <p className="text-sm text-gray-700 dark:text-gray-300">{encouragement.message}</p>
+                    <p className="text-sm text-gray-200">{encouragement.message}</p>
                   </div>
                 </div>
-              </Card>
-            </div>
-          );
-        })()}
-        <Button onClick={resetSession}>もう一度</Button>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Action buttons */}
+        <div className="space-y-2.5 pt-4 pb-2">
+          <Link href="/" className="block">
+            <button className="w-full py-3.5 rounded-xl text-sm font-bold tracking-wide bg-gradient-to-r from-indigo-500 via-purple-500 to-fuchsia-500 text-white shadow-lg shadow-purple-500/30 hover:shadow-xl active:scale-[0.98] transition-all flex items-center justify-center gap-2">
+              <Home className="w-4 h-4" /> ホームに戻る
+            </button>
+          </Link>
+          <button
+            onClick={resetSession}
+            className="w-full py-3 rounded-xl text-sm font-medium border-2 border-gray-700/50 text-gray-300 hover:border-gray-500 hover:bg-gray-800/30 active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+          >
+            <RotateCcw className="w-4 h-4" /> もう一度やる
+          </button>
+        </div>
       </div>
     );
+  };
+
+  // Tokoton End screen
+  if (phase === 'tokoton-end') {
+    return renderCompletionScreen();
+  }
+
+  // Session complete (non-tokoton)
+  if (!isTokoton && (!currentCard || currentIndex >= totalCards)) {
+    return renderCompletionScreen(totalCards === 0);
   }
 
   // Get current options based on step
