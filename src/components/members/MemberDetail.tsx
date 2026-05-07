@@ -3,7 +3,8 @@
 import { useState, useEffect } from 'react';
 import { MEMBERS } from '@/lib/members';
 import { STORY_CARDS } from '@/lib/stories';
-import { useProfile } from '@/lib/hooks';
+import { useProfile, useMemberAffinities } from '@/lib/hooks';
+import { getAffinityLevel, AFFINITY_LABELS } from '@/lib/db';
 import { MemberAvatar } from '@/components/common/MemberAvatar';
 import { TypewriterText } from '@/components/common/TypewriterText';
 import { Card } from '@/components/ui/card';
@@ -244,19 +245,12 @@ export function MemberList() {
         <p className="text-[10px] font-bold tracking-[0.3em] text-gray-500 uppercase">Members</p>
         <h2 className="text-2xl font-black tracking-tight mt-1">FIRST LIGHT</h2>
       </div>
-<<<<<<< HEAD
       <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
         {MEMBERS.map(member => {
           const aff = affinityMap.get(member.id);
           const level = aff ? getAffinityLevel(aff.points) : 1;
           return <MemberCard key={member.id} member={member} affinityLevel={level} />;
         })}
-=======
-      <div className="grid grid-cols-2 gap-3">
-        {MEMBERS.map(member => (
-          <MemberCard key={member.id} member={member} />
-        ))}
->>>>>>> 569ab02 (feat: member detail page overhaul with tabs and tap reactions)
       </div>
     </div>
   );
@@ -272,12 +266,10 @@ const AXIS_ICONS: Record<string, string> = {
 
 function MemberCard({ member, affinityLevel }: { member: Member; affinityLevel: number }) {
   return (
-<<<<<<< HEAD
     <Link href={`/members?id=${member.id}`}>
       <div
         className="rounded-xl overflow-hidden bg-white/5 backdrop-blur-md border border-white/10 hover:shadow-lg hover:shadow-indigo-500/10 hover:border-white/20 transition-all active:scale-[0.97] relative"
       >
-        {/* Top: avatar area with color accent */}
         <div
           className="h-28 flex items-center justify-center relative"
           style={{ background: `linear-gradient(135deg, ${member.color}25, ${member.color}50)` }}
@@ -286,13 +278,9 @@ function MemberCard({ member, affinityLevel }: { member: Member; affinityLevel: 
           <MemberAvatar member={member} size="lg" />
           <span className="absolute top-2 right-2 text-sm">{AXIS_ICONS[member.axis] ?? ''}</span>
         </div>
-
-        {/* Bottom: info */}
         <div className="p-3 bg-black/20 backdrop-blur-sm">
           <h3 className="text-sm font-bold text-gray-200 truncate">{member.nameJa}</h3>
           <p className="text-[10px] text-gray-500 tracking-wider uppercase">{member.role}</p>
-
-          {/* Affinity hearts */}
           <div className="flex items-center gap-0.5 mt-1.5">
             {Array.from({ length: 5 }).map((_, i) => (
               <Heart
@@ -303,22 +291,6 @@ function MemberCard({ member, affinityLevel }: { member: Member; affinityLevel: 
             <span className="text-[9px] text-gray-500 ml-1">{AFFINITY_LABELS[affinityLevel - 1]}</span>
           </div>
         </div>
-=======
-    <div
-      className="rounded-xl overflow-hidden relative h-44 cursor-pointer hover:shadow-lg transition-shadow active:scale-[0.98]"
-      style={{ background: `linear-gradient(135deg, ${member.color}30, ${member.color}60)` }}
-    >
-      <div className="absolute inset-0 flex items-center justify-center pt-2">
-        <img
-          src={`${basePath}/members/${member.id}.png`}
-          alt={member.nameJa}
-          className="w-24 h-24 object-contain drop-shadow-xl rounded-full"
-        />
-      </div>
-      <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-3">
-        <h3 className="font-black text-white text-sm">{member.nameJa}</h3>
-        <p className="text-[10px] text-white/60 uppercase tracking-wider">{member.role}</p>
->>>>>>> 569ab02 (feat: member detail page overhaul with tabs and tap reactions)
       </div>
     </Link>
   );
