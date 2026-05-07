@@ -140,3 +140,37 @@
     -webkit-tap-highlight-color: transparent;
   }
 }
+
+/* Game effects animations */
+@keyframes combo-flash {
+  0% { opacity: 0; transform: scale(0.3); }
+  30% { opacity: 1; transform: scale(1.2); }
+  50% { transform: scale(1); }
+  100% { opacity: 0; transform: scale(0.8) translateY(-20px); }
+}
+
+@keyframes xp-float {
+  0% { opacity: 1; transform: translateY(0); }
+  100% { opacity: 0; transform: translateY(-80px); }
+}
+
+@keyframes tokoton-activate {
+  0% { opacity: 0; transform: scale(0.5) rotate(-5deg); }
+  20% { opacity: 1; transform: scale(1.1) rotate(2deg); }
+  40% { transform: scale(1) rotate(-1deg); }
+  60% { transform: scale(1.05) rotate(0.5deg); }
+  80% { opacity: 1; transform: scale(1) rotate(0); }
+  100% { opacity: 0; transform: scale(1.2); }
+}
+
+.animate-combo-flash {
+  animation: combo-flash 1.2s ease-out forwards;
+}
+
+.animate-xp-float {
+  animation: xp-float 1.5s ease-out forwards;
+}
+
+.animate-tokoton-activate {
+  animation: tokoton-activate 2s ease-out forwards;
+}

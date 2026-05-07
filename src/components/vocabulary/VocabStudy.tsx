@@ -13,6 +13,7 @@ import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Check, X, Sparkles } from 'lucide-react';
 import { SpeakButton } from '@/components/common/SpeakButton';
+import { ComboFlash, XpFloat, TokotonActivation } from '@/components/common/GameEffects';
 import type { VocabCard } from '@/types';
 import { EXAMPLE_TRANSLATIONS } from '@/lib/example-translations-data';
 import { getPlayerName } from '@/lib/player-name';
@@ -186,7 +187,10 @@ export function VocabStudy() {
   const [studied, setStudied] = useState(0);
   const [newWordsEncountered, setNewWordsEncountered] = useState(0);
   const [isTokoton, setIsTokoton] = useState(false);
+  const [tokotonJustActivated, setTokotonJustActivated] = useState(false);
   const [phase, setPhase] = useState<SessionPhase>('study');
+  const [lastXp, setLastXp] = useState(0);
+  const [xpTrigger, setXpTrigger] = useState(0);
   const startTimeRef = useRef(Date.now());
 
   // Generate options once per card (memoized by index)
@@ -293,7 +297,17 @@ export function VocabStudy() {
       setExampleCorrect(false);
       setCurrentIndex(currentIndex + 1);
 
-      if (newCombo >= 10 && !isTokoton) setIsTokoton(true);
+      // Game effects triggers
+      if (xp > 0) {
+        setLastXp(xp);
+        setXpTrigger(prev => prev + 1);
+      }
+
+      if (newCombo >= 10 && !isTokoton) {
+        setIsTokoton(true);
+        setTokotonJustActivated(true);
+        setTimeout(() => setTokotonJustActivated(false), 2500);
+      }
       if (!correct) setIsTokoton(false);
     }
   }, [step, currentCard, meaningCorrect, exampleCorrect, combo, maxCombo, sessionXp, studied, currentIndex, isTokoton]);
@@ -536,6 +550,11 @@ export function VocabStudy() {
   // ─── 通常モード: 4択クイズ UI ───
   return (
     <div className="space-y-4 px-4">
+      {/* Game effects overlay */}
+      <ComboFlash combo={combo} />
+      <XpFloat xp={lastXp} trigger={xpTrigger} />
+      <TokotonActivation active={tokotonJustActivated} />
+
       {/* Progress bar */}
       <div className="space-y-1">
         <div className="flex justify-between text-xs text-gray-500">
