@@ -9,8 +9,11 @@ import { MemberAvatar } from '@/components/common/MemberAvatar';
 import { TypewriterText } from '@/components/common/TypewriterText';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Lock, BookOpen, Play } from 'lucide-react';
+import { Lock, BookOpen, Play, Heart } from 'lucide-react';
+import { useMemberAffinities } from '@/lib/hooks';
+import { getAffinityLevel, AFFINITY_LABELS } from '@/lib/db';
 import { getPlayerName } from '@/lib/player-name';
+import Link from 'next/link';
 import { memberMemoryScenarios } from '@/lib/scenarios/member-memories';
 import { VNEngine } from '@/components/vn/VNEngine';
 import { resolvePlayerName } from '@/lib/player-name';
@@ -190,35 +193,67 @@ export function MemberDetail({ memberId }: MemberDetailProps) {
 }
 
 export function MemberList() {
+  const affinities = useMemberAffinities();
+  const affinityMap = new Map(affinities.map(a => [a.memberId, a]));
+
   return (
     <div className="space-y-5 px-4">
       <div className="text-center">
         <p className="text-[10px] font-bold tracking-[0.3em] text-gray-500 uppercase">Members</p>
         <h2 className="text-2xl font-black tracking-tight mt-1">FIRST LIGHT</h2>
       </div>
-      <div className="grid grid-cols-1 gap-3">
-        {MEMBERS.map(member => (
-          <MemberCard key={member.id} member={member} />
-        ))}
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+        {MEMBERS.map(member => {
+          const aff = affinityMap.get(member.id);
+          const level = aff ? getAffinityLevel(aff.points) : 1;
+          return <MemberCard key={member.id} member={member} affinityLevel={level} />;
+        })}
       </div>
     </div>
   );
 }
 
-function MemberCard({ member }: { member: Member }) {
+const AXIS_ICONS: Record<string, string> = {
+  vocabulary: '📖',
+  reading: '📚',
+  listening: '🎧',
+  writing: '✏️',
+  grammar: '🔤',
+};
+
+function MemberCard({ member, affinityLevel }: { member: Member; affinityLevel: number }) {
   return (
-    <div
-      className="rounded-xl bg-white/5 backdrop-blur-md border border-white/10 p-4 hover:shadow-lg hover:shadow-indigo-500/5 hover:border-white/20 transition-all active:scale-[0.98]"
-      style={{ borderLeftColor: member.color, borderLeftWidth: 3 }}
-    >
-      <div className="flex items-center gap-4">
-        <MemberAvatar member={member} size="lg" />
-        <div className="flex-1">
-          <h3 className="font-bold text-gray-200">{member.nameJa} <span className="text-sm font-normal text-gray-500">{member.name}</span></h3>
-          <span className="text-[10px] font-bold tracking-wider uppercase text-gray-500">{member.role}</span>
-          <p className="text-xs text-gray-400 mt-1 line-clamp-2">{member.description}</p>
+    <Link href={`/members?id=${member.id}`}>
+      <div
+        className="rounded-xl overflow-hidden bg-white/5 backdrop-blur-md border border-white/10 hover:shadow-lg hover:shadow-indigo-500/10 hover:border-white/20 transition-all active:scale-[0.97] relative"
+      >
+        {/* Top: avatar area with color accent */}
+        <div
+          className="h-28 flex items-center justify-center relative"
+          style={{ background: `linear-gradient(135deg, ${member.color}25, ${member.color}50)` }}
+        >
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_30%,rgba(255,255,255,0.06)_0%,transparent_60%)]" />
+          <MemberAvatar member={member} size="lg" />
+          <span className="absolute top-2 right-2 text-sm">{AXIS_ICONS[member.axis] ?? ''}</span>
+        </div>
+
+        {/* Bottom: info */}
+        <div className="p-3 bg-black/20 backdrop-blur-sm">
+          <h3 className="text-sm font-bold text-gray-200 truncate">{member.nameJa}</h3>
+          <p className="text-[10px] text-gray-500 tracking-wider uppercase">{member.role}</p>
+
+          {/* Affinity hearts */}
+          <div className="flex items-center gap-0.5 mt-1.5">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <Heart
+                key={i}
+                className={`w-3 h-3 ${i < affinityLevel ? 'text-pink-400 fill-pink-400' : 'text-gray-700'}`}
+              />
+            ))}
+            <span className="text-[9px] text-gray-500 ml-1">{AFFINITY_LABELS[affinityLevel - 1]}</span>
+          </div>
         </div>
       </div>
-    </div>
+    </Link>
   );
 }

@@ -44,6 +44,10 @@ export function useDueCards(limit = 20) {
   }) ?? [];
 }
 
+export function useMemberAffinities() {
+  return useLiveQuery(() => db.memberAffinity.toArray()) ?? [];
+}
+
 export function useStudySessions() {
   return useLiveQuery(() => db.studySessions.orderBy('date').reverse().toArray()) ?? [];
 }
