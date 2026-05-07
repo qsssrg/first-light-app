@@ -149,6 +149,17 @@ button[data-slot="button"]:active {
   transform: translateY(1px);
 }
 
+/* Title slide-in/out animation */
+@keyframes title-slide {
+  0% { opacity: 0; transform: translateX(-100%); }
+  15% { opacity: 1; transform: translateX(0); }
+  70% { opacity: 1; transform: translateX(0); }
+  100% { opacity: 0; transform: translateX(100%); }
+}
+.animate-title-slide {
+  animation: title-slide 2s ease-in-out forwards;
+}
+
 /* News ticker animation */
 @keyframes news-ticker {
   0% { transform: translateX(100%); }
