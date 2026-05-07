@@ -73,6 +73,19 @@ export interface StoryCard {
   imageUrl?: string;  // placeholder for now
 }
 
+export interface MemberProfile {
+  birthday: string;
+  birthYear: number;
+  hometown: string;
+  height: number;
+  bloodType: string;
+  part: string;
+  hobbies: string;
+  specialty: string;
+  traits: string;
+  motto: string;
+}
+
 export interface Member {
   id: string;
   name: string;
@@ -82,6 +95,7 @@ export interface Member {
   color: string;
   description: string;
   personality: string;
+  profile?: MemberProfile;
 }
 
 export interface DailyChallenge {

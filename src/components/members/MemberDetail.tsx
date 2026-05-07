@@ -139,8 +139,24 @@ export function MemberDetail({ memberId }: { memberId: string }) {
               <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">{member.description}</p>
               <p className="text-sm text-gray-500 mt-2 italic">{member.personality}</p>
             </Card>
+            {member.profile && (
+              <Card className="p-4 backdrop-blur-sm bg-white/80 dark:bg-gray-900/80">
+                <h3 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">Profile</h3>
+                <div className="grid grid-cols-2 gap-y-2.5 gap-x-4 text-xs">
+                  <div><span className="text-gray-500">生年月日</span><p className="font-medium">{member.profile.birthYear}年{member.profile.birthday}</p></div>
+                  <div><span className="text-gray-500">出身</span><p className="font-medium">{member.profile.hometown}</p></div>
+                  <div><span className="text-gray-500">身長</span><p className="font-medium">{member.profile.height}cm</p></div>
+                  <div><span className="text-gray-500">血液型</span><p className="font-medium">{member.profile.bloodType}型</p></div>
+                  <div className="col-span-2"><span className="text-gray-500">パート</span><p className="font-medium">{member.profile.part}</p></div>
+                  <div className="col-span-2"><span className="text-gray-500">趣味</span><p className="font-medium">{member.profile.hobbies}</p></div>
+                  <div className="col-span-2"><span className="text-gray-500">特技</span><p className="font-medium">{member.profile.specialty}</p></div>
+                  <div className="col-span-2"><span className="text-gray-500">性格</span><p className="font-medium">{member.profile.traits}</p></div>
+                  <div className="col-span-2"><span className="text-gray-500">座右の銘</span><p className="font-medium italic">「{member.profile.motto}」</p></div>
+                </div>
+              </Card>
+            )}
             <Card className="p-4 backdrop-blur-sm bg-white/80 dark:bg-gray-900/80">
-              <h3 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">担当</h3>
+              <h3 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">英語担当</h3>
               <p className="text-sm font-medium">{AXIS_LABELS[member.axis] || member.axis}</p>
             </Card>
             <AffinityCard memberId={memberId} />
