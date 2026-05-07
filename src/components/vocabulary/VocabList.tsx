@@ -126,13 +126,11 @@ function MemberWordCard({ seeds }: { seeds: { word: string; meaning: string; exa
         <div className="shrink-0 pt-0.5">
           <MemberAvatar member={data.member} size="sm" />
         </div>
-        <div className="flex-1 min-w-0 overflow-hidden">
+        <div className="flex-1 min-w-0">
           <p className="text-xs text-gray-500 mb-0.5">{data.member.nameJa}</p>
-          <div className="overflow-hidden">
-            <p className="text-xs text-gray-700 dark:text-gray-300 whitespace-nowrap animate-news-ticker">
-              {data.text}
-            </p>
-          </div>
+          <p className="text-xs text-gray-700 dark:text-gray-300 leading-relaxed">
+            {data.text}
+          </p>
         </div>
       </div>
     </Card>
