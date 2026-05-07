@@ -6,6 +6,8 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { SpeakButton } from '@/components/common/SpeakButton';
 import { ChevronDown, ChevronRight, BookOpen, BookX, Settings } from 'lucide-react';
+import { MEMBERS } from '@/lib/members';
+import { MemberAvatar } from '@/components/common/MemberAvatar';
 import Link from 'next/link';
 import { EIKEN5_VOCAB } from '@/lib/eiken5-vocab';
 import { EIKEN4_VOCAB } from '@/lib/eiken4-vocab';
@@ -99,6 +101,44 @@ const CATEGORY_LABELS: Record<string, string> = {
   culture: '文化',
 };
 
+const MEMBER_INTRO_TEMPLATES: Record<string, (word: string, example: string) => string> = {
+  kai: (w, e) => `俺が注目したのは「${w}」。例えば "${e}" のように使う。覚えておいて損はない。`,
+  yuuki: (w, e) => `ねえ見て！「${w}」って面白くない？ "${e}" って使うんだって！`,
+  haruto: (w, e) => `僕の気になった単語は「${w}」。"${e}" …言葉って奥深いですね。`,
+  ren: (w, e) => `…「${w}」か。"${e}" 洋楽の歌詞でも見たことある気がする。`,
+  sora: (w, e) => `僕が気になったのは「${w}」。"${e}" 本で出てきそうな表現ですね。`,
+};
+
+function MemberWordCard({ seeds }: { seeds: { word: string; meaning: string; example: string }[] }) {
+  const [data] = useState(() => {
+    if (seeds.length === 0) return null;
+    const seed = seeds[Math.floor(Math.random() * seeds.length)];
+    const member = MEMBERS[Math.floor(Math.random() * MEMBERS.length)];
+    const template = MEMBER_INTRO_TEMPLATES[member.id] ?? MEMBER_INTRO_TEMPLATES.kai;
+    return { member, text: template(seed.word, seed.example) };
+  });
+
+  if (!data) return null;
+
+  return (
+    <Card className="p-3">
+      <div className="flex items-start gap-3">
+        <div className="shrink-0 pt-0.5">
+          <MemberAvatar member={data.member} size="sm" />
+        </div>
+        <div className="flex-1 min-w-0 overflow-hidden">
+          <p className="text-xs text-gray-500 mb-0.5">{data.member.nameJa}</p>
+          <div className="overflow-hidden">
+            <p className="text-xs text-gray-700 dark:text-gray-300 whitespace-nowrap animate-news-ticker">
+              {data.text}
+            </p>
+          </div>
+        </div>
+      </div>
+    </Card>
+  );
+}
+
 export function VocabList({ onBack }: { onBack?: () => void } = {}) {
   const learnedCards = useVocabCards();
   const [filter, setFilter] = useState<FilterMode>('all');
@@ -137,12 +177,16 @@ export function VocabList({ onBack }: { onBack?: () => void } = {}) {
   return (
     <div className="space-y-4 px-4">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <h2 className="text-lg font-bold">単語帳</h2>
-        <Button variant="outline" size="sm" onClick={onBack}>
-          学習に戻る
-        </Button>
+      <div className="relative rounded-2xl overflow-hidden bg-gradient-to-br from-blue-600 via-indigo-500 to-violet-400 p-5 text-white shadow-lg mb-2">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_40%,rgba(255,255,255,0.08)_0%,transparent_50%)]" />
+        <div className="relative">
+          <h2 className="text-xl font-black tracking-wide">単語帳</h2>
+          <p className="text-xs opacity-60 mt-0.5">Vocabulary Book</p>
+        </div>
       </div>
+
+      {/* Member word recommendation */}
+      <MemberWordCard seeds={allSeeds} />
 
       {/* Stats */}
       <Card className="p-3">
