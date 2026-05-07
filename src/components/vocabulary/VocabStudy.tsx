@@ -236,7 +236,8 @@ function NoCardsPrompt({ onAdded }: { onAdded: () => void }) {
     setAdded(count);
     setLoading(false);
     if (count > 0) {
-      setTimeout(onAdded, 1500);
+      // Brief success message then immediately start quiz
+      setTimeout(() => window.location.reload(), 800);
     }
   };
 
@@ -446,6 +447,16 @@ export function VocabStudy() {
             totalXp: profile.totalXp + xp,
           });
         }
+        // Record study session for XP history
+        await db.studySessions.add({
+          date: new Date(),
+          axis: 'vocabulary',
+          correctCount: correct ? 1 : 0,
+          totalCount: 1,
+          xpEarned: xp,
+          comboMax: newCombo,
+          duration: 0,
+        } as any);
       }
 
       if (currentCard.repetitions === 0) {
