@@ -12,6 +12,10 @@ export function isPsychologyEventEnabled(): boolean {
 export function setPsychologyEventEnabled(enabled: boolean): void {
   if (typeof window === 'undefined') return;
   localStorage.setItem(EVENT_KEY, String(enabled));
+  // Reset unlock when turning off (allows re-experiencing the story)
+  if (!enabled) {
+    localStorage.removeItem(UNLOCKED_KEY);
+  }
 }
 
 /** Whether the psychology course has been unlocked (user saw the VN scene) */
