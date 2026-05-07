@@ -10,5 +10,15 @@ export interface ExampleTranslation {
   wrong: [string, string, string];
 }
 
+/** Example variant with its own English sentence and translations */
+export interface ExampleVariant {
+  example: string;
+  correct: string;
+  wrong: [string, string, string];
+}
+
 /** Map of word -> translation data */
 export type TranslationMap = Record<string, ExampleTranslation>;
+
+/** Map of word -> array of 3 example variants */
+export type VariantMap = Record<string, ExampleVariant[]>;

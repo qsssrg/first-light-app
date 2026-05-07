@@ -16,6 +16,7 @@ import { SpeakButton } from '@/components/common/SpeakButton';
 import { ComboFlash, XpFloat, TokotonActivation } from '@/components/common/GameEffects';
 import type { VocabCard } from '@/types';
 import { EXAMPLE_TRANSLATIONS } from '@/lib/example-translations-data';
+import { EXAMPLE_VARIANTS } from '@/lib/example-variants-data';
 import { getPlayerName } from '@/lib/player-name';
 
 type EncouragementLevel = 'great' | 'good' | 'struggle';
@@ -154,21 +155,40 @@ function generateMeaningOptions(
   return shuffle([correct, ...unique.slice(0, 3)]);
 }
 
+/** Pick a random example variant (or fall back to default) */
+function pickExampleVariant(word: string): { example: string; correct: string; wrong: string[] } | null {
+  const variants = EXAMPLE_VARIANTS[word];
+  if (variants && variants.length > 0) {
+    return variants[Math.floor(Math.random() * variants.length)];
+  }
+  const entry = EXAMPLE_TRANSLATIONS[word];
+  if (entry) {
+    return { example: '', correct: entry.correct, wrong: [...entry.wrong] };
+  }
+  return null;
+}
+
 /** Generate translation options for example sentence quiz */
 function generateTranslationOptions(
   correctCard: VocabCard,
-): string[] {
-  const entry = EXAMPLE_TRANSLATIONS[correctCard.word];
-  if (!entry) {
-    // Fallback: just show the correct answer with generic wrongs
-    return shuffle([
-      correctCard.meaning + 'に関する例文。',
-      correctCard.meaning + 'とは異なる意味。',
-      correctCard.meaning + 'の反対の意味。',
-      correctCard.meaning + 'を含む別の文。',
-    ]);
+): { options: string[]; correctAnswer: string; exampleOverride?: string } {
+  const variant = pickExampleVariant(correctCard.word);
+  if (!variant) {
+    return {
+      options: shuffle([
+        correctCard.meaning + 'に関する例文。',
+        correctCard.meaning + 'とは異なる意味。',
+        correctCard.meaning + 'の反対の意味。',
+        correctCard.meaning + 'を含む別の文。',
+      ]),
+      correctAnswer: correctCard.meaning + 'に関する例文。',
+    };
   }
-  return shuffle([entry.correct, ...entry.wrong]);
+  return {
+    options: shuffle([variant.correct, ...variant.wrong.slice(0, 3)]),
+    correctAnswer: variant.correct,
+    exampleOverride: variant.example || undefined,
+  };
 }
 
 export function VocabStudy() {
@@ -209,9 +229,9 @@ export function VocabStudy() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentIndex, allCards, dueCards, isTokoton]);
 
-  const translationOptions = useMemo(() => {
+  const translationResult = useMemo(() => {
     const card = getCardForOptions();
-    if (!card) return [];
+    if (!card) return { options: [] as string[], correctAnswer: '', exampleOverride: undefined as string | undefined };
     return generateTranslationOptions(card);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentIndex, allCards, dueCards, isTokoton]);
@@ -241,13 +261,12 @@ export function VocabStudy() {
       setMeaningCorrect(correct);
       setStep('meaning-result');
     } else if (step === 'example') {
-      const entry = EXAMPLE_TRANSLATIONS[currentCard?.word ?? ''];
-      const correct = entry ? translationOptions[selected] === entry.correct : false;
+      const correct = translationResult.options[selected] === translationResult.correctAnswer;
       setExampleCorrect(correct);
       setStep('example-result');
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selected, step, meaningOptions, translationOptions, currentCard]);
+  }, [selected, step, meaningOptions, translationResult, currentCard]);
 
   const handleNext = useCallback(async () => {
     if (step === 'meaning-result') {
@@ -403,10 +422,11 @@ export function VocabStudy() {
   }
 
   // Get current options based on step
-  const options = (step === 'meaning' || step === 'meaning-result') ? meaningOptions : translationOptions;
+  const options = (step === 'meaning' || step === 'meaning-result') ? meaningOptions : translationResult.options;
   const correctAnswer = (step === 'meaning' || step === 'meaning-result')
     ? (currentCard?.meaning ?? '')
-    : (EXAMPLE_TRANSLATIONS[currentCard?.word ?? '']?.correct ?? '');
+    : translationResult.correctAnswer;
+  const displayExample = translationResult.exampleOverride || currentCard?.example || '';
   const isResultStep = step === 'meaning-result' || step === 'example-result';
   const isCorrectThisStep = step === 'meaning-result' ? meaningCorrect : exampleCorrect;
 
@@ -426,8 +446,8 @@ export function VocabStudy() {
             </div>
           ) : (
             <div className="mb-2 flex items-center gap-2 px-4">
-              <p className="text-sm text-gray-300 italic">{currentCard?.example}</p>
-              {currentCard?.example && <SpeakButton text={currentCard.example} className="shrink-0" />}
+              <p className="text-sm text-gray-300 italic">{displayExample}</p>
+              {displayExample && <SpeakButton text={displayExample} className="shrink-0" />}
             </div>
           )}
 
@@ -512,8 +532,8 @@ export function VocabStudy() {
 
           {step === 'example-result' && (
             <div className="flex items-center justify-center gap-2 mb-2">
-              <p className="text-sm text-gray-400 italic">{currentCard?.example}</p>
-              {currentCard?.example && <SpeakButton text={currentCard.example} className="shrink-0" />}
+              <p className="text-sm text-gray-400 italic">{displayExample}</p>
+              {displayExample && <SpeakButton text={displayExample} className="shrink-0" />}
             </div>
           )}
 
@@ -579,8 +599,8 @@ export function VocabStudy() {
           <>
             <p className="text-xs text-gray-400 mb-2">{currentCard?.word}（{currentCard?.meaning}）</p>
             <div className="flex items-center justify-center gap-2 mb-2">
-              <p className="text-base text-gray-700 dark:text-gray-300 italic">{currentCard?.example}</p>
-              {currentCard?.example && <SpeakButton text={currentCard.example} className="shrink-0" />}
+              <p className="text-base text-gray-700 dark:text-gray-300 italic">{displayExample}</p>
+              {displayExample && <SpeakButton text={displayExample} className="shrink-0" />}
             </div>
             <p className="text-sm text-gray-500 mt-2">正しい和訳を選んでください</p>
           </>
