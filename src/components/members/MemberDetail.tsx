@@ -1,79 +1,37 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
 import { MEMBERS } from '@/lib/members';
 import { STORY_CARDS } from '@/lib/stories';
 import { useProfile } from '@/lib/hooks';
 import { MemberAvatar } from '@/components/common/MemberAvatar';
 import { TypewriterText } from '@/components/common/TypewriterText';
 import { Card } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Lock, BookOpen, Play, Heart } from 'lucide-react';
-import { useMemberAffinities } from '@/lib/hooks';
-import { getAffinityLevel, AFFINITY_LABELS } from '@/lib/db';
+import { Lock, Play, MessageCircle, Image, User, Heart } from 'lucide-react';
 import { getPlayerName } from '@/lib/player-name';
 import Link from 'next/link';
 import { memberMemoryScenarios } from '@/lib/scenarios/member-memories';
 import { VNEngine } from '@/components/vn/VNEngine';
-import { resolvePlayerName } from '@/lib/player-name';
 import type { Member } from '@/types';
 import type { Scenario } from '@/lib/scenarios/types';
 
+const basePath = process.env.NEXT_PUBLIC_BASE_PATH || '';
+
 const PERSONAL_MESSAGES: Record<string, (name: string) => string[]> = {
-  haruto: (n) => [
-    `${n}さん、今日はどんな言葉に出会えるかな。`,
-    `${n}さんと一緒に勉強できて…嬉しいです。`,
-    `${n}さんのおかげで、新しい歌詞のアイデアが浮かんできます。`,
-  ],
-  sora: (n) => [
-    `${n}さん…来てくれたんですね。`,
-    `${n}さんと読む英文は、一人で読むより楽しいです。`,
-    `あ、${n}さん。おすすめの本、見つけたんです。`,
-  ],
-  ren: (n) => [
-    `…${n}か。ま、来たなら付き合ってやるよ。`,
-    `${n}と練習してると、なんか調子いいんだよな。`,
-    `${n}、さっき聴いてた曲の歌詞…一緒に訳さないか？`,
-  ],
-  yuuki: (n) => [
-    `${n}〜！ 会いたかったー！`,
-    `${n}のこと、海外ファンにも紹介していい？笑`,
-    `ねえ${n}、今日も一緒に頑張ろ！`,
-  ],
-  kai: (n) => [
-    `${n}、来てくれたか。…頼りにしてるぞ。`,
-    `${n}がいると、メンバーの調子がいいんだ。気づいてたか？`,
-    `${n}のこと、最初から信頼してたよ。`,
-  ],
+  haruto: (n) => [`${n}さん、今日はどんな言葉に出会えるかな。`, `${n}さんと一緒に勉強できて…嬉しいです。`, `${n}さんのおかげで、新しい歌詞のアイデアが浮かんできます。`],
+  sora: (n) => [`${n}さん…来てくれたんですね。`, `${n}さんと読む英文は、一人で読むより楽しいです。`, `あ、${n}さん。おすすめの本、見つけたんです。`],
+  ren: (n) => [`…${n}か。ま、来たなら付き合ってやるよ。`, `${n}と練習してると、なんか調子いいんだよな。`, `${n}、さっき聴いてた曲の歌詞…一緒に訳さないか？`],
+  yuuki: (n) => [`${n}〜！ 会いたかったー！`, `${n}のこと、海外ファンにも紹介していい？笑`, `ねえ${n}、今日も一緒に頑張ろ！`],
+  kai: (n) => [`${n}、来てくれたか。…頼りにしてるぞ。`, `${n}がいると、メンバーの調子がいいんだ。気づいてたか？`, `${n}のこと、最初から信頼してたよ。`],
 };
 
-function PersonalMessage({ memberId }: { memberId: string }) {
-  const [message, setMessage] = useState('');
-  useEffect(() => {
-    const name = getPlayerName();
-    if (!name) return;
-    const msgs = PERSONAL_MESSAGES[memberId];
-    if (msgs) {
-      const list = msgs(name);
-      setMessage(list[Math.floor(Math.random() * list.length)]);
-    }
-  }, [memberId]);
-
-  if (!message) return null;
-  return (
-    <Card className="p-4 border-indigo-200/30 bg-indigo-950/20 backdrop-blur-sm">
-      <TypewriterText
-        text={`「${message}」`}
-        className="text-sm italic text-gray-800 dark:text-gray-100"
-      />
-    </Card>
-  );
-}
-
-interface MemberDetailProps {
-  memberId: string;
-}
+const TAP_REACTIONS: Record<string, string[]> = {
+  haruto: ['あ…{name}さん。', '…えへ。', 'この単語、知ってますか？', '…ありがとうございます。'],
+  sora: ['…はい？', 'あ、{name}さん…。', '…何か用ですか？', '…嬉しいです。'],
+  ren: ['…ん？', 'なんだよ。', '…悪くないな。', '…ちょっと照れるだろ。'],
+  yuuki: ['おっ！', '{name}〜！', 'タッチ！', 'えへへ〜！'],
+  kai: ['…どうした。', '{name}か。', '何かあったか？', '…頼りにしてるぞ。'],
+};
 
 const MEMBER_MEMORIES: Record<string, { scenarioId: string; title: string; line1: string; line2: string }[]> = {
   haruto: [{ scenarioId: 'haruto-memory', title: '最初のノート', line1: '"serendipity"との出会い。', line2: '言葉を集めるきっかけになった一語。' }],
@@ -83,66 +41,117 @@ const MEMBER_MEMORIES: Record<string, { scenarioId: string; title: string; line1
   kai: [{ scenarioId: 'kai-memory', title: 'リーダーの責任', line1: '海外展開の話が出た日、全員が俺を見た。', line2: '文法書を買いに行った夜のこと。' }],
 };
 
-export function MemberDetail({ memberId }: MemberDetailProps) {
+const AXIS_LABELS: Record<string, string> = { vocabulary: '語彙', reading: '読解', listening: 'リスニング', writing: 'ライティング', grammar: '文法' };
+
+type Tab = 'profile' | 'story' | 'gallery' | 'quotes';
+
+export function MemberDetail({ memberId }: { memberId: string }) {
   const profile = useProfile();
-  const router = useRouter();
   const member = MEMBERS.find(m => m.id === memberId);
   const [playingScenario, setPlayingScenario] = useState<Scenario | null>(null);
+  const [tab, setTab] = useState<Tab>('profile');
+  const [tapReaction, setTapReaction] = useState('');
+  const name = getPlayerName() || 'マネージャー';
 
   if (!member) return <p className="text-center text-gray-500">メンバーが見つかりません</p>;
 
-  // Playing a memory VN inline
   if (playingScenario) {
-    return (
-      <VNEngine
-        scenario={playingScenario}
-        onComplete={() => setPlayingScenario(null)}
-        skippable
-      />
-    );
+    return <VNEngine scenario={playingScenario} onComplete={() => setPlayingScenario(null)} skippable />;
   }
+
+  const handleTap = () => {
+    const reactions = TAP_REACTIONS[memberId] ?? ['…'];
+    const r = reactions[Math.floor(Math.random() * reactions.length)].replace(/\{name\}/g, name);
+    setTapReaction(r);
+    setTimeout(() => setTapReaction(''), 2000);
+  };
 
   const stories = STORY_CARDS.filter(s => s.memberId === memberId);
   const userLevel = profile?.level ?? 1;
 
+  const tabs: { key: Tab; label: string; icon: any }[] = [
+    { key: 'profile', label: 'プロフィール', icon: User },
+    { key: 'story', label: 'ストーリー', icon: Play },
+    { key: 'gallery', label: 'ギャラリー', icon: Image },
+    { key: 'quotes', label: 'セリフ集', icon: MessageCircle },
+  ];
+
   return (
-    <div className="space-y-5 px-4 pb-6">
-      {/* Member header — gradient card */}
+    <div className="pb-6">
+      {/* Hero image area — large member image with overlay */}
       <div
-        className="rounded-2xl p-6 text-center relative overflow-hidden shadow-xl"
-        style={{ background: `linear-gradient(135deg, ${member.color}30, ${member.color}60)` }}
+        className="relative h-64 md:h-80 overflow-hidden cursor-pointer"
+        onClick={handleTap}
+        style={{ background: `linear-gradient(180deg, ${member.color}40 0%, ${member.color}10 100%)` }}
       >
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(255,255,255,0.08)_0%,transparent_50%)]" />
-        <div className="relative">
-          <MemberAvatar member={member} size="xl" />
-          <h2 className="text-2xl font-black mt-3 tracking-tight">{member.nameJa}</h2>
-          <p className="text-sm text-gray-300/70">{member.name}</p>
-          <span className="inline-block mt-2 px-3 py-1 rounded-full text-[10px] font-bold tracking-wider uppercase bg-white/10 backdrop-blur-sm border border-white/20 text-white/80">
+        <div className="absolute inset-0 flex items-center justify-center">
+          <img
+            src={`${basePath}/members/${member.id}.png`}
+            alt={member.nameJa}
+            className="w-48 h-48 md:w-64 md:h-64 object-contain drop-shadow-2xl rounded-full"
+          />
+        </div>
+        {/* Name overlay at bottom */}
+        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-4">
+          <h2 className="text-2xl font-black text-white">{member.nameJa}</h2>
+          <p className="text-sm text-white/60">{member.name}</p>
+          <span className="inline-block mt-1 px-2 py-0.5 rounded-full text-[10px] font-bold tracking-wider uppercase bg-white/10 backdrop-blur-sm text-white/80">
             {member.role}
           </span>
         </div>
+        {/* Tap reaction bubble */}
+        {tapReaction && (
+          <div className="absolute top-4 left-1/2 -translate-x-1/2 animate-combo-flash">
+            <div className="bg-black/70 backdrop-blur-sm text-white px-4 py-2 rounded-full text-sm font-medium">
+              「{tapReaction}」
+            </div>
+          </div>
+        )}
       </div>
 
-      {/* Personal message — glassmorphism */}
-      <PersonalMessage memberId={memberId} />
-
-      {/* Description — glassmorphism */}
-      <div className="rounded-xl bg-white/5 backdrop-blur-md border border-white/10 p-4">
-        <p className="text-sm text-gray-200 leading-relaxed">{member.description}</p>
-        <p className="text-sm text-gray-400 mt-2 italic">{member.personality}</p>
+      {/* Tabs */}
+      <div className="flex border-b border-gray-200 dark:border-gray-800 px-4">
+        {tabs.map(({ key, label, icon: Icon }) => (
+          <button
+            key={key}
+            onClick={() => setTab(key)}
+            className={`flex-1 flex flex-col items-center gap-1 py-3 text-xs font-medium transition-colors border-b-2 ${
+              tab === key
+                ? 'border-indigo-500 text-indigo-500'
+                : 'border-transparent text-gray-500'
+            }`}
+          >
+            <Icon className="w-4 h-4" />
+            {label}
+          </button>
+        ))}
       </div>
 
-      {/* Memory Stories */}
-      {(MEMBER_MEMORIES[memberId] ?? []).length > 0 && (
-        <div>
-          <h3 className="text-[10px] font-bold tracking-[0.2em] text-gray-500 uppercase mb-3 px-1">Memory Story</h3>
-          <div className="space-y-2">
+      {/* Tab content */}
+      <div className="px-4 pt-4 space-y-4">
+        {tab === 'profile' && (
+          <>
+            <PersonalMessage memberId={memberId} />
+            <Card className="p-4 backdrop-blur-sm bg-white/80 dark:bg-gray-900/80">
+              <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">{member.description}</p>
+              <p className="text-sm text-gray-500 mt-2 italic">{member.personality}</p>
+            </Card>
+            <Card className="p-4 backdrop-blur-sm bg-white/80 dark:bg-gray-900/80">
+              <h3 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">担当</h3>
+              <p className="text-sm font-medium">{AXIS_LABELS[member.axis] || member.axis}</p>
+            </Card>
+          </>
+        )}
+
+        {tab === 'story' && (
+          <>
+            {/* Memory VN */}
             {(MEMBER_MEMORIES[memberId] ?? []).map(m => {
               const scenario = memberMemoryScenarios[m.scenarioId];
               return (
-                <button
+                <Card
                   key={m.scenarioId}
-                  className="w-full text-left rounded-xl bg-white/5 backdrop-blur-md border border-indigo-400/20 hover:border-indigo-400/50 p-4 transition-all hover:shadow-lg hover:shadow-indigo-500/10 active:scale-[0.98]"
+                  className="p-4 cursor-pointer hover:shadow-md transition-shadow"
                   onClick={() => scenario && setPlayingScenario(scenario)}
                 >
                   <div className="flex items-center gap-3">
@@ -150,45 +159,78 @@ export function MemberDetail({ memberId }: MemberDetailProps) {
                       <Play className="w-4 h-4 text-indigo-400" />
                     </div>
                     <div className="flex-1">
-                      <h4 className="text-sm font-bold text-gray-200">{m.title}</h4>
-                      <p className="text-xs text-gray-400">{m.line1}</p>
+                      <h4 className="text-sm font-bold">{m.title}</h4>
+                      <p className="text-xs text-gray-500">{m.line1}</p>
+                      <p className="text-xs text-gray-400">{m.line2}</p>
                     </div>
                   </div>
-                </button>
+                </Card>
               );
             })}
-          </div>
-        </div>
-      )}
+            {/* Album stories */}
+            {stories.map(story => {
+              const unlocked = userLevel >= story.unlockedAt;
+              return (
+                <Card key={story.id} className={`p-4 ${!unlocked ? 'opacity-40' : ''}`}>
+                  <h4 className="text-sm font-bold flex items-center gap-2">
+                    {!unlocked && <Lock className="w-3 h-3" />}
+                    {story.title}
+                  </h4>
+                  {unlocked ? (
+                    <p className="text-xs text-gray-500 mt-1.5 whitespace-pre-line">{story.content}</p>
+                  ) : (
+                    <p className="text-xs text-gray-400 mt-1">Lv.{story.unlockedAt} で解放</p>
+                  )}
+                </Card>
+              );
+            })}
+          </>
+        )}
 
-      {/* Stories (Album) */}
-      <div>
-        <h3 className="text-[10px] font-bold tracking-[0.2em] text-gray-500 uppercase mb-3 px-1">Story Album</h3>
-        <div className="space-y-2.5">
-          {stories.map(story => {
-            const unlocked = userLevel >= story.unlockedAt;
-            return (
-              <div
-                key={story.id}
-                className={`rounded-xl bg-white/5 backdrop-blur-md border border-white/10 p-4 ${!unlocked ? 'opacity-40' : ''}`}
-              >
-                <h4 className="text-sm font-bold text-gray-200 flex items-center gap-2">
-                  {!unlocked && <Lock className="w-3 h-3 text-gray-500" />}
-                  {story.title}
-                </h4>
-                {unlocked ? (
-                  <p className="text-xs text-gray-400 mt-1.5 whitespace-pre-line leading-relaxed">
-                    {story.content}
-                  </p>
-                ) : (
-                  <p className="text-xs text-gray-600 mt-1">Lv.{story.unlockedAt} で解放</p>
-                )}
-              </div>
-            );
-          })}
-        </div>
+        {tab === 'gallery' && (
+          <div className="text-center py-12">
+            <Image className="w-12 h-12 text-gray-400 mx-auto mb-3" />
+            <p className="text-sm text-gray-500">ストリーク報酬で獲得した画像が表示されます</p>
+            <p className="text-xs text-gray-400 mt-1">Coming Soon</p>
+          </div>
+        )}
+
+        {tab === 'quotes' && (
+          <>
+            <p className="text-xs text-gray-500 mb-2">タップで聞いたセリフ</p>
+            {(PERSONAL_MESSAGES[memberId]?.(name) ?? []).map((q, i) => (
+              <Card key={i} className="p-3">
+                <p className="text-sm italic text-gray-700 dark:text-gray-300">「{q}」</p>
+              </Card>
+            ))}
+            {(TAP_REACTIONS[memberId] ?? []).map((q, i) => (
+              <Card key={`tap-${i}`} className="p-3">
+                <p className="text-sm italic text-gray-700 dark:text-gray-300">「{q.replace(/\{name\}/g, name)}」</p>
+              </Card>
+            ))}
+          </>
+        )}
       </div>
     </div>
+  );
+}
+
+function PersonalMessage({ memberId }: { memberId: string }) {
+  const [message, setMessage] = useState('');
+  useEffect(() => {
+    const n = getPlayerName();
+    if (!n) return;
+    const msgs = PERSONAL_MESSAGES[memberId];
+    if (msgs) {
+      const list = msgs(n);
+      setMessage(list[Math.floor(Math.random() * list.length)]);
+    }
+  }, [memberId]);
+  if (!message) return null;
+  return (
+    <Card className="p-4 border-indigo-200/30 bg-indigo-950/20 backdrop-blur-sm">
+      <TypewriterText text={`「${message}」`} className="text-sm italic text-gray-800 dark:text-gray-100" />
+    </Card>
   );
 }
 
@@ -202,12 +244,19 @@ export function MemberList() {
         <p className="text-[10px] font-bold tracking-[0.3em] text-gray-500 uppercase">Members</p>
         <h2 className="text-2xl font-black tracking-tight mt-1">FIRST LIGHT</h2>
       </div>
+<<<<<<< HEAD
       <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
         {MEMBERS.map(member => {
           const aff = affinityMap.get(member.id);
           const level = aff ? getAffinityLevel(aff.points) : 1;
           return <MemberCard key={member.id} member={member} affinityLevel={level} />;
         })}
+=======
+      <div className="grid grid-cols-2 gap-3">
+        {MEMBERS.map(member => (
+          <MemberCard key={member.id} member={member} />
+        ))}
+>>>>>>> 569ab02 (feat: member detail page overhaul with tabs and tap reactions)
       </div>
     </div>
   );
@@ -223,6 +272,7 @@ const AXIS_ICONS: Record<string, string> = {
 
 function MemberCard({ member, affinityLevel }: { member: Member; affinityLevel: number }) {
   return (
+<<<<<<< HEAD
     <Link href={`/members?id=${member.id}`}>
       <div
         className="rounded-xl overflow-hidden bg-white/5 backdrop-blur-md border border-white/10 hover:shadow-lg hover:shadow-indigo-500/10 hover:border-white/20 transition-all active:scale-[0.97] relative"
@@ -253,6 +303,22 @@ function MemberCard({ member, affinityLevel }: { member: Member; affinityLevel: 
             <span className="text-[9px] text-gray-500 ml-1">{AFFINITY_LABELS[affinityLevel - 1]}</span>
           </div>
         </div>
+=======
+    <div
+      className="rounded-xl overflow-hidden relative h-44 cursor-pointer hover:shadow-lg transition-shadow active:scale-[0.98]"
+      style={{ background: `linear-gradient(135deg, ${member.color}30, ${member.color}60)` }}
+    >
+      <div className="absolute inset-0 flex items-center justify-center pt-2">
+        <img
+          src={`${basePath}/members/${member.id}.png`}
+          alt={member.nameJa}
+          className="w-24 h-24 object-contain drop-shadow-xl rounded-full"
+        />
+      </div>
+      <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-3">
+        <h3 className="font-black text-white text-sm">{member.nameJa}</h3>
+        <p className="text-[10px] text-white/60 uppercase tracking-wider">{member.role}</p>
+>>>>>>> 569ab02 (feat: member detail page overhaul with tabs and tap reactions)
       </div>
     </Link>
   );
