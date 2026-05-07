@@ -215,8 +215,23 @@ export function HomeScreen() {
     <div className="space-y-5 pb-4">
       {/* Group 1: Member greeting + recommended action (tight) */}
       <div className="space-y-2">
-      {/* Member greeting with typewriter effect */}
-      {greeting.member && greeting.message && (
+      {/* Member greeting — psychology call-out or normal */}
+      {isPsychologyEventEnabled() && !isPsychologyUnlocked() ? (
+        <Link href="/psychology">
+          <Card className="p-4 cursor-pointer border-purple-300 dark:border-purple-700 hover:shadow-md transition-shadow">
+            <div className="flex items-start gap-4">
+              <div className="shrink-0 relative">
+                <MemberAvatar member={getMember('kai')!} size="lg" />
+                <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full animate-pulse" />
+              </div>
+              <div className="flex-1 min-w-0 pt-1">
+                <p className="text-xs text-gray-500 mb-1">カイ</p>
+                <TypewriterText text={`ビッグニュースだ！ ${getPlayerName() || 'マネージャー'}、すぐにオフィスに来て！`} className="text-sm font-bold text-purple-700 dark:text-purple-300 flex-1" />
+              </div>
+            </div>
+          </Card>
+        </Link>
+      ) : greeting.member && greeting.message ? (
         <Card className="p-4">
           <div className="flex items-start gap-4">
             <div className="shrink-0">
@@ -228,7 +243,7 @@ export function HomeScreen() {
             </div>
           </div>
         </Card>
-      )}
+      ) : null}
 
       {/* Next action guide - directly below member greeting */}
       <NextActionGuide profile={profile} dueCardCount={dueCards.length} />
@@ -280,24 +295,7 @@ export function HomeScreen() {
         </div>
       </Link>
 
-      {/* Psychology course card (if event enabled but not yet unlocked) */}
-      {isPsychologyEventEnabled() && !isPsychologyUnlocked() && (
-        <Link href="/psychology">
-          <Card className="p-4 border-purple-300 dark:border-purple-700 bg-purple-50 dark:bg-purple-950/30 hover:shadow-md transition-shadow cursor-pointer">
-            <div className="flex items-center gap-3">
-              <div className="relative p-2 bg-purple-100 dark:bg-purple-900 rounded-full">
-                <Sparkles className="w-5 h-5 text-purple-600 dark:text-purple-400" />
-                <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full animate-pulse" />
-              </div>
-              <div className="flex-1">
-                <p className="text-sm font-medium text-purple-900 dark:text-purple-100">新しいお知らせ</p>
-                <p className="text-xs text-purple-600 dark:text-purple-400">メンバーから大事な話があるようです</p>
-              </div>
-              <ArrowRight className="w-4 h-4 text-purple-400" />
-            </div>
-          </Card>
-        </Link>
-      )}
+      {/* Psychology badge moved to top greeting area */}
 
       {/* Psychology course card (if unlocked) */}
       {isPsychologyUnlocked() && (
