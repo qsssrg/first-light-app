@@ -176,10 +176,26 @@ export function Dashboard() {
               <div className="flex-1 min-w-0">
                 <p className="text-xs font-medium text-gray-500 mb-1">{guideMember.nameJa}</p>
 
-                {/* Milestone */}
+                {/* Milestone — member voice */}
                 <div className="relative bg-gray-100 dark:bg-gray-800 rounded-xl rounded-tl-none px-3 py-2.5 mb-2">
                   <p className="text-sm leading-relaxed">
-                    あなたの当面の目標は<span className="font-bold text-indigo-400">「{milestone}」</span>だ。
+                    {(() => {
+                      const ms: Record<string, string> = {
+                        kai: `${pName}の当面の目標は`,
+                        yuuki: `当面の目標は`,
+                        haruto: `${pName}さんの当面の目標は`,
+                        ren: `…目標は`,
+                        sora: `${pName}さんの当面の目標は`,
+                      };
+                      const suffix: Record<string, string> = {
+                        kai: 'だ。一緒に目指そう。',
+                        yuuki: 'だよ！ 頑張ろ〜！',
+                        haruto: 'ですね。僕も応援します。',
+                        ren: 'か。悪くない。',
+                        sora: 'です。一歩ずつ進みましょう。',
+                      };
+                      return <>{ms[guideMember.id] ?? ms.kai}<span className="font-bold text-indigo-400">「{milestone}」</span>{suffix[guideMember.id] ?? suffix.kai}</>;
+                    })()}
                   </p>
                   <div className="mt-2 flex items-center gap-2">
                     <div className="flex-1 h-1.5 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
