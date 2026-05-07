@@ -251,7 +251,7 @@ function NoCardsPrompt({ onAdded }: { onAdded: () => void }) {
           <div className="flex-1">
             <p className="text-xs text-gray-500 mb-1">{member.nameJa}</p>
             <p className="text-sm text-gray-700 dark:text-gray-300">
-              {name}、復習はバッチリだね！ もっと単語勉強しちゃう？
+              {name}、学習する単語は全部やったね！ もっと単語勉強しちゃう？
             </p>
           </div>
         </div>

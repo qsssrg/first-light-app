@@ -21,7 +21,7 @@ function NextActionGuide({ profile, dueCardCount }: { profile: any; dueCardCount
       return { text: 'まずレベルを測ろう', desc: 'あなたの英語力を5つの軸で判定します', href: '/settings', icon: Target };
     }
     if (dueCardCount > 0) {
-      return { text: `${dueCardCount}語の復習をしよう`, desc: '忘れる前に復習すると定着しやすい', href: '/vocabulary', icon: BookOpen };
+      return { text: `${dueCardCount}語の学習しよう`, desc: '単語を学習して語彙力を伸ばそう', href: '/vocabulary', icon: BookOpen };
     }
     if (profile.totalXp < 100) {
       return { text: '単語帳を始めよう', desc: '新しい単語を追加して学習スタート', href: '/vocabulary', icon: BookOpen };
@@ -72,17 +72,17 @@ function useGreeting(dueCardCount: number, totalXp: number): { member: ReturnTyp
 
     if (dueCardCount > 10) {
       const msgs = [
-        { id: 'haruto', msg: `${timeGreeting}、${name}さん！ 復習単語が${dueCardCount}個溜まってるよ。一緒に単語帳やろう。` },
-        { id: 'kai', msg: `${timeGreeting}、${name}。復習待ちが${dueCardCount}語ある。忘れる前にやっておこう。` },
-        { id: 'yuuki', msg: `${timeGreeting}〜${name}！ ${dueCardCount}語が復習待ちだよ〜！ やっちゃおう！` },
+        { id: 'haruto', msg: `${timeGreeting}、${name}さん！ 学習する単語が${dueCardCount}個溜まってるよ。一緒に単語帳やろう。` },
+        { id: 'kai', msg: `${timeGreeting}、${name}。学習待ちの単語が${dueCardCount}語ある。忘れる前にやっておこう。` },
+        { id: 'yuuki', msg: `${timeGreeting}〜${name}！ ${dueCardCount}語が学習待ちだよ〜！ やっちゃおう！` },
       ];
       const pick = msgs[Math.floor(Math.random() * msgs.length)];
       memberId = pick.id;
       actionMsg = pick.msg;
     } else if (dueCardCount > 0) {
       const msgs = [
-        { id: 'sora', msg: `${timeGreeting}、${name}さん。${dueCardCount}語の復習があります。さっと片付けちゃいましょう。` },
-        { id: 'haruto', msg: `${timeGreeting}、${name}さん。あと${dueCardCount}語で今日の復習は完了だよ。` },
+        { id: 'sora', msg: `${timeGreeting}、${name}さん。${dueCardCount}語のの学習があります。さっと片付けちゃいましょう。` },
+        { id: 'haruto', msg: `${timeGreeting}、${name}さん。あと${dueCardCount}語で今日のの学習は完了だよ。` },
       ];
       const pick = msgs[Math.floor(Math.random() * msgs.length)];
       memberId = pick.id;
@@ -97,10 +97,10 @@ function useGreeting(dueCardCount: number, totalXp: number): { member: ReturnTyp
       actionMsg = pick.msg;
     } else {
       const msgs = [
-        { id: 'ren', msg: `${timeGreeting}、${name}。復習は全部終わってるな。単語帳で新しい単語を追加してみないか？` },
+        { id: 'ren', msg: `${timeGreeting}、${name}。学習する単語は全部終わったな。単語帳で新しい単語を追加してみないか？` },
         { id: 'kai', msg: `${timeGreeting}、${name}。順調だ。まだ覚えてない単語がたくさんあるぞ。単語帳に追加しよう。` },
         { id: 'haruto', msg: `${timeGreeting}、${name}さん。新しい単語に出会いませんか？ 単語帳を開いてみてください。` },
-        { id: 'yuuki', msg: `${timeGreeting}〜${name}！ 復習終わったの？ すごい！ もっと単語増やしちゃおう！` },
+        { id: 'yuuki', msg: `${timeGreeting}〜${name}！ 学習する単語全部やったの？ すごい！ もっと単語増やしちゃおう！` },
       ];
       const pick = msgs[Math.floor(Math.random() * msgs.length)];
       memberId = pick.id;
@@ -230,7 +230,7 @@ export function HomeScreen() {
               <div>
                 <p className="text-sm font-medium">単語帳</p>
                 <p className="text-xs text-gray-500">
-                  {dueCards.length > 0 ? `${dueCards.length}語が復習待ち` : '全て復習済み'}
+                  {dueCards.length > 0 ? `${dueCards.length}語が学習待ち` : '学習する単語なし'}
                 </p>
               </div>
             </div>
