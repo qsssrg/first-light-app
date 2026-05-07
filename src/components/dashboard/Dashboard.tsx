@@ -221,35 +221,40 @@ export function Dashboard() {
         );
       })()}
 
-      {/* Skill balance */}
+      {/* Skill balance — radar chart */}
       <Card className="p-4 backdrop-blur-sm bg-white/80 dark:bg-gray-900/80 border-white/20 dark:border-gray-700/30">
-        <h3 className="text-sm font-bold mb-3">スキルバランス</h3>
-        <div className="space-y-3">
-          {(Object.keys(profile.skills) as SkillAxis[]).map(axis => {
-            const member = MEMBERS.find(m => m.axis === axis);
-            const value = profile.skills[axis];
-            return (
-              <div key={axis} className="space-y-1">
-                <div className="flex justify-between text-xs">
-                  <span className="flex items-center gap-1">
-                    <span
-                      className="w-2 h-2 rounded-full inline-block"
-                      style={{ backgroundColor: member?.color }}
-                    />
-                    {AXIS_LABELS[axis]}
-                  </span>
-                  <span className="text-gray-500">{value}</span>
-                </div>
-                <div className="h-2 bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden">
-                  <div
-                    className="h-full rounded-full transition-all"
-                    style={{ width: `${value}%`, backgroundColor: member?.color }}
-                  />
-                </div>
-              </div>
-            );
-          })}
-        </div>
+        <h3 className="text-sm font-bold mb-2">スキルバランス</h3>
+        {(() => {
+          const axes = Object.keys(profile.skills) as SkillAxis[];
+          const cx = 120, cy = 120, r = 85;
+          const n = axes.length;
+          const startAngle = -Math.PI / 2;
+          const pt = (i: number, val: number) => {
+            const a = startAngle + (i * 2 * Math.PI) / n;
+            const d = (val / 100) * r;
+            return `${cx + d * Math.cos(a)},${cy + d * Math.sin(a)}`;
+          };
+          return (
+            <div className="flex justify-center">
+              <svg viewBox="0 0 240 240" className="w-full max-w-[260px]">
+                {[20, 40, 60, 80, 100].map(lv => (
+                  <polygon key={lv} points={axes.map((_, i) => pt(i, lv)).join(' ')} fill="none" stroke="currentColor" className="text-gray-300 dark:text-gray-700" strokeWidth={lv === 100 ? 1.5 : 0.5} />
+                ))}
+                {axes.map((_, i) => <line key={i} x1={cx} y1={cy} x2={pt(i, 100).split(',')[0]} y2={pt(i, 100).split(',')[1]} stroke="currentColor" className="text-gray-300 dark:text-gray-700" strokeWidth={0.5} />)}
+                <polygon points={axes.map((a, i) => pt(i, profile.skills[a])).join(' ')} fill="rgba(99,102,241,0.15)" stroke="rgb(99,102,241)" strokeWidth={2} />
+                {axes.map((a, i) => {
+                  const [x, y] = pt(i, profile.skills[a]).split(',').map(Number);
+                  const m = MEMBERS.find(mm => mm.axis === a);
+                  return <circle key={a} cx={x} cy={y} r={3.5} fill={m?.color ?? '#6366f1'} />;
+                })}
+                {axes.map((a, i) => {
+                  const [x, y] = pt(i, 118).split(',').map(Number);
+                  return <text key={a} x={x} y={y} textAnchor="middle" dominantBaseline="middle" className="text-[9px] font-bold fill-gray-500 dark:fill-gray-400">{AXIS_LABELS[a]} {profile.skills[a]}</text>;
+                })}
+              </svg>
+            </div>
+          );
+        })()}
       </Card>
 
       {/* Study calendar */}
