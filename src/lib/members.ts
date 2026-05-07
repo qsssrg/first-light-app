@@ -17,6 +17,9 @@ export const MEMBERS: Member[] = [
       specialty: '即興で歌詞を書ける',
       traits: '繊細・内省的・誠実・言葉を大切にする・照れ屋',
       motto: '一つの言葉が、世界を変えることもある',
+      mbti: 'INFP',
+      zodiac: '♎ 天秤座',
+      englishRole: '語彙担当',
     },
   },
   {
@@ -35,6 +38,9 @@ export const MEMBERS: Member[] = [
       specialty: '速読',
       traits: '控えめ・知的好奇心旺盛・観察力がある・人見知り・芯が強い',
       motto: 'わかるって、段階があるんだ',
+      mbti: 'INTP',
+      zodiac: '♐ 射手座',
+      englishRole: '読解担当',
     },
   },
   {
@@ -53,6 +59,9 @@ export const MEMBERS: Member[] = [
       specialty: '一度聴いたメロディを耳コピで再現できる',
       traits: 'クール・ぶっきらぼう・情に厚い・照れ隠し・職人気質',
       motto: '音楽に言葉はいらない。でも、あったらもっといい',
+      mbti: 'ISTP',
+      zodiac: '♋ 蟹座',
+      englishRole: 'リスニング担当',
     },
   },
   {
@@ -71,6 +80,9 @@ export const MEMBERS: Member[] = [
       specialty: '誰とでもすぐ仲良くなれる',
       traits: '天真爛漫・お調子者・素直・寂しがり屋・努力家の一面',
       motto: '言葉は、想いを届ける翼だ！',
+      mbti: 'ESFP',
+      zodiac: '♓ 魚座',
+      englishRole: 'ライティング担当',
     },
   },
   {
@@ -89,6 +101,9 @@ export const MEMBERS: Member[] = [
       specialty: '人の話をまとめること',
       traits: '冷静・包容力・論理的・面倒見がいい・不器用な優しさ',
       motto: '全体を見渡せば、答えは見えてくる',
+      mbti: 'ENTJ',
+      zodiac: '♈ 牡羊座',
+      englishRole: '文法担当',
     },
   },
 ];

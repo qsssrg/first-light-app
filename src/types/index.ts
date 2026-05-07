@@ -84,6 +84,9 @@ export interface MemberProfile {
   specialty: string;
   traits: string;
   motto: string;
+  mbti?: string;
+  zodiac?: string;
+  englishRole?: string;
 }
 
 export interface Member {

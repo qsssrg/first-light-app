@@ -151,14 +151,13 @@ export function MemberDetail({ memberId }: { memberId: string }) {
                   <div className="col-span-2"><span className="text-gray-500">趣味</span><p className="font-medium">{member.profile.hobbies}</p></div>
                   <div className="col-span-2"><span className="text-gray-500">特技</span><p className="font-medium">{member.profile.specialty}</p></div>
                   <div className="col-span-2"><span className="text-gray-500">性格</span><p className="font-medium">{member.profile.traits}</p></div>
+                  {member.profile.zodiac && <div><span className="text-gray-500">星座</span><p className="font-medium">{member.profile.zodiac}</p></div>}
+                  {member.profile.mbti && <div><span className="text-gray-500">MBTI</span><p className="font-medium">{member.profile.mbti}</p></div>}
+                  {member.profile.englishRole && <div><span className="text-gray-500">英語担当</span><p className="font-medium">{member.profile.englishRole}</p></div>}
                   <div className="col-span-2"><span className="text-gray-500">座右の銘</span><p className="font-medium italic">「{member.profile.motto}」</p></div>
                 </div>
               </Card>
             )}
-            <Card className="p-4 backdrop-blur-sm bg-white/80 dark:bg-gray-900/80">
-              <h3 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">英語担当</h3>
-              <p className="text-sm font-medium">{AXIS_LABELS[member.axis] || member.axis}</p>
-            </Card>
             <AffinityCard memberId={memberId} />
           </>
         )}
