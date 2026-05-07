@@ -31,7 +31,13 @@ export function PastExams() {
 
   return (
     <div className="space-y-4 px-4">
-      <h2 className="text-lg font-bold">過去問ライブラリ</h2>
+      <div className="relative rounded-2xl overflow-hidden bg-gradient-to-br from-slate-600 via-gray-500 to-zinc-400 p-5 text-white shadow-lg mb-2">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_40%,rgba(255,255,255,0.08)_0%,transparent_50%)]" />
+        <div className="relative">
+          <h2 className="text-xl font-black tracking-wide">過去問ライブラリ</h2>
+          <p className="text-xs opacity-60 mt-0.5">Past Exams</p>
+        </div>
+      </div>
 
       {/* Filter tabs */}
       <div className="flex gap-1.5 overflow-x-auto pb-1">

@@ -189,7 +189,13 @@ export function MemberDetail({ memberId }: MemberDetailProps) {
 export function MemberList() {
   return (
     <div className="space-y-4 px-4">
-      <h2 className="text-lg font-bold">FIRST LIGHT</h2>
+      <div className="relative rounded-2xl overflow-hidden bg-gradient-to-br from-indigo-600 via-purple-500 to-pink-400 p-5 text-white shadow-lg mb-2">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_40%,rgba(255,255,255,0.08)_0%,transparent_50%)]" />
+        <div className="relative">
+          <h2 className="text-xl font-black tracking-wide">FIRST LIGHT</h2>
+          <p className="text-xs opacity-60 mt-0.5">Members</p>
+        </div>
+      </div>
       <div className="grid grid-cols-1 gap-3">
         {MEMBERS.map(member => (
           <MemberCard key={member.id} member={member} />

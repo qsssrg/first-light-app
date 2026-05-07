@@ -78,7 +78,13 @@ export function ListeningPractice() {
   if (mode === 'select') {
     return (
       <div className="space-y-4 px-4">
-        <h2 className="text-lg font-bold">リスニング練習</h2>
+        <div className="relative rounded-2xl overflow-hidden bg-gradient-to-br from-sky-600 via-blue-500 to-indigo-400 p-5 text-white shadow-lg mb-2">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_40%,rgba(255,255,255,0.08)_0%,transparent_50%)]" />
+        <div className="relative">
+          <h2 className="text-xl font-black tracking-wide">リスニング練習</h2>
+          <p className="text-xs opacity-60 mt-0.5">Listening</p>
+        </div>
+      </div>
         <p className="text-xs text-gray-500">Web Speech APIで英語音声を再生します。イヤホン推奨。</p>
 
         {/* Level filter */}

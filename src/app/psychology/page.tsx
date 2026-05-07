@@ -56,7 +56,13 @@ export default function PsychologyPage() {
   return (
     <div className="pb-20">
       <div className="max-w-lg md:max-w-2xl lg:max-w-3xl mx-auto py-6 px-4 space-y-6">
-        <h2 className="text-lg font-bold">心理学バラエティ番組</h2>
+        <div className="relative rounded-2xl overflow-hidden bg-gradient-to-br from-violet-700 via-purple-600 to-fuchsia-500 p-5 text-white shadow-lg mb-2">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_40%,rgba(255,255,255,0.08)_0%,transparent_50%)]" />
+        <div className="relative">
+          <h2 className="text-xl font-black tracking-wide">心理学バラエティ番組</h2>
+          <p className="text-xs opacity-60 mt-0.5">Psychology</p>
+        </div>
+      </div>
 
         {/* Kai greeting */}
         <Card className="p-4">

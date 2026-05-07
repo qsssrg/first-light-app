@@ -85,7 +85,13 @@ function StoryList() {
   return (
     <div className="pb-20">
       <div className="max-w-lg md:max-w-2xl lg:max-w-3xl mx-auto py-6 px-4 space-y-4">
-        <h2 className="text-lg font-bold">ストーリー回想</h2>
+        <div className="relative rounded-2xl overflow-hidden bg-gradient-to-br from-indigo-700 via-blue-600 to-cyan-500 p-5 text-white shadow-lg mb-2">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_40%,rgba(255,255,255,0.08)_0%,transparent_50%)]" />
+        <div className="relative">
+          <h2 className="text-xl font-black tracking-wide">ストーリー回想</h2>
+          <p className="text-xs opacity-60 mt-0.5">Story Replay</p>
+        </div>
+      </div>
         <p className="text-xs text-gray-500">過去に見たストーリーをもう一度再生できます</p>
 
         <div className="space-y-3">

@@ -105,7 +105,13 @@ Remember the Montessori principle: acknowledge growth rather than just praise.`,
   if (result) {
     return (
       <div className="space-y-4 px-4">
-        <h2 className="text-lg font-bold">添削結果</h2>
+        <div className="relative rounded-2xl overflow-hidden bg-gradient-to-br from-rose-600 via-pink-500 to-fuchsia-400 p-5 text-white shadow-lg mb-2">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_40%,rgba(255,255,255,0.08)_0%,transparent_50%)]" />
+        <div className="relative">
+          <h2 className="text-xl font-black tracking-wide">添削結果</h2>
+          <p className="text-xs opacity-60 mt-0.5">Writing Result</p>
+        </div>
+      </div>
         {result.score !== null && (
           <div className="text-center">
             <p className="text-3xl font-bold">{result.score}<span className="text-sm text-gray-500">/100</span></p>
@@ -137,7 +143,13 @@ Remember the Montessori principle: acknowledge growth rather than just praise.`,
 
   return (
     <div className="space-y-4 px-4">
-      <h2 className="text-lg font-bold">ライティング練習</h2>
+      <div className="relative rounded-2xl overflow-hidden bg-gradient-to-br from-rose-600 via-pink-500 to-fuchsia-400 p-5 text-white shadow-lg mb-2">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_40%,rgba(255,255,255,0.08)_0%,transparent_50%)]" />
+        <div className="relative">
+          <h2 className="text-xl font-black tracking-wide">ライティング練習</h2>
+          <p className="text-xs opacity-60 mt-0.5">Writing Practice</p>
+        </div>
+      </div>
 
       <Card className="p-4 bg-blue-50 dark:bg-blue-950 border-blue-200 dark:border-blue-800">
         <p className="text-xs text-blue-600 dark:text-blue-400 mb-1">お題</p>

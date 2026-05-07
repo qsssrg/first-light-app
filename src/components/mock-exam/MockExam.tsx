@@ -75,7 +75,13 @@ export function MockExam() {
   if (!examType) {
     return (
       <div className="space-y-4 px-4">
-        <h2 className="text-lg font-bold">模擬試験</h2>
+        <div className="relative rounded-2xl overflow-hidden bg-gradient-to-br from-red-600 via-rose-500 to-orange-400 p-5 text-white shadow-lg mb-2">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_40%,rgba(255,255,255,0.08)_0%,transparent_50%)]" />
+        <div className="relative">
+          <h2 className="text-xl font-black tracking-wide">模擬試験</h2>
+          <p className="text-xs opacity-60 mt-0.5">Mock Exam</p>
+        </div>
+      </div>
         <p className="text-xs text-gray-500">本番形式で実力を試そう。各10問、制限時間なし。</p>
 
         <Card className="p-4 hover:shadow-md transition-shadow cursor-pointer" onClick={() => startExam('eiken_pre1')}>
