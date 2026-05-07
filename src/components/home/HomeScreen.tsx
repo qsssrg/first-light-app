@@ -247,15 +247,17 @@ export function HomeScreen() {
             </div>
           </div>
         </Card>
-        <Card className="flex-1 p-4">
-          <div className="flex items-center gap-2">
-            <Sparkles className="w-5 h-5 text-yellow-500" />
-            <div>
-              <p className="text-lg font-bold">{profile.totalXp}</p>
-              <p className="text-xs text-gray-500">Total XP</p>
+        <Link href="/xp-history">
+          <Card className="flex-1 p-4 cursor-pointer hover:shadow-md transition-shadow">
+            <div className="flex items-center gap-2">
+              <Sparkles className="w-5 h-5 text-yellow-500" />
+              <div>
+                <p className="text-lg font-bold">{profile.totalXp}</p>
+                <p className="text-xs text-gray-500">Total XP &gt;</p>
+              </div>
             </div>
-          </div>
-        </Card>
+          </Card>
+        </Link>
       </div>
 
       {/* FIRST LIGHT News */}
