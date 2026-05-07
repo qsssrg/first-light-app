@@ -9,9 +9,13 @@ import { MemberAvatar } from '@/components/common/MemberAvatar';
 import { TypewriterText } from '@/components/common/TypewriterText';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Lock, BookOpen } from 'lucide-react';
+import { Lock, BookOpen, Play } from 'lucide-react';
 import { getPlayerName } from '@/lib/player-name';
+import { memberMemoryScenarios } from '@/lib/scenarios/member-memories';
+import { VNEngine } from '@/components/vn/VNEngine';
+import { resolvePlayerName } from '@/lib/player-name';
 import type { Member } from '@/types';
+import type { Scenario } from '@/lib/scenarios/types';
 
 const PERSONAL_MESSAGES: Record<string, (name: string) => string[]> = {
   haruto: (n) => [
@@ -68,20 +72,32 @@ interface MemberDetailProps {
   memberId: string;
 }
 
-const MEMBER_REPLAY_SCENARIOS: Record<string, { id: string; label: string }[]> = {
-  kai: [{ id: 'kai-memory', label: 'リーダーの責任' }, { id: 'opening', label: 'オープニング' }],
-  haruto: [{ id: 'haruto-memory', label: '最初のノート' }, { id: 'vocab-intro', label: '単語練習' }],
-  sora: [{ id: 'sora-memory', label: '洋書との出会い' }],
-  ren: [{ id: 'ren-memory', label: 'ヘッドフォンの向こう側' }],
-  yuuki: [{ id: 'yuuki-memory', label: '海外ファンへのDM' }],
+const MEMBER_MEMORIES: Record<string, { scenarioId: string; title: string; line1: string; line2: string }[]> = {
+  haruto: [{ scenarioId: 'haruto-memory', title: '最初のノート', line1: '"serendipity"との出会い。', line2: '言葉を集めるきっかけになった一語。' }],
+  sora: [{ scenarioId: 'sora-memory', title: '洋書との出会い', line1: '空港の本屋で手に取ったペーパーバック。', line2: '辞書を引きながら最後まで読んだ日。' }],
+  ren: [{ scenarioId: 'ren-memory', title: 'ヘッドフォンの向こう側', line1: '親父のレコードで聴いた洋楽。', line2: '歌詞が分からなくても鳥肌が立った冬の夜。' }],
+  yuuki: [{ scenarioId: 'yuuki-memory', title: '海外ファンへのDM', line1: '英語のメッセージに自分の言葉で返したい。', line2: 'Google翻訳じゃなくて、気持ちを込めて。' }],
+  kai: [{ scenarioId: 'kai-memory', title: 'リーダーの責任', line1: '海外展開の話が出た日、全員が俺を見た。', line2: '文法書を買いに行った夜のこと。' }],
 };
 
 export function MemberDetail({ memberId }: MemberDetailProps) {
   const profile = useProfile();
   const router = useRouter();
   const member = MEMBERS.find(m => m.id === memberId);
+  const [playingScenario, setPlayingScenario] = useState<Scenario | null>(null);
 
   if (!member) return <p className="text-center text-gray-500">メンバーが見つかりません</p>;
+
+  // Playing a memory VN inline
+  if (playingScenario) {
+    return (
+      <VNEngine
+        scenario={playingScenario}
+        onComplete={() => setPlayingScenario(null)}
+        skippable
+      />
+    );
+  }
 
   const stories = STORY_CARDS.filter(s => s.memberId === memberId);
   const userLevel = profile?.level ?? 1;
@@ -108,25 +124,30 @@ export function MemberDetail({ memberId }: MemberDetailProps) {
         <p className="text-sm text-gray-500 mt-2 italic">{member.personality}</p>
       </Card>
 
-      {/* Story Replay */}
-      {(MEMBER_REPLAY_SCENARIOS[memberId] ?? []).length > 0 && (
+      {/* Memory Stories (inline VN playback) */}
+      {(MEMBER_MEMORIES[memberId] ?? []).length > 0 && (
         <div>
           <h3 className="font-bold text-sm mb-3 px-1">思い出ストーリー</h3>
           <div className="space-y-2">
-            {(MEMBER_REPLAY_SCENARIOS[memberId] ?? []).map(s => (
-              <button
-                key={s.id}
-                onClick={() => router.push(`/story-replay?id=${s.id}`)}
-                className="w-full text-left"
-              >
-                <Card className="p-3 hover:shadow-md transition-shadow cursor-pointer border-indigo-200/30 hover:border-indigo-400/50">
+            {(MEMBER_MEMORIES[memberId] ?? []).map(m => {
+              const scenario = memberMemoryScenarios[m.scenarioId];
+              return (
+                <Card
+                  key={m.scenarioId}
+                  className="p-4 cursor-pointer hover:shadow-md transition-shadow border-indigo-200/30 hover:border-indigo-400/50"
+                  onClick={() => scenario && setPlayingScenario(scenario)}
+                >
                   <div className="flex items-center gap-3">
-                    <BookOpen className="w-4 h-4 text-indigo-400" />
-                    <span className="text-sm text-gray-700 dark:text-gray-300">{s.label}</span>
+                    <Play className="w-4 h-4 text-indigo-400 shrink-0" />
+                    <div className="flex-1">
+                      <h4 className="text-sm font-bold">{m.title}</h4>
+                      <p className="text-xs text-gray-600 dark:text-gray-400">{m.line1}</p>
+                      <p className="text-xs text-gray-500">{m.line2}</p>
+                    </div>
                   </div>
                 </Card>
-              </button>
-            ))}
+              );
+            })}
           </div>
         </div>
       )}
