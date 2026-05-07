@@ -23,15 +23,13 @@ function SM2HelpLabel() {
   const [open, setOpen] = useState(false);
   return (
     <div className="relative">
-      <p className="text-xs text-gray-500 flex items-center justify-center gap-1">
+      <button
+        onClick={() => setOpen(!open)}
+        className="text-xs text-gray-500 flex items-center justify-center gap-1 cursor-pointer p-1 -m-1 rounded hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+      >
         習得済み
-        <button
-          onClick={() => setOpen(!open)}
-          className="w-3.5 h-3.5 rounded-full bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400 text-[9px] font-bold inline-flex items-center justify-center hover:bg-gray-300 dark:hover:bg-gray-600"
-        >
-          ?
-        </button>
-      </p>
+        <span className="w-3.5 h-3.5 rounded-full bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400 text-[9px] font-bold inline-flex items-center justify-center">?</span>
+      </button>
       {open && (
         <>
           <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
