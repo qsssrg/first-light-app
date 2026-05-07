@@ -78,37 +78,62 @@ function NextActionGuide({ profile, dueCardCount }: { profile: any; dueCardCount
   );
 }
 
-function useGreeting(): { member: ReturnType<typeof getMember>; message: string } {
+function useGreeting(dueCardCount: number, totalXp: number): { member: ReturnType<typeof getMember>; message: string } {
   const [greeting, setGreeting] = useState({ member: getMember('kai')!, message: '' });
 
   useEffect(() => {
-    const name = getPlayerName();
+    const name = getPlayerName() || 'マネージャー';
     const hour = new Date().getHours();
-    const displayName = name || 'マネージャー';
 
-    const greetings = hour < 6 ? [
-      { id: 'ren', msg: `こんな時間まで起きてるのか、${displayName}。…俺もだけど。` },
-      { id: 'kai', msg: `${displayName}、無理はするなよ。でも…付き合うよ。` },
-    ] : hour < 10 ? [
-      { id: 'yuuki', msg: `おはよ〜${displayName}！ 今日も一緒に頑張ろ！` },
-      { id: 'sora', msg: `おはようございます、${displayName}さん。今日は何を学びましょうか。` },
-      { id: 'kai', msg: `おはよう、${displayName}。今日も俺たちについてきてくれるか？` },
-    ] : hour < 17 ? [
-      { id: 'haruto', msg: `${displayName}さん、今日も来てくれたんですね。嬉しいです。` },
-      { id: 'yuuki', msg: `${displayName}！ 待ってたよ〜！` },
-      { id: 'kai', msg: `${displayName}、調子はどうだ？ 今日もやっていこう。` },
-    ] : hour < 21 ? [
-      { id: 'ren', msg: `${displayName}、お疲れ。今日はどこまでやる？` },
-      { id: 'sora', msg: `${displayName}さん、夜の勉強って集中できますよね。` },
-    ] : [
-      { id: 'haruto', msg: `遅い時間なのに…${displayName}さん、ありがとう。` },
-      { id: 'kai', msg: `${displayName}、今日もお疲れさま。少しだけやって休もう。` },
-      { id: 'ren', msg: `…${displayName}、夜更かしもほどほどにな。` },
-    ];
+    // Time-based greeting prefix
+    const timeGreeting = hour < 6 ? 'こんな時間まで…' :
+                         hour < 10 ? 'おはよう' :
+                         hour < 17 ? 'やあ' :
+                         hour < 21 ? 'お疲れ様' : '夜遅くまで頑張ってるね';
 
-    const pick = greetings[Math.floor(Math.random() * greetings.length)];
-    setGreeting({ member: getMember(pick.id)!, message: pick.msg });
-  }, []);
+    // Context-based action suggestion
+    let actionMsg: string;
+    let memberId: string;
+
+    if (dueCardCount > 10) {
+      const msgs = [
+        { id: 'haruto', msg: `${timeGreeting}、${name}さん！ 復習単語が${dueCardCount}個溜まってるよ。一緒に単語帳やろう。` },
+        { id: 'kai', msg: `${timeGreeting}、${name}。復習待ちが${dueCardCount}語ある。忘れる前にやっておこう。` },
+        { id: 'yuuki', msg: `${timeGreeting}〜${name}！ ${dueCardCount}語が復習待ちだよ〜！ やっちゃおう！` },
+      ];
+      const pick = msgs[Math.floor(Math.random() * msgs.length)];
+      memberId = pick.id;
+      actionMsg = pick.msg;
+    } else if (dueCardCount > 0) {
+      const msgs = [
+        { id: 'sora', msg: `${timeGreeting}、${name}さん。${dueCardCount}語の復習があります。さっと片付けちゃいましょう。` },
+        { id: 'haruto', msg: `${timeGreeting}、${name}さん。あと${dueCardCount}語で今日の復習は完了だよ。` },
+      ];
+      const pick = msgs[Math.floor(Math.random() * msgs.length)];
+      memberId = pick.id;
+      actionMsg = pick.msg;
+    } else if (totalXp < 50) {
+      const msgs = [
+        { id: 'kai', msg: `${timeGreeting}、${name}。まだ始めたばかりだな。チャプターを進めてみよう。` },
+        { id: 'yuuki', msg: `${timeGreeting}〜${name}！ 最初はどんどん進めていこ！ チャプターがおすすめ！` },
+      ];
+      const pick = msgs[Math.floor(Math.random() * msgs.length)];
+      memberId = pick.id;
+      actionMsg = pick.msg;
+    } else {
+      const msgs = [
+        { id: 'ren', msg: `${timeGreeting}、${name}。復習は全部終わってるな。新しい単語に挑戦するか？` },
+        { id: 'kai', msg: `${timeGreeting}、${name}。順調だ。今日は新しいチャプターに挑戦してみないか。` },
+        { id: 'haruto', msg: `${timeGreeting}、${name}さん。今日は何を学びましょうか。` },
+        { id: 'sora', msg: `${timeGreeting}、${name}さん。今日も一緒に頑張りましょう。` },
+      ];
+      const pick = msgs[Math.floor(Math.random() * msgs.length)];
+      memberId = pick.id;
+      actionMsg = pick.msg;
+    }
+
+    setGreeting({ member: getMember(memberId)!, message: actionMsg });
+  }, [dueCardCount, totalXp]);
 
   return greeting;
 }
@@ -116,7 +141,7 @@ function useGreeting(): { member: ReturnType<typeof getMember>; message: string 
 export function HomeScreen() {
   const profile = useProfile();
   const dueCards = useDueCards();
-  const greeting = useGreeting();
+  const greeting = useGreeting(dueCards.length, profile?.totalXp ?? 0);
 
   if (!profile) return null;
 
@@ -127,10 +152,15 @@ export function HomeScreen() {
     <div className="space-y-6 pb-4">
       {/* Member greeting with typewriter effect */}
       {greeting.member && greeting.message && (
-        <Card className="p-3">
-          <div className="flex items-center gap-3">
-            <MemberAvatar member={greeting.member} size="sm" />
-            <TypewriterText text={greeting.message} />
+        <Card className="p-4">
+          <div className="flex items-start gap-4">
+            <div className="shrink-0">
+              <MemberAvatar member={greeting.member} size="lg" />
+            </div>
+            <div className="flex-1 min-w-0 pt-1">
+              <p className="text-xs text-gray-500 mb-1">{greeting.member.nameJa}</p>
+              <TypewriterText text={greeting.message} />
+            </div>
           </div>
         </Card>
       )}
