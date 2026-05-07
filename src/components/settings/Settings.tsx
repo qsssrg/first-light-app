@@ -62,6 +62,12 @@ export function Settings() {
           checked={settings.soundEnabled}
           onToggle={() => toggleSetting('soundEnabled')}
         />
+        <SettingRow
+          label="English Speaker Mode"
+          description="英語だけで学習する上級モード"
+          checked={settings.englishSpeakerMode}
+          onToggle={() => toggleSetting('englishSpeakerMode')}
+        />
         <PsychologyEventToggle />
       </Card>
 

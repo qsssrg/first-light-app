@@ -20,6 +20,7 @@ const DEFAULT_PROFILE: Omit<UserProfile, 'id'> = {
     gamificationEnabled: true,
     dailyChallengeEnabled: true,
     soundEnabled: true,
+    englishSpeakerMode: false,
   },
 };
 

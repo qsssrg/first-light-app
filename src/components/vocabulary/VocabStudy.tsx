@@ -18,6 +18,8 @@ import type { VocabCard } from '@/types';
 import { EXAMPLE_TRANSLATIONS } from '@/lib/example-translations-data';
 import { EXAMPLE_VARIANTS } from '@/lib/example-variants-data';
 import { getPlayerName } from '@/lib/player-name';
+import { useProfile } from '@/lib/hooks';
+import { ENGLISH_DEFINITIONS } from '@/lib/english-definitions-data';
 
 type EncouragementLevel = 'great' | 'good' | 'struggle';
 
@@ -121,7 +123,8 @@ function getEncouragement(studied: number, correctRate: number): { member: typeo
   return { member, message };
 }
 
-type QuizStep = 'meaning' | 'meaning-result' | 'example' | 'example-result';
+type QuizStep = 'meaning' | 'meaning-result' | 'example' | 'example-result'
+  | 'def-to-word' | 'def-to-word-result' | 'word-to-def' | 'word-to-def-result' | 'cloze' | 'cloze-result';
 type SessionPhase = 'study' | 'tokoton-end';
 
 function generateMeaningOptions(
@@ -191,13 +194,42 @@ function generateTranslationOptions(
   };
 }
 
+/** English Speaker Mode: Definition → Word (4 choices) */
+function generateDefToWordOptions(correctCard: VocabCard, allCards: VocabCard[]): string[] {
+  const correct = correctCard.word;
+  const others = allCards.filter(c => c.word !== correct);
+  const sameCategory = others.filter(c => c.category === correctCard.category);
+  const pool = sameCategory.length >= 3 ? sameCategory : others;
+  const distractors = shuffle(pool).slice(0, 3).map(c => c.word);
+  return shuffle([correct, ...distractors]);
+}
+
+/** English Speaker Mode: Word → Definition (4 choices) */
+function generateWordToDefOptions(correctCard: VocabCard, allCards: VocabCard[]): { options: string[]; correctDef: string } {
+  const correctDef = ENGLISH_DEFINITIONS[correctCard.word]?.definition ?? correctCard.meaning;
+  const others = allCards.filter(c => c.word !== correctCard.word && ENGLISH_DEFINITIONS[c.word]);
+  const pool = shuffle(others).slice(0, 3).map(c => ENGLISH_DEFINITIONS[c.word].definition);
+  return { options: shuffle([correctDef, ...pool]), correctDef };
+}
+
+/** English Speaker Mode: Cloze (fill in the blank) */
+function generateClozeOptions(correctCard: VocabCard, allCards: VocabCard[]): { sentence: string; options: string[] } {
+  const sentence = correctCard.example.replace(new RegExp(`\\b${correctCard.word}\\b`, 'gi'), '______');
+  const others = allCards.filter(c => c.word !== correctCard.word);
+  const distractors = shuffle(others).slice(0, 3).map(c => c.word);
+  return { sentence, options: shuffle([correctCard.word, ...distractors]) };
+}
+
 export function VocabStudy() {
   const rawDueCards = useDueCards();
   const allCards = useVocabCards();
+  const profile = useProfile();
+  const isEnglishMode = profile?.settings?.englishSpeakerMode ?? false;
   const dueCards = useMemo(() => getAdaptiveCards(rawDueCards, rawDueCards.length), [rawDueCards]);
 
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [step, setStep] = useState<QuizStep>('meaning');
+  const initialStep: QuizStep = isEnglishMode ? 'def-to-word' : 'meaning';
+  const [step, setStep] = useState<QuizStep>(initialStep);
   const [selected, setSelected] = useState<number | null>(null);
   const [meaningCorrect, setMeaningCorrect] = useState(false);
   const [exampleCorrect, setExampleCorrect] = useState(false);
@@ -236,6 +268,28 @@ export function VocabStudy() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentIndex, allCards, dueCards, isTokoton]);
 
+  // English Speaker Mode options
+  const engDefToWord = useMemo(() => {
+    const card = getCardForOptions();
+    if (!card || !isEnglishMode) return [] as string[];
+    return generateDefToWordOptions(card, allCards);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentIndex, allCards, dueCards, isTokoton, isEnglishMode]);
+
+  const engWordToDef = useMemo(() => {
+    const card = getCardForOptions();
+    if (!card || !isEnglishMode) return { options: [] as string[], correctDef: '' };
+    return generateWordToDefOptions(card, allCards);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentIndex, allCards, dueCards, isTokoton, isEnglishMode]);
+
+  const engCloze = useMemo(() => {
+    const card = getCardForOptions();
+    if (!card || !isEnglishMode) return { sentence: '', options: [] as string[] };
+    return generateClozeOptions(card, allCards);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentIndex, allCards, dueCards, isTokoton, isEnglishMode]);
+
   const getCard = (): VocabCard | undefined => {
     if (isTokoton) {
       const pool = allCards.length > 0 ? allCards : dueCards;
@@ -249,7 +303,7 @@ export function VocabStudy() {
   const totalCards = dueCards.length;
 
   const handleSelect = useCallback((index: number) => {
-    if (step === 'meaning-result' || step === 'example-result') return;
+    if (step.endsWith('-result')) return;
     setSelected(index);
   }, [step]);
 
@@ -264,19 +318,42 @@ export function VocabStudy() {
       const correct = translationResult.options[selected] === translationResult.correctAnswer;
       setExampleCorrect(correct);
       setStep('example-result');
+    } else if (step === 'def-to-word') {
+      const correct = engDefToWord[selected] === currentCard?.word;
+      setMeaningCorrect(correct);
+      setStep('def-to-word-result');
+    } else if (step === 'word-to-def') {
+      const correct = engWordToDef.options[selected] === engWordToDef.correctDef;
+      setExampleCorrect(correct);
+      setStep('word-to-def-result');
+    } else if (step === 'cloze') {
+      const correct = engCloze.options[selected] === currentCard?.word;
+      setExampleCorrect(correct);
+      setStep('cloze-result');
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selected, step, meaningOptions, translationResult, currentCard]);
+  }, [selected, step, meaningOptions, translationResult, currentCard, engDefToWord, engWordToDef, engCloze]);
 
   const handleNext = useCallback(async () => {
     if (step === 'meaning-result') {
-      // Move to example step
       setStep('example');
       setSelected(null);
       return;
     }
 
-    if (step === 'example-result' && currentCard?.id) {
+    if (step === 'def-to-word-result') {
+      setStep('word-to-def');
+      setSelected(null);
+      return;
+    }
+
+    if (step === 'word-to-def-result') {
+      setStep('cloze');
+      setSelected(null);
+      return;
+    }
+
+    if ((step === 'example-result' || step === 'cloze-result') && currentCard?.id) {
       // Both steps done — calculate SRS quality
       const quality = (meaningCorrect && exampleCorrect) ? 5 :
                       (meaningCorrect || exampleCorrect) ? 3 : 1;
@@ -310,7 +387,7 @@ export function VocabStudy() {
       setMaxCombo(Math.max(maxCombo, newCombo));
       setSessionXp(sessionXp + xp);
       setStudied(studied + 1);
-      setStep('meaning');
+      setStep(isEnglishMode ? 'def-to-word' : 'meaning');
       setSelected(null);
       setMeaningCorrect(false);
       setExampleCorrect(false);
@@ -422,13 +499,25 @@ export function VocabStudy() {
   }
 
   // Get current options based on step
-  const options = (step === 'meaning' || step === 'meaning-result') ? meaningOptions : translationResult.options;
-  const correctAnswer = (step === 'meaning' || step === 'meaning-result')
-    ? (currentCard?.meaning ?? '')
-    : translationResult.correctAnswer;
+  const options = (() => {
+    if (step === 'meaning' || step === 'meaning-result') return meaningOptions;
+    if (step === 'example' || step === 'example-result') return translationResult.options;
+    if (step === 'def-to-word' || step === 'def-to-word-result') return engDefToWord;
+    if (step === 'word-to-def' || step === 'word-to-def-result') return engWordToDef.options;
+    if (step === 'cloze' || step === 'cloze-result') return engCloze.options;
+    return [];
+  })();
+  const correctAnswer = (() => {
+    if (step === 'meaning' || step === 'meaning-result') return currentCard?.meaning ?? '';
+    if (step === 'example' || step === 'example-result') return translationResult.correctAnswer;
+    if (step === 'def-to-word' || step === 'def-to-word-result') return currentCard?.word ?? '';
+    if (step === 'word-to-def' || step === 'word-to-def-result') return engWordToDef.correctDef;
+    if (step === 'cloze' || step === 'cloze-result') return currentCard?.word ?? '';
+    return '';
+  })();
   const displayExample = translationResult.exampleOverride || currentCard?.example || '';
-  const isResultStep = step === 'meaning-result' || step === 'example-result';
-  const isCorrectThisStep = step === 'meaning-result' ? meaningCorrect : exampleCorrect;
+  const isResultStep = step.endsWith('-result');
+  const isCorrectThisStep = (step === 'meaning-result' || step === 'def-to-word-result') ? meaningCorrect : exampleCorrect;
 
   // ─── トコトンモード UI ───
   if (isTokoton && !isResultStep) {
@@ -561,7 +650,10 @@ export function VocabStudy() {
         </Card>
 
         <Button onClick={handleNext} className="w-full">
-          {step === 'meaning-result' ? '例文クイズへ' : '次の問題'}
+          {step === 'meaning-result' ? '例文クイズへ'
+            : step === 'def-to-word-result' ? 'Definition Quiz →'
+            : step === 'word-to-def-result' ? 'Cloze Quiz →'
+            : '次の問題'}
         </Button>
       </div>
     );
@@ -586,7 +678,30 @@ export function VocabStudy() {
 
       {/* Question */}
       <Card className="p-6 text-center">
-        {step === 'meaning' ? (
+        {step === 'def-to-word' ? (
+          <>
+            <p className="text-xs text-gray-400 mb-2">Definition → Word</p>
+            <p className="text-base text-gray-700 dark:text-gray-300 italic mb-2">
+              {ENGLISH_DEFINITIONS[currentCard?.word ?? '']?.definition ?? currentCard?.meaning}
+            </p>
+            <p className="text-sm text-gray-500 mt-3">Which word matches this definition?</p>
+          </>
+        ) : step === 'word-to-def' ? (
+          <>
+            <p className="text-xs text-gray-400 mb-2">Word → Definition</p>
+            <div className="flex items-center justify-center gap-2 mb-1">
+              <h3 className="text-2xl font-bold">{currentCard?.word}</h3>
+              {currentCard?.word && <SpeakButton text={currentCard.word} />}
+            </div>
+            <p className="text-sm text-gray-500 mt-3">Choose the correct definition.</p>
+          </>
+        ) : step === 'cloze' ? (
+          <>
+            <p className="text-xs text-gray-400 mb-2">Fill in the blank</p>
+            <p className="text-base text-gray-700 dark:text-gray-300 italic mb-2">{engCloze.sentence}</p>
+            <p className="text-sm text-gray-500 mt-3">Which word completes the sentence?</p>
+          </>
+        ) : step === 'meaning' ? (
           <>
             <p className="text-xs text-gray-400 mb-2">{currentCard?.category}</p>
             <div className="flex items-center justify-center gap-2 mb-1">

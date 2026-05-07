@@ -32,6 +32,7 @@ export interface UserSettings {
   gamificationEnabled: boolean;
   dailyChallengeEnabled: boolean;
   soundEnabled: boolean;
+  englishSpeakerMode: boolean;
 }
 
 // SRS SM-2 Algorithm
