@@ -28,8 +28,8 @@ export const openingScenario: Scenario = {
     { type: 'dialog', character: 'mob', text: 'マネージャーさん…？ いや、あの感じは違う…' },
     { type: 'dialog', character: 'player', text: '（まさか…自分に？ そんなわけ…）', isInner: true },
 
-    // --- Scene 3: カイ登場（接近）---
-    { type: 'dialog', character: 'kai', text: 'ちょっと待って。', expression: 'serious' },
+    // --- Scene 3: カイ登場（接近）--- リムジンの前で
+    { type: 'dialog', character: 'kai', text: 'ちょっと待って。', expression: 'serious', background: 'night-street-limousine' },
     { type: 'dialog', character: 'player', text: '（FIRST LIGHTの…カイが…目の前に…!?）', isInner: true },
     { type: 'dialog', character: 'kai', text: '…君。名前、教えてくれないか。', expression: 'serious' },
 
@@ -64,8 +64,9 @@ export const openingScenario: Scenario = {
     { type: 'dialog', character: 'yuuki', text: '海外ファンからのメッセージ、いつも翻訳アプリ通してて…自分の言葉で返したいんだよね！', expression: 'smile' },
     { type: 'dialog', character: 'kai', text: '俺はメンバーをまとめる立場だから、文法とか構造から理解したい。全体を見渡せるように。', expression: 'smile' },
 
-    // --- Scene 7: 決断 ---
-    { type: 'dialog', character: 'kai', text: '…どうかな、{playerName}。俺たちと一緒に、世界を目指してくれないか。', expression: 'serious' },
+    // --- Scene 7: 決断（リムジンの前、周囲の視線の中で）---
+    { type: 'dialog', character: 'narrator', text: '――リムジンの前。野次馬のスマホのフラッシュが光る中、カイが真っ直ぐこちらを見た。', background: 'night-street-limousine' },
+    { type: 'dialog', character: 'kai', text: '…どうかな、{playerName}。俺たちと一緒に、世界を目指してくれないか。', expression: 'serious', background: 'night-street-limousine' },
 
     {
       type: 'choice',
