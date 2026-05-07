@@ -181,8 +181,8 @@ function pickExampleVariant(word: string): { example: string; correct: string; w
 
 /** Negate an English sentence (simple heuristic) */
 function negateSentence(sentence: string): string {
-  // "He/She/It verbs" → "He/She/It doesn't verb"
   const s = sentence.replace(/\.$/, '');
+  // be動詞
   if (/\b(is|are|was|were)\b/i.test(s)) {
     return s.replace(/\b(is|are|was|were)\b/i, (m) => {
       const neg: Record<string, string> = { is: 'is not', are: 'are not', was: 'was not', were: 'were not',
@@ -190,28 +190,59 @@ function negateSentence(sentence: string): string {
       return neg[m] ?? m + ' not';
     }) + '.';
   }
+  // 助動詞 have/has/had
   if (/\b(has|have|had)\b/i.test(s)) {
     return s.replace(/\b(has|have|had)\b/i, (m) => m + ' not') + '.';
   }
-  // Simple past/present: insert "did not" + base form
-  const words = s.split(' ');
-  if (words.length >= 2) {
-    // Insert "did not" after subject (first word)
-    return words[0] + " didn't " + words.slice(1).join(' ') + '.';
+  // 助動詞 can/will/would/should/could/must
+  if (/\b(can|will|would|should|could|must|may|might)\b/i.test(s)) {
+    return s.replace(/\b(can|will|would|should|could|must|may|might)\b/i, (m) => m + ' not') + '.';
   }
-  return 'not ' + s + '.';
+  // "do/does/did" already present
+  if (/\b(do|does|did)\b/i.test(s)) {
+    return s.replace(/\b(do|does|did)\b/i, (m) => m + ' not') + '.';
+  }
+  // Fallback: prepend "It is not true that"
+  return 'It is not true that ' + s.charAt(0).toLowerCase() + s.slice(1) + '.';
 }
 
-/** Negate a Japanese sentence (simple heuristic) */
+/** Negate a Japanese sentence (improved heuristic) */
 function negateJapanese(sentence: string): string {
-  return sentence
-    .replace(/した。$/, 'しなかった。')
-    .replace(/する。$/, 'しない。')
-    .replace(/ている。$/, 'ていない。')
-    .replace(/である。$/, 'ではない。')
-    .replace(/できる。$/, 'できない。')
-    .replace(/た。$/, 'なかった。')
-    .replace(/。$/, 'のではない。');
+  // Try specific patterns from longest to shortest
+  const patterns: [RegExp, string][] = [
+    [/されていた。$/, 'されていなかった。'],
+    [/されている。$/, 'されていない。'],
+    [/されました。$/, 'されませんでした。'],
+    [/されます。$/, 'されません。'],
+    [/された。$/, 'されなかった。'],
+    [/される。$/, 'されない。'],
+    [/していた。$/, 'していなかった。'],
+    [/している。$/, 'していない。'],
+    [/しました。$/, 'しませんでした。'],
+    [/します。$/, 'しません。'],
+    [/した。$/, 'しなかった。'],
+    [/する。$/, 'しない。'],
+    [/ていた。$/, 'ていなかった。'],
+    [/ている。$/, 'ていない。'],
+    [/ました。$/, 'ませんでした。'],
+    [/ます。$/, 'ません。'],
+    [/である。$/, 'ではない。'],
+    [/であった。$/, 'ではなかった。'],
+    [/できる。$/, 'できない。'],
+    [/できた。$/, 'できなかった。'],
+    [/ある。$/, 'ない。'],
+    [/あった。$/, 'なかった。'],
+    [/った。$/, 'らなかった。'],
+    [/いた。$/, 'いなかった。'],
+    [/んだ。$/, 'んでいない。'],
+    [/た。$/, 'なかった。'],
+  ];
+  for (const [re, rep] of patterns) {
+    if (re.test(sentence)) {
+      return sentence.replace(re, rep);
+    }
+  }
+  return sentence;
 }
 
 /** Generate translation options for example sentence quiz */
