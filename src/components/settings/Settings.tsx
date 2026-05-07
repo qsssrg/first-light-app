@@ -35,7 +35,13 @@ export function Settings() {
 
   return (
     <div className="space-y-6 px-4">
-      <h2 className="text-lg font-bold">設定</h2>
+      <div className="relative rounded-2xl overflow-hidden bg-gradient-to-br from-gray-700 via-gray-800 to-gray-900 p-5 text-white shadow-lg">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_30%,rgba(255,255,255,0.05)_0%,transparent_50%)]" />
+        <div className="relative">
+          <h2 className="text-xl font-black tracking-wide">設定</h2>
+          <p className="text-xs opacity-60 mt-0.5">FIRST LIGHT Settings</p>
+        </div>
+      </div>
 
       <Card className="divide-y divide-gray-100 dark:divide-gray-800">
         <SettingRow
@@ -434,7 +440,9 @@ function DataResetSection() {
 
   return (
     <Card className="p-4 border-red-200 dark:border-red-900">
-      <h3 className="text-sm font-medium mb-2 text-red-600 dark:text-red-400">データリセット</h3>
+      <h3 className="text-sm font-medium mb-2 text-red-600 dark:text-red-400 flex items-center gap-2">
+        <RotateCcw className="w-4 h-4" /> データリセット
+      </h3>
       <p className="text-xs text-gray-500 mb-4">
         全ての学習データ・進捗を削除し、最初からやり直します。オープニングから再開されます。
       </p>
@@ -511,7 +519,9 @@ function BackupSection() {
 
   return (
     <Card className="p-4">
-      <h3 className="text-sm font-medium mb-3">データ管理</h3>
+      <h3 className="text-sm font-medium mb-3 flex items-center gap-2">
+        <Download className="w-4 h-4" /> データ管理
+      </h3>
       <p className="text-xs text-gray-500 mb-4">
         全てのデータはこの端末に保存されています（IndexedDB）。バックアップを取っておくと安心です。
       </p>

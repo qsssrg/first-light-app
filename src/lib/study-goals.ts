@@ -59,11 +59,13 @@ export const TOEFL_TIERS: ToeflTier[] = [
 
 const STORAGE_KEY = 'firstlight_study_goal';
 
+const DEFAULT_GOAL: StudyGoal = { eiken: 'auto', toeflTarget: 'auto' };
+
 export function getStudyGoal(): StudyGoal {
-  if (typeof window === 'undefined') return {};
+  if (typeof window === 'undefined') return DEFAULT_GOAL;
   const raw = localStorage.getItem(STORAGE_KEY);
-  if (!raw) return {};
-  try { return JSON.parse(raw); } catch { return {}; }
+  if (!raw) return DEFAULT_GOAL;
+  try { return JSON.parse(raw); } catch { return DEFAULT_GOAL; }
 }
 
 export function setStudyGoal(goal: StudyGoal): void {
