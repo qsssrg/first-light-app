@@ -519,11 +519,31 @@ export function VocabStudy() {
           <NoCardsPrompt onAdded={resetSession} />
         ) : (
           <div className="flex-1 space-y-5">
-            {/* Rank badge */}
+            {/* Rank badge with explanation */}
             {studied > 0 && (
-              <div className="flex justify-center">
+              <div className="flex flex-col items-center gap-2">
+                <p className="text-[10px] text-gray-500 tracking-wider uppercase">ランク</p>
                 <div className={`w-24 h-24 rounded-2xl bg-gradient-to-br ${rankColors[rank]} flex items-center justify-center shadow-2xl`}>
                   <span className="text-5xl font-black">{rank}</span>
+                </div>
+                <p className="text-xs text-gray-500">
+                  {rank === 'S' ? '正答率95%+' : rank === 'A' ? '正答率70%+' : rank === 'B' ? '正答率50%+' : '正答率50%未満'}
+                </p>
+              </div>
+            )}
+
+            {/* XP gauge animation */}
+            {sessionXp > 0 && (
+              <div className="rounded-xl bg-white/5 backdrop-blur-md border border-white/10 p-4">
+                <div className="flex items-center justify-between mb-2">
+                  <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">獲得XP</p>
+                  <p className="text-lg font-black text-amber-400">+{sessionXp}</p>
+                </div>
+                <div className="h-3 bg-gray-800 rounded-full overflow-hidden">
+                  <div
+                    className="h-full bg-gradient-to-r from-amber-500 to-yellow-400 rounded-full transition-all duration-1000 ease-out"
+                    style={{ width: `${Math.min(100, (sessionXp / 200) * 100)}%` }}
+                  />
                 </div>
               </div>
             )}
@@ -558,14 +578,14 @@ export function VocabStudy() {
 
             {/* Member encouragement */}
             {encouragement && (
-              <div className="rounded-xl bg-white/5 backdrop-blur-md border border-white/10 p-4">
+              <div className="rounded-xl bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-4">
                 <div className="flex gap-3 items-start">
                   <div className="shrink-0">
                     <MemberAvatar member={encouragement.member} size="md" />
                   </div>
                   <div className="flex-1">
-                    <p className="text-xs text-gray-500 mb-1">{encouragement.member.nameJa}</p>
-                    <p className="text-sm text-gray-200">{encouragement.message}</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">{encouragement.member.nameJa}</p>
+                    <p className="text-sm font-medium text-gray-800 dark:text-gray-100">{encouragement.message}</p>
                   </div>
                 </div>
               </div>
@@ -638,7 +658,7 @@ export function VocabStudy() {
             </div>
           ) : (
             <div className="mb-2 flex items-center gap-2 px-4">
-              <p className="text-sm text-gray-100 italic">{displayExample}</p>
+              <p className="text-sm text-gray-800 dark:text-gray-100 italic font-medium">{displayExample}</p>
               {displayExample && <SpeakButton text={displayExample} className="shrink-0" />}
             </div>
           )}
@@ -736,7 +756,7 @@ export function VocabStudy() {
 
           {(step === 'example-result' || step === 'cloze-result' || step === 'word-to-def-result') && (
             <div className="flex items-center justify-center gap-2 mb-3 px-2">
-              <p className="text-sm text-gray-100 italic">{displayExample}</p>
+              <p className="text-sm text-gray-800 dark:text-gray-100 italic font-medium">{displayExample}</p>
               {displayExample && <SpeakButton text={displayExample} className="shrink-0" />}
             </div>
           )}
@@ -814,7 +834,7 @@ export function VocabStudy() {
         {step === 'def-to-word' ? (
           <>
             <p className="text-[10px] font-bold tracking-widest text-purple-400 uppercase mb-3">Definition → Word</p>
-            <p className="text-base leading-relaxed text-gray-200 italic px-2">
+            <p className="text-base leading-relaxed text-gray-800 dark:text-gray-100 italic font-medium px-2">
               {ENGLISH_DEFINITIONS[currentCard?.word ?? '']?.definition ?? currentCard?.meaning}
             </p>
             <p className="text-xs text-gray-500 mt-4">Which word matches this definition?</p>
@@ -831,7 +851,7 @@ export function VocabStudy() {
         ) : step === 'cloze' ? (
           <>
             <p className="text-[10px] font-bold tracking-widest text-purple-400 uppercase mb-3">Fill in the blank</p>
-            <p className="text-base leading-relaxed text-gray-200 italic px-2">{engCloze.sentence}</p>
+            <p className="text-base leading-relaxed text-gray-800 dark:text-gray-100 italic font-medium px-2">{engCloze.sentence}</p>
             <p className="text-xs text-gray-500 mt-4">Which word completes the sentence?</p>
           </>
         ) : step === 'meaning' ? (
@@ -847,7 +867,7 @@ export function VocabStudy() {
           <>
             <p className="text-xs text-gray-400 mb-2">{currentCard?.word}（{currentCard?.meaning}）</p>
             <div className="flex items-center justify-center gap-2 mb-2 px-2">
-              <p className="text-base leading-relaxed text-gray-200 italic">{displayExample}</p>
+              <p className="text-base leading-relaxed text-gray-800 dark:text-gray-100 italic font-medium">{displayExample}</p>
               {displayExample && <SpeakButton text={displayExample} className="shrink-0" />}
             </div>
             <p className="text-xs text-gray-500 mt-3">正しい和訳を選んでください</p>
