@@ -18,6 +18,8 @@ import type { VocabCard } from '@/types';
 import { EXAMPLE_TRANSLATIONS } from '@/lib/example-translations-data';
 import { EXAMPLE_VARIANTS } from '@/lib/example-variants-data';
 import { getPlayerName } from '@/lib/player-name';
+import { getStudyGoal } from '@/lib/study-goals';
+import { shouldExcludeWord } from '@/lib/vocab-source';
 import { useProfile } from '@/lib/hooks';
 import { ENGLISH_DEFINITIONS } from '@/lib/english-definitions-data';
 
@@ -222,10 +224,24 @@ function generateClozeOptions(correctCard: VocabCard, allCards: VocabCard[]): { 
 
 export function VocabStudy() {
   const rawDueCards = useDueCards();
-  const allCards = useVocabCards();
+  const rawAllCards = useVocabCards();
   const profile = useProfile();
   const isEnglishMode = profile?.settings?.englishSpeakerMode ?? false;
-  const dueCards = useMemo(() => getAdaptiveCards(rawDueCards, rawDueCards.length), [rawDueCards]);
+
+  // Filter out excluded exam categories
+  const goal = getStudyGoal();
+  const eikenNone = goal.eiken === 'none';
+  const toeflNone = goal.toeflTarget === 'none';
+
+  const allCards = useMemo(() =>
+    (eikenNone || toeflNone) ? rawAllCards.filter(c => !shouldExcludeWord(c.word, eikenNone, toeflNone)) : rawAllCards,
+    [rawAllCards, eikenNone, toeflNone]
+  );
+  const filteredDue = useMemo(() =>
+    (eikenNone || toeflNone) ? rawDueCards.filter(c => !shouldExcludeWord(c.word, eikenNone, toeflNone)) : rawDueCards,
+    [rawDueCards, eikenNone, toeflNone]
+  );
+  const dueCards = useMemo(() => getAdaptiveCards(filteredDue, filteredDue.length), [filteredDue]);
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const initialStep: QuizStep = isEnglishMode ? 'def-to-word' : 'meaning';
