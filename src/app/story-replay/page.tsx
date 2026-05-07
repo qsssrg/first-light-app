@@ -5,6 +5,7 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import { VNEngine } from '@/components/vn/VNEngine';
 import { openingScenario, preAssessmentScenario, postAssessmentScenario } from '@/lib/scenarios/opening';
 import { getRandomVocabIntro } from '@/lib/scenarios/vocab-intro';
+import { psychologyOfferScenario } from '@/lib/scenarios/psychology-intro';
 import type { Scenario } from '@/lib/scenarios/types';
 
 const SCENARIO_MAP: Record<string, Scenario | (() => Scenario)> = {
@@ -12,6 +13,7 @@ const SCENARIO_MAP: Record<string, Scenario | (() => Scenario)> = {
   'pre-assessment': preAssessmentScenario,
   'post-assessment': postAssessmentScenario,
   'vocab-intro': getRandomVocabIntro,
+  'psychology-offer': psychologyOfferScenario,
 };
 
 function StoryReplayContent() {

@@ -11,6 +11,7 @@ import { BookOpen, Flame, Target, Sparkles, ArrowRight, Lightbulb } from 'lucide
 import Link from 'next/link';
 import { getPlayerName } from '@/lib/player-name';
 import { TypewriterText } from '@/components/common/TypewriterText';
+import { isPsychologyEventEnabled, isPsychologyUnlocked } from '@/lib/psychology-settings';
 
 function NextActionGuide({ profile, dueCardCount }: { profile: any; dueCardCount: number }) {
   const getNextAction = () => {
@@ -162,6 +163,43 @@ export function HomeScreen() {
           </Link>
         ))}
       </div>
+
+      {/* Psychology course card (if event enabled but not yet unlocked) */}
+      {isPsychologyEventEnabled() && !isPsychologyUnlocked() && (
+        <Link href="/psychology">
+          <Card className="p-4 border-purple-300 dark:border-purple-700 bg-purple-50 dark:bg-purple-950/30 hover:shadow-md transition-shadow cursor-pointer">
+            <div className="flex items-center gap-3">
+              <div className="relative p-2 bg-purple-100 dark:bg-purple-900 rounded-full">
+                <Sparkles className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+                <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full animate-pulse" />
+              </div>
+              <div className="flex-1">
+                <p className="text-sm font-medium text-purple-900 dark:text-purple-100">新しいお知らせ</p>
+                <p className="text-xs text-purple-600 dark:text-purple-400">メンバーから大事な話があるようです</p>
+              </div>
+              <ArrowRight className="w-4 h-4 text-purple-400" />
+            </div>
+          </Card>
+        </Link>
+      )}
+
+      {/* Psychology course card (if unlocked) */}
+      {isPsychologyUnlocked() && (
+        <Link href="/psychology">
+          <Card className="p-4 border-purple-200 dark:border-purple-800 hover:shadow-md transition-shadow cursor-pointer">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-purple-100 dark:bg-purple-900 rounded-full">
+                <Sparkles className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+              </div>
+              <div className="flex-1">
+                <p className="text-sm font-medium">心理学バラエティ番組</p>
+                <p className="text-xs text-gray-500">メンバーと心理学を学ぼう</p>
+              </div>
+              <ArrowRight className="w-4 h-4 text-gray-400" />
+            </div>
+          </Card>
+        </Link>
+      )}
 
       {/* Quick actions */}
       <div className="grid grid-cols-2 gap-3">

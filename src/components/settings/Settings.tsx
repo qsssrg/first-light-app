@@ -18,6 +18,7 @@ import { MEMBERS } from '@/lib/members';
 import { MemberAvatar } from '@/components/common/MemberAvatar';
 import type { SkillAxis } from '@/types';
 import { getStudyGoal, setStudyGoal, EIKEN_GRADES, type EikenGrade, type StudyGoal } from '@/lib/study-goals';
+import { isPsychologyEventEnabled, setPsychologyEventEnabled } from '@/lib/psychology-settings';
 
 export function Settings() {
   const profile = useProfile();
@@ -61,6 +62,7 @@ export function Settings() {
           checked={settings.soundEnabled}
           onToggle={() => toggleSetting('soundEnabled')}
         />
+        <PsychologyEventToggle />
       </Card>
 
       {/* Profile info */}
@@ -361,6 +363,7 @@ function StoryRecollectionSection() {
     { id: 'pre-assessment', label: 'アセスメント前', desc: '翌日、芸能オフィスに呼ばれて' },
     { id: 'post-assessment', label: 'アセスメント後', desc: '英語力判定の結果を受けて' },
     { id: 'vocab-intro', label: 'ハルトと単語練習', desc: '練習スタジオでハルトと出会う' },
+    { id: 'psychology-offer', label: '心理学番組オファー', desc: 'YouTube番組の出演依頼が来る' },
   ];
 
   return (
@@ -536,6 +539,24 @@ function BackupSection() {
         )}
       </div>
     </Card>
+  );
+}
+
+function PsychologyEventToggle() {
+  const [enabled, setEnabled] = useState(() => isPsychologyEventEnabled());
+  const handleToggle = () => {
+    const next = !enabled;
+    setPsychologyEventEnabled(next);
+    setEnabled(next);
+  };
+  return (
+    <div className="flex items-center justify-between p-4">
+      <div>
+        <p className="text-sm font-medium">心理学バラエティ番組</p>
+        <p className="text-xs text-gray-500">ONにすると番組オファーイベントが発生</p>
+      </div>
+      <Switch checked={enabled} onCheckedChange={handleToggle} />
+    </div>
   );
 }
 
