@@ -11,6 +11,10 @@ import { hasApiKey } from '@/lib/api-key';
 import { callClaude } from '@/lib/claude-client';
 import type { WritingSubmission } from '@/types';
 import Link from 'next/link';
+import { getMember } from '@/lib/members';
+import { MemberAvatar } from '@/components/common/MemberAvatar';
+import { TypewriterText } from '@/components/common/TypewriterText';
+import { getPlayerName } from '@/lib/player-name';
 
 const PROMPTS = [
   { text: 'Describe your favorite place to relax and explain why you enjoy spending time there.', level: '英検2級' },
@@ -20,6 +24,34 @@ const PROMPTS = [
   { text: 'Describe a challenge you faced and how you overcame it.', level: '英検2級' },
   { text: 'What is one invention that you think has changed the world the most? Explain why.', level: 'TOEFL' },
 ];
+
+const YUUKI_LINES = [
+  'お願い！ この英文、なんて書けばいいか教えて！',
+  '{name}〜！ 一緒に英語書こうよ！ オレ一人じゃ不安で…',
+  'よし、今日こそ上手く書けるようになるぞ！ {name}、見ててね！',
+  '{name}、さっきのストーリーの続き…一緒に練習しよ！',
+  '英語で気持ちを伝えるの、難しいけど楽しいよね！ やろやろ！',
+];
+
+function YuukiGuideCard() {
+  const yuuki = getMember('yuuki')!;
+  const name = getPlayerName() || 'マネージャー';
+  const [line] = useState(() => YUUKI_LINES[Math.floor(Math.random() * YUUKI_LINES.length)].replace(/\{name\}/g, name));
+
+  return (
+    <Card className="p-4 mb-4">
+      <div className="flex items-start gap-3">
+        <div className="shrink-0">
+          <MemberAvatar member={yuuki} size="md" />
+        </div>
+        <div className="flex-1 min-w-0 pt-0.5">
+          <p className="text-xs text-gray-500 mb-1">{yuuki.nameJa}</p>
+          <TypewriterText text={line} speed={35} className="text-sm text-gray-700 dark:text-gray-300" />
+        </div>
+      </div>
+    </Card>
+  );
+}
 
 export function WritingPractice() {
   const [promptData, setPromptData] = useState(PROMPTS[Math.floor(Math.random() * PROMPTS.length)]);
@@ -151,6 +183,8 @@ Remember the Montessori principle: acknowledge growth rather than just praise.`,
           <p className="text-xs opacity-60 mt-0.5">Writing Practice</p>
         </div>
       </div>
+
+      <YuukiGuideCard />
 
       <Card className="p-4 bg-blue-50 dark:bg-blue-950 border-blue-200 dark:border-blue-800">
         <div className="flex items-center gap-2 mb-1">
