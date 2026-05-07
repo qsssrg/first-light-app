@@ -293,24 +293,26 @@ export function HomeScreen() {
         </Link>
       )}
 
-      {/* Quick actions */}
-      <div className="grid grid-cols-2 gap-3">
-        <Link href="/vocab-study">
-          <Card className="p-4 hover:shadow-md transition-shadow cursor-pointer border-purple-200 dark:border-purple-800">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-purple-100 dark:bg-purple-900 rounded-lg">
-                <Sparkles className="w-5 h-5 text-purple-600 dark:text-purple-400" />
-              </div>
-              <div>
-                <p className="text-sm font-medium">単語学習</p>
-                <p className="text-xs text-gray-500">
-                  {dueCards.length > 0 ? `${dueCards.length}語が学習待ち` : '学習する単語なし'}
-                </p>
-              </div>
+      {/* 単語学習 — full-width card */}
+      <Link href="/vocab-study">
+        <Card className="p-4 hover:shadow-md transition-shadow cursor-pointer border-purple-300 dark:border-purple-700 bg-gradient-to-r from-purple-50 to-fuchsia-50 dark:from-purple-950/30 dark:to-fuchsia-950/30">
+          <div className="flex items-center gap-3">
+            <div className="p-2.5 bg-purple-100 dark:bg-purple-900 rounded-full">
+              <Sparkles className="w-5 h-5 text-purple-600 dark:text-purple-400" />
             </div>
-          </Card>
-        </Link>
+            <div className="flex-1">
+              <p className="text-sm font-bold text-purple-900 dark:text-purple-100">単語学習を進める</p>
+              <p className="text-xs text-purple-600 dark:text-purple-400">
+                {dueCards.length > 0 ? `${dueCards.length}語が学習待ち` : '新しい単語に挑戦しよう'}
+              </p>
+            </div>
+            <ArrowRight className="w-4 h-4 text-purple-400" />
+          </div>
+        </Card>
+      </Link>
 
+      {/* 単語帳 + 分析 — side by side */}
+      <div className="grid grid-cols-2 gap-3">
         <Link href="/vocabulary">
           <Card className="p-4 hover:shadow-md transition-shadow cursor-pointer">
             <div className="flex items-center gap-3">
