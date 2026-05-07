@@ -12,6 +12,8 @@ import Link from 'next/link';
 import { getPlayerName } from '@/lib/player-name';
 import { TypewriterText } from '@/components/common/TypewriterText';
 import { isPsychologyEventEnabled, isPsychologyUnlocked } from '@/lib/psychology-settings';
+import { FAKE_NEWS } from '@/data/fake-news';
+import { Newspaper } from 'lucide-react';
 
 function NextActionGuide({ profile, dueCardCount }: { profile: any; dueCardCount: number }) {
   const getNextAction = () => {
@@ -254,6 +256,52 @@ export function HomeScreen() {
             </div>
           </div>
         </Card>
+      </div>
+
+      {/* FIRST LIGHT News */}
+      <NewsSection />
+    </div>
+  );
+}
+
+function NewsSection() {
+  const [news] = useState(() => {
+    const shuffled = [...FAKE_NEWS].sort(() => Math.random() - 0.5);
+    return shuffled.slice(0, 3);
+  });
+
+  const TAG_COLORS: Record<string, string> = {
+    TV: 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300',
+    '雑誌': 'bg-pink-100 text-pink-700 dark:bg-pink-900 dark:text-pink-300',
+    LIVE: 'bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300',
+    '音楽': 'bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300',
+    '受賞': 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-300',
+    'イベント': 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300',
+    'コラボ': 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900 dark:text-indigo-300',
+    SNS: 'bg-cyan-100 text-cyan-700 dark:bg-cyan-900 dark:text-cyan-300',
+    '心理学': 'bg-violet-100 text-violet-700 dark:bg-violet-900 dark:text-violet-300',
+    '個人活動': 'bg-orange-100 text-orange-700 dark:bg-orange-900 dark:text-orange-300',
+  };
+
+  return (
+    <div>
+      <h3 className="text-sm font-bold mb-3 flex items-center gap-2">
+        <Newspaper className="w-4 h-4" /> FIRST LIGHT NEWS
+      </h3>
+      <div className="space-y-2">
+        {news.map((n, i) => (
+          <Card key={i} className="p-3 hover:shadow-sm transition-shadow">
+            <div className="flex items-start gap-2">
+              <span className={`text-[10px] font-medium px-1.5 py-0.5 rounded shrink-0 ${TAG_COLORS[n.tag] || 'bg-gray-100 text-gray-600'}`}>
+                {n.tag}
+              </span>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium line-clamp-1">{n.title}</p>
+                <p className="text-xs text-gray-500 line-clamp-1">{n.body}</p>
+              </div>
+            </div>
+          </Card>
+        ))}
       </div>
     </div>
   );
