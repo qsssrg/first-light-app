@@ -65,12 +65,20 @@ export function VNEngine({ scenario, onComplete, skippable = false }: VNEnginePr
 
   return (
     <div className="fixed inset-0 overflow-hidden" style={{ background: bg.gradient }}>
-      {/* Background image (takes precedence over gradient) */}
+      {/* Background image — responsive: mobile (9:16) vs desktop (16:9) */}
       {bg.imagePath && (
-        <div
-          className="absolute inset-0 bg-cover bg-center"
-          style={{ backgroundImage: `url(${bg.imagePath})` }}
-        />
+        <>
+          {/* Mobile image */}
+          <div
+            className="absolute inset-0 bg-cover bg-center md:hidden"
+            style={{ backgroundImage: `url(${bg.mobileImagePath || bg.imagePath})` }}
+          />
+          {/* Desktop image */}
+          <div
+            className="absolute inset-0 bg-cover bg-center hidden md:block"
+            style={{ backgroundImage: `url(${bg.desktopImagePath || bg.imagePath})` }}
+          />
+        </>
       )}
 
       {/* Background overlay */}

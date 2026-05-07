@@ -9,8 +9,12 @@ export interface VNBackground {
   gradient: string;
   /** Optional accent overlay */
   overlay?: string;
-  /** Image path (future use — takes precedence over gradient when set) */
+  /** Image path — takes precedence over gradient when set */
   imagePath?: string;
+  /** Mobile-specific image (9:16) */
+  mobileImagePath?: string;
+  /** Desktop-specific image (16:9) */
+  desktopImagePath?: string;
 }
 
 export const VN_BACKGROUNDS: Record<string, VNBackground> = {
@@ -68,6 +72,8 @@ export const VN_BACKGROUNDS: Record<string, VNBackground> = {
     gradient: 'linear-gradient(180deg, #0a0a1a 0%, #0f1028 20%, #151535 50%, #1a1a30 70%, #222240 100%)',
     overlay: 'radial-gradient(ellipse at 50% 80%, rgba(255,200,100,0.08) 0%, transparent 50%), radial-gradient(circle at 20% 30%, rgba(100,150,255,0.05) 0%, transparent 30%), radial-gradient(circle at 80% 20%, rgba(255,100,100,0.03) 0%, transparent 25%)',
     imagePath: `${basePath}/backgrounds/night-street.jpg`,
+    mobileImagePath: `${basePath}/backgrounds/mobile/night-street.jpg`,
+    desktopImagePath: `${basePath}/backgrounds/desktop/night-street.jpg`,
   },
   'night-street-limousine': {
     id: 'night-street-limousine',
@@ -75,6 +81,8 @@ export const VN_BACKGROUNDS: Record<string, VNBackground> = {
     gradient: 'linear-gradient(180deg, #0a0a1a 0%, #0f1028 20%, #151535 50%, #1a1a30 100%)',
     overlay: 'radial-gradient(ellipse at 50% 70%, rgba(255,220,150,0.15) 0%, transparent 40%), radial-gradient(circle at 50% 60%, rgba(255,255,200,0.1) 0%, transparent 20%)',
     imagePath: `${basePath}/backgrounds/night-street-limousine.jpg`,
+    mobileImagePath: `${basePath}/backgrounds/mobile/night-street-limousine.jpg`,
+    desktopImagePath: `${basePath}/backgrounds/desktop/night-street-limousine.jpg`,
   },
   'practice-studio': {
     id: 'practice-studio',
@@ -82,6 +90,8 @@ export const VN_BACKGROUNDS: Record<string, VNBackground> = {
     gradient: 'linear-gradient(180deg, #2a2015 0%, #3d2e20 30%, #4a3828 60%, #2a2015 100%)',
     overlay: 'radial-gradient(ellipse at 40% 40%, rgba(255,200,120,0.1) 0%, transparent 50%)',
     imagePath: `${basePath}/backgrounds/practice-studio.jpg`,
+    mobileImagePath: `${basePath}/backgrounds/mobile/practice-studio.jpg`,
+    desktopImagePath: `${basePath}/backgrounds/desktop/practice-studio.jpg`,
   },
   'stylish-office': {
     id: 'stylish-office',
@@ -89,6 +99,8 @@ export const VN_BACKGROUNDS: Record<string, VNBackground> = {
     gradient: 'linear-gradient(180deg, #f0ebe5 0%, #e8e0d5 30%, #d4ccc0 60%, #c8bfb0 100%)',
     overlay: 'radial-gradient(ellipse at 50% 30%, rgba(255,240,220,0.15) 0%, transparent 50%)',
     imagePath: `${basePath}/backgrounds/office.jpg`,
+    mobileImagePath: `${basePath}/backgrounds/mobile/office.jpg`,
+    desktopImagePath: `${basePath}/backgrounds/desktop/office.jpg`,
   },
 };
 
