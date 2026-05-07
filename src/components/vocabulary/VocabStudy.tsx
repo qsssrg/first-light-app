@@ -503,11 +503,18 @@ export function VocabStudy() {
             </div>
           )}
 
-          {/* Show what they selected if wrong */}
+          {/* Show correct answer and user's wrong answer */}
           {!isCorrectThisStep && selected !== null && (
-            <p className="text-sm text-red-400 mt-2">
-              選んだ回答: {options[selected]}
-            </p>
+            <div className="mt-3 space-y-2 text-left">
+              <p className="text-sm text-red-400 flex items-start gap-2">
+                <X className="w-4 h-4 shrink-0 mt-0.5" />
+                <span>{options[selected]}</span>
+              </p>
+              <p className="text-sm text-green-400 flex items-start gap-2">
+                <Check className="w-4 h-4 shrink-0 mt-0.5" />
+                <span>{correctAnswer}</span>
+              </p>
+            </div>
           )}
 
           {/* Step indicator */}
