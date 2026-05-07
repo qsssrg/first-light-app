@@ -428,8 +428,8 @@ export function VocabStudy() {
                 onClick={() => handleSelect(i)}
                 className={`w-full text-left px-4 py-3 rounded-lg border transition-colors text-sm ${
                   selected === i
-                    ? 'border-indigo-500 bg-indigo-500/10 text-white'
-                    : 'border-gray-700 hover:border-gray-500 text-gray-300'
+                    ? 'border-indigo-500 bg-indigo-500/10'
+                    : 'border-gray-200 dark:border-gray-700 hover:border-gray-400 dark:hover:border-gray-500'
                 }`}
               >
                 {opt}
