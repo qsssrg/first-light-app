@@ -6,6 +6,8 @@ import { Card } from '@/components/ui/card';
 import { MEMBERS, getMember } from '@/lib/members';
 import { MemberAvatar } from '@/components/common/MemberAvatar';
 import { getPlayerName } from '@/lib/player-name';
+import { getStudyGoal, getGradeRequirement, getToeflTier, EIKEN_GRADES } from '@/lib/study-goals';
+import { Progress } from '@/components/ui/progress';
 import type { SkillAxis } from '@/types';
 
 const AXIS_LABELS: Record<SkillAxis, string> = {
@@ -58,11 +60,22 @@ export function Dashboard() {
         const weakest = [...axes].sort((a, b) => a[1] - b[1])[0];
         const weakMember = MEMBERS.find(m => m.axis === weakest[0]);
 
-        // Milestone based on skill level
+        // Milestone based on study goal (if set) or skill level
+        const goal = getStudyGoal();
         let milestone: string;
         let milestoneProgress: number;
 
-        if (avgSkill <= 25) {
+        if (goal.eiken) {
+          const req = getGradeRequirement(goal.eiken);
+          const targetVocab = Math.min(req.vocabCount, vocabCards.length > 0 ? vocabCards.length : req.vocabCount);
+          milestone = `英検${req.label}合格`;
+          milestoneProgress = targetVocab > 0 ? Math.min(100, Math.round((masteredCards / targetVocab) * 100)) : 0;
+        } else if (goal.toeflTarget) {
+          const tier = getToeflTier(goal.toeflTarget);
+          const targetVocab = Math.min(tier.vocabCount, vocabCards.length > 0 ? vocabCards.length : tier.vocabCount);
+          milestone = `TOEFL ${goal.toeflTarget}点到達`;
+          milestoneProgress = targetVocab > 0 ? Math.min(100, Math.round((masteredCards / targetVocab) * 100)) : 0;
+        } else if (avgSkill <= 25) {
           milestone = '基礎単語200語マスター';
           milestoneProgress = Math.min(100, Math.round((masteredCards / 200) * 100));
         } else if (avgSkill <= 50) {
@@ -141,6 +154,53 @@ export function Dashboard() {
                   {actionLabel}
                 </button>
               </div>
+            </div>
+          </Card>
+        );
+      })()}
+
+      {/* Study goal progress */}
+      {(() => {
+        const goal = getStudyGoal();
+        if (!goal.eiken && !goal.toeflTarget) return null;
+
+        return (
+          <Card className="p-4">
+            <h3 className="text-sm font-medium mb-3 flex items-center gap-1.5">
+              🎯 目標進捗
+            </h3>
+            <div className="space-y-4">
+              {goal.eiken && (() => {
+                const req = getGradeRequirement(goal.eiken);
+                // Use mastered cards as progress towards vocab goal
+                const targetVocab = Math.min(req.vocabCount, vocabCards.length > 0 ? vocabCards.length : req.vocabCount);
+                const rate = targetVocab > 0 ? Math.min(100, Math.round((masteredCards / targetVocab) * 100)) : 0;
+                return (
+                  <div>
+                    <div className="flex justify-between text-xs mb-1">
+                      <span className="font-medium">英検{req.label}</span>
+                      <span className="text-gray-500">{masteredCards} / {targetVocab}語 ({rate}%)</span>
+                    </div>
+                    <Progress value={rate} className="h-2" />
+                    <p className="text-xs text-gray-500 mt-1">{req.description}（必要語彙: {req.vocabCount.toLocaleString()}語）</p>
+                  </div>
+                );
+              })()}
+              {goal.toeflTarget && (() => {
+                const tier = getToeflTier(goal.toeflTarget);
+                const targetVocab = Math.min(tier.vocabCount, vocabCards.length > 0 ? vocabCards.length : tier.vocabCount);
+                const rate = targetVocab > 0 ? Math.min(100, Math.round((masteredCards / targetVocab) * 100)) : 0;
+                return (
+                  <div>
+                    <div className="flex justify-between text-xs mb-1">
+                      <span className="font-medium">TOEFL {goal.toeflTarget}点</span>
+                      <span className="text-gray-500">{masteredCards} / {targetVocab}語 ({rate}%)</span>
+                    </div>
+                    <Progress value={rate} className="h-2" />
+                    <p className="text-xs text-gray-500 mt-1">{tier.description}（必要語彙: {tier.vocabCount.toLocaleString()}語）</p>
+                  </div>
+                );
+              })()}
             </div>
           </Card>
         );

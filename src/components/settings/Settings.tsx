@@ -7,7 +7,7 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from '@/components/ui/dialog';
-import { Download, Upload, AlertCircle, CheckCircle, RotateCcw, BookOpen, UserPen, RefreshCw } from 'lucide-react';
+import { Download, Upload, AlertCircle, CheckCircle, RotateCcw, BookOpen, UserPen, RefreshCw, Trophy } from 'lucide-react';
 import { exportAllData, downloadBackup, validateBackup, importData, type BackupData } from '@/lib/backup';
 import { getPlayerName, setPlayerName } from '@/lib/player-name';
 import { openingScenario, preAssessmentScenario, postAssessmentScenario } from '@/lib/scenarios/opening';
@@ -16,6 +16,7 @@ import { Progress } from '@/components/ui/progress';
 import { MEMBERS } from '@/lib/members';
 import { MemberAvatar } from '@/components/common/MemberAvatar';
 import type { SkillAxis } from '@/types';
+import { getStudyGoal, setStudyGoal, EIKEN_GRADES, type EikenGrade, type StudyGoal } from '@/lib/study-goals';
 
 export function Settings() {
   const profile = useProfile();
@@ -73,6 +74,8 @@ export function Settings() {
 
       <NameChangeSection currentName={profile.name || getPlayerName() || ''} />
 
+      <GoalSettingSection />
+
       <ReAssessmentSection currentType={profile.learnerType} currentSkills={profile.skills} />
 
       <StoryRecollectionSection />
@@ -128,6 +131,99 @@ function NameChangeSection({ currentName }: { currentName: string }) {
       {saved && (
         <p className="text-xs text-green-500 mt-2 flex items-center gap-1">
           <CheckCircle className="w-3 h-3" /> 名前を変更しました
+        </p>
+      )}
+    </Card>
+  );
+}
+
+function GoalSettingSection() {
+  const [goal, setGoalState] = useState<StudyGoal>(() => getStudyGoal());
+  const [saved, setSaved] = useState(false);
+
+  const handleSave = (newGoal: StudyGoal) => {
+    setStudyGoal(newGoal);
+    setGoalState(newGoal);
+    setSaved(true);
+    setTimeout(() => setSaved(false), 2000);
+  };
+
+  return (
+    <Card className="p-4">
+      <h3 className="text-sm font-medium mb-2 flex items-center gap-2">
+        <Trophy className="w-4 h-4" /> 学習目標
+      </h3>
+      <p className="text-xs text-gray-500 mb-4">目標を設定すると、学習プランが最適化されます。</p>
+
+      {/* 英検 */}
+      <div className="mb-4">
+        <p className="text-xs font-medium text-gray-600 dark:text-gray-400 mb-2">英検の目標</p>
+        <div className="grid grid-cols-4 gap-1.5">
+          {EIKEN_GRADES.map(g => (
+            <button
+              key={g.grade}
+              onClick={() => handleSave({ ...goal, eiken: g.grade })}
+              className={`py-2 px-1 rounded-lg text-xs font-medium transition-colors ${
+                goal.eiken === g.grade
+                  ? 'bg-indigo-600 text-white'
+                  : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700'
+              }`}
+            >
+              {g.label}
+            </button>
+          ))}
+          <button
+            onClick={() => handleSave({ ...goal, eiken: undefined })}
+            className={`py-2 px-1 rounded-lg text-xs font-medium transition-colors ${
+              !goal.eiken
+                ? 'bg-gray-300 dark:bg-gray-600 text-gray-700 dark:text-gray-200'
+                : 'bg-gray-100 dark:bg-gray-800 text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700'
+            }`}
+          >
+            なし
+          </button>
+        </div>
+        {goal.eiken && (
+          <p className="text-xs text-gray-500 mt-1.5">
+            {EIKEN_GRADES.find(g => g.grade === goal.eiken)?.description}
+            （目標語彙: {EIKEN_GRADES.find(g => g.grade === goal.eiken)?.vocabCount.toLocaleString()}語）
+          </p>
+        )}
+      </div>
+
+      {/* TOEFL */}
+      <div>
+        <p className="text-xs font-medium text-gray-600 dark:text-gray-400 mb-2">TOEFL目標スコア</p>
+        <div className="grid grid-cols-5 gap-1.5">
+          {[60, 80, 90, 100].map(score => (
+            <button
+              key={score}
+              onClick={() => handleSave({ ...goal, toeflTarget: score })}
+              className={`py-2 rounded-lg text-xs font-medium transition-colors ${
+                goal.toeflTarget === score
+                  ? 'bg-indigo-600 text-white'
+                  : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700'
+              }`}
+            >
+              {score}
+            </button>
+          ))}
+          <button
+            onClick={() => handleSave({ ...goal, toeflTarget: undefined })}
+            className={`py-2 rounded-lg text-xs font-medium transition-colors ${
+              !goal.toeflTarget
+                ? 'bg-gray-300 dark:bg-gray-600 text-gray-700 dark:text-gray-200'
+                : 'bg-gray-100 dark:bg-gray-800 text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700'
+            }`}
+          >
+            なし
+          </button>
+        </div>
+      </div>
+
+      {saved && (
+        <p className="text-xs text-green-500 mt-3 flex items-center gap-1">
+          <CheckCircle className="w-3 h-3" /> 目標を設定しました
         </p>
       )}
     </Card>
