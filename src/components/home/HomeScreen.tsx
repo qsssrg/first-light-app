@@ -165,6 +165,9 @@ export function HomeScreen() {
         </Card>
       )}
 
+      {/* Next action guide - directly below member greeting */}
+      <NextActionGuide profile={profile} dueCardCount={dueCards.length} />
+
       {/* Stage background - placeholder gradient */}
       <div className="relative rounded-2xl overflow-hidden bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-400 p-6 text-white">
         <div className="absolute inset-0 opacity-20 bg-[url('/grid.svg')]" />
@@ -186,9 +189,6 @@ export function HomeScreen() {
           </Link>
         ))}
       </div>
-
-      {/* Next action guide */}
-      <NextActionGuide profile={profile} dueCardCount={dueCards.length} />
 
       {/* Quick actions */}
       <div className="grid grid-cols-2 gap-3">
