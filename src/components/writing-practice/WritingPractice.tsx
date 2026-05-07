@@ -153,11 +153,11 @@ Remember the Montessori principle: acknowledge growth rather than just praise.`,
       </div>
 
       <Card className="p-4 bg-blue-50 dark:bg-blue-950 border-blue-200 dark:border-blue-800">
-        <p className="text-xs text-blue-600 dark:text-blue-400 mb-1">お題</p>
-        <div className="flex items-start gap-2">
-          <p className="text-sm font-medium flex-1">{prompt}</p>
-          <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-indigo-100 dark:bg-indigo-900 text-indigo-600 dark:text-indigo-300 font-medium shrink-0">{promptData.level}</span>
+        <div className="flex items-center gap-2 mb-1">
+          <p className="text-xs text-blue-600 dark:text-blue-400">お題</p>
+          <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-indigo-100 dark:bg-indigo-900 text-indigo-600 dark:text-indigo-300 font-medium">{promptData.level}</span>
         </div>
+        <p className="text-sm font-medium">{prompt}</p>
       </Card>
 
       <div className="relative">
