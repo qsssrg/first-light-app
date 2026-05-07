@@ -601,15 +601,7 @@ export function VocabStudy() {
               </div>
             </div>
 
-            {newWordsEncountered > 0 && (
-              <div className="text-center">
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-500/10 text-indigo-300 text-xs font-medium">
-                  <Star className="w-3 h-3" /> 新しく{newWordsEncountered}語に出会いました
-                </span>
-              </div>
-            )}
-
-            {/* Member encouragement */}
+            {/* Member encouragement (directly under XP gauge) */}
             {encouragement && (
               <div className="rounded-xl bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-4">
                 <div className="flex gap-3 items-start">
@@ -621,6 +613,14 @@ export function VocabStudy() {
                     <p className="text-sm font-medium text-gray-800 dark:text-gray-100">{encouragement.message}</p>
                   </div>
                 </div>
+              </div>
+            )}
+
+            {newWordsEncountered > 0 && (
+              <div className="text-center">
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-500/10 text-indigo-300 text-xs font-medium">
+                  <Star className="w-3 h-3" /> 新しく{newWordsEncountered}語に出会いました
+                </span>
               </div>
             )}
           </div>
