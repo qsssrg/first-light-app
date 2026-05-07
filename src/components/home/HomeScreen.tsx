@@ -206,7 +206,9 @@ export function HomeScreen() {
   const toNext = xpToNextLevel(profile.totalXp);
 
   return (
-    <div className="space-y-6 pb-4">
+    <div className="space-y-5 pb-4">
+      {/* Group 1: Member greeting + recommended action (tight) */}
+      <div className="space-y-2">
       {/* Member greeting with typewriter effect */}
       {greeting.member && greeting.message && (
         <Card className="p-4">
@@ -224,6 +226,7 @@ export function HomeScreen() {
 
       {/* Next action guide - directly below member greeting */}
       <NextActionGuide profile={profile} dueCardCount={dueCards.length} />
+      </div>
 
       {/* Level card - game style, tap for level info */}
       <Link href="/level-info">
@@ -253,6 +256,8 @@ export function HomeScreen() {
         ))}
       </div>
 
+      {/* Group 2: Chapter + Vocab study (tight) */}
+      <div className="space-y-2">
       {/* Chapter progress card */}
       <Link href="/chapters/">
         <div className="rounded-xl bg-gradient-to-r from-teal-600/80 via-cyan-600/80 to-sky-600/80 p-4 shadow-lg shadow-teal-500/10 hover:shadow-xl hover:shadow-teal-500/20 active:scale-[0.98] transition-all cursor-pointer">
@@ -323,6 +328,8 @@ export function HomeScreen() {
           </div>
         </Card>
       </Link>
+
+      </div>
 
       {/* 単語帳 + 分析 — side by side */}
       <div className="grid grid-cols-2 gap-3">
