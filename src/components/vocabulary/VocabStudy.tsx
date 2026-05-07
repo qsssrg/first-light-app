@@ -254,6 +254,7 @@ export function VocabStudy() {
   const [maxCombo, setMaxCombo] = useState(0);
   const [sessionXp, setSessionXp] = useState(0);
   const [studied, setStudied] = useState(0);
+  const [sessionCorrect, setSessionCorrect] = useState(0);
   const [newWordsEncountered, setNewWordsEncountered] = useState(0);
   const [isTokoton, setIsTokoton] = useState(false);
   const [tokotonJustActivated, setTokotonJustActivated] = useState(false);
@@ -404,6 +405,7 @@ export function VocabStudy() {
       setMaxCombo(Math.max(maxCombo, newCombo));
       setSessionXp(sessionXp + xp);
       setStudied(studied + 1);
+      if (correct) setSessionCorrect(prev => prev + 1);
       setStep(isEnglishMode ? 'def-to-word' : 'meaning');
       setSelected(null);
       setMeaningCorrect(false);
@@ -429,6 +431,7 @@ export function VocabStudy() {
     setPhase('study');
     setCurrentIndex(0);
     setStudied(0);
+    setSessionCorrect(0);
     setSessionXp(0);
     setCombo(0);
     setMaxCombo(0);
@@ -444,7 +447,7 @@ export function VocabStudy() {
   // ─── 完了画面（ゲーム風・共通） ───
   const renderCompletionScreen = (isNoCards = false) => {
     const elapsed = Math.floor((Date.now() - startTimeRef.current) / 60000);
-    const correctRate = studied > 0 ? maxCombo / studied : 0;
+    const correctRate = studied > 0 ? sessionCorrect / studied : 0;
     const rank = correctRate >= 0.9 ? 'S' : correctRate >= 0.7 ? 'A' : correctRate >= 0.5 ? 'B' : 'C';
     const rankColors: Record<string, string> = {
       S: 'from-yellow-400 via-amber-300 to-yellow-500 text-yellow-900',
