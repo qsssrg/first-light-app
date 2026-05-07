@@ -93,6 +93,14 @@ export function Settings() {
             </svg>
           </div>
         </div>
+        <div className="flex gap-2 mt-3">
+          <a href="#name-change" className="flex-1">
+            <Button variant="outline" size="sm" className="w-full text-xs"><UserPen className="w-3 h-3 mr-1" />名前を変更</Button>
+          </a>
+          <a href="#re-assessment" className="flex-1">
+            <Button variant="outline" size="sm" className="w-full text-xs"><RefreshCw className="w-3 h-3 mr-1" />タイプ再診断</Button>
+          </a>
+        </div>
       </Card>
 
       <NameChangeSection currentName={profile.name || getPlayerName() || ''} />
@@ -130,7 +138,7 @@ function NameChangeSection({ currentName }: { currentName: string }) {
   };
 
   return (
-    <Card className="p-4">
+    <Card id="name-change" className="p-4">
       <h3 className="text-sm font-medium mb-2 flex items-center gap-2">
         <UserPen className="w-4 h-4" /> 名前の変更
       </h3>
@@ -444,7 +452,7 @@ function ReAssessmentSection({ currentType, currentSkills }: { currentType: stri
   }
 
   return (
-    <Card className="p-4">
+    <Card id="re-assessment" className="p-4">
       <h3 className="text-sm font-medium mb-2 flex items-center gap-2">
         <RefreshCw className="w-4 h-4" /> タイプ再診断
       </h3>
