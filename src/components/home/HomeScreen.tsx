@@ -166,6 +166,22 @@ export function HomeScreen() {
         ))}
       </div>
 
+      {/* Chapter progress card */}
+      <Link href="/chapters/">
+        <div className="rounded-xl bg-gradient-to-r from-indigo-600/80 via-purple-600/80 to-fuchsia-600/80 p-4 shadow-lg shadow-purple-500/10 hover:shadow-xl hover:shadow-purple-500/20 active:scale-[0.98] transition-all cursor-pointer">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-white/15 flex items-center justify-center shrink-0">
+              <BookOpen className="w-5 h-5 text-white" />
+            </div>
+            <div className="flex-1">
+              <p className="text-sm font-bold text-white">チャプターを進める</p>
+              <p className="text-[10px] text-white/60">ストーリーと一緒に英語力を伸ばそう</p>
+            </div>
+            <ArrowRight className="w-4 h-4 text-white/60" />
+          </div>
+        </div>
+      </Link>
+
       {/* Psychology course card (if event enabled but not yet unlocked) */}
       {isPsychologyEventEnabled() && !isPsychologyUnlocked() && (
         <Link href="/psychology">
