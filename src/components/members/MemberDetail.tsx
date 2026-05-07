@@ -143,7 +143,7 @@ export function MemberDetail({ memberId }: { memberId: string }) {
               <Card className="p-4 backdrop-blur-sm bg-white/80 dark:bg-gray-900/80">
                 <h3 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">Profile</h3>
                 <div className="grid grid-cols-2 gap-y-2.5 gap-x-4 text-xs">
-                  <div><span className="text-gray-500">生年月日</span><p className="font-medium">{member.profile.birthYear}年{member.profile.birthday}</p></div>
+                  <div><span className="text-gray-500">生年月日</span><p className="font-medium">{member.profile.birthYear}年{member.profile.birthday.replace('/', '月')}日</p></div>
                   <div><span className="text-gray-500">出身</span><p className="font-medium">{member.profile.hometown}</p></div>
                   <div><span className="text-gray-500">身長</span><p className="font-medium">{member.profile.height}cm</p></div>
                   <div><span className="text-gray-500">血液型</span><p className="font-medium">{member.profile.bloodType}型</p></div>
