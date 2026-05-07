@@ -103,15 +103,11 @@ export function Settings() {
         </div>
       </Card>
 
-      <NameChangeSection currentName={profile.name || getPlayerName() || ''} />
-
       <GoalSettingSection />
 
       <ApiKeySection />
 
       <OshiMemberSection currentOshi={profile.settings.oshiMemberId} />
-
-      <ReAssessmentSection currentType={profile.learnerType} currentSkills={profile.skills} />
 
       <StoryRecollectionSection />
 
