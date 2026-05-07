@@ -10,35 +10,7 @@ import { Card } from '@/components/ui/card';
 import { BookOpen, Flame, Target, Sparkles, ArrowRight, Lightbulb } from 'lucide-react';
 import Link from 'next/link';
 import { getPlayerName } from '@/lib/player-name';
-
-function TypewriterText({ text }: { text: string }) {
-  const [displayed, setDisplayed] = useState('');
-  const [done, setDone] = useState(false);
-
-  useEffect(() => {
-    setDisplayed('');
-    setDone(false);
-    let i = 0;
-    const interval = setInterval(() => {
-      i++;
-      if (i >= text.length) {
-        setDisplayed(text);
-        setDone(true);
-        clearInterval(interval);
-      } else {
-        setDisplayed(text.slice(0, i));
-      }
-    }, 60);
-    return () => clearInterval(interval);
-  }, [text]);
-
-  return (
-    <p className="text-sm text-gray-700 dark:text-gray-300 flex-1">
-      {displayed}
-      {!done && <span className="animate-pulse text-indigo-400">|</span>}
-    </p>
-  );
-}
+import { TypewriterText } from '@/components/common/TypewriterText';
 
 function NextActionGuide({ profile, dueCardCount }: { profile: any; dueCardCount: number }) {
   const getNextAction = () => {
@@ -159,7 +131,7 @@ export function HomeScreen() {
             </div>
             <div className="flex-1 min-w-0 pt-1">
               <p className="text-xs text-gray-500 mb-1">{greeting.member.nameJa}</p>
-              <TypewriterText text={greeting.message} />
+              <TypewriterText text={greeting.message} className="text-sm text-gray-700 dark:text-gray-300 flex-1" />
             </div>
           </div>
         </Card>

@@ -1,13 +1,15 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { MEMBERS } from '@/lib/members';
 import { STORY_CARDS } from '@/lib/stories';
 import { useProfile } from '@/lib/hooks';
 import { MemberAvatar } from '@/components/common/MemberAvatar';
+import { TypewriterText } from '@/components/common/TypewriterText';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Lock } from 'lucide-react';
+import { Lock, BookOpen } from 'lucide-react';
 import { getPlayerName } from '@/lib/player-name';
 import type { Member } from '@/types';
 
@@ -53,8 +55,11 @@ function PersonalMessage({ memberId }: { memberId: string }) {
 
   if (!message) return null;
   return (
-    <Card className="p-3 border-indigo-200/30 bg-indigo-950/10">
-      <p className="text-sm italic text-indigo-300">「{message}」</p>
+    <Card className="p-4 border-indigo-200/30 bg-indigo-950/20 backdrop-blur-sm">
+      <TypewriterText
+        text={`「${message}」`}
+        className="text-sm italic text-gray-800 dark:text-gray-100"
+      />
     </Card>
   );
 }
@@ -63,8 +68,17 @@ interface MemberDetailProps {
   memberId: string;
 }
 
+const MEMBER_REPLAY_SCENARIOS: Record<string, { id: string; label: string }[]> = {
+  kai: [{ id: 'opening', label: 'オープニング' }, { id: 'pre-assessment', label: 'アセスメント前' }],
+  haruto: [{ id: 'opening', label: 'オープニング' }],
+  sora: [{ id: 'opening', label: 'オープニング' }],
+  ren: [{ id: 'opening', label: 'オープニング' }],
+  yuuki: [{ id: 'opening', label: 'オープニング' }],
+};
+
 export function MemberDetail({ memberId }: MemberDetailProps) {
   const profile = useProfile();
+  const router = useRouter();
   const member = MEMBERS.find(m => m.id === memberId);
 
   if (!member) return <p className="text-center text-gray-500">メンバーが見つかりません</p>;
@@ -93,6 +107,29 @@ export function MemberDetail({ memberId }: MemberDetailProps) {
         <p className="text-sm text-gray-700 dark:text-gray-300">{member.description}</p>
         <p className="text-sm text-gray-500 mt-2 italic">{member.personality}</p>
       </Card>
+
+      {/* Story Replay */}
+      {(MEMBER_REPLAY_SCENARIOS[memberId] ?? []).length > 0 && (
+        <div>
+          <h3 className="font-bold text-sm mb-3 px-1">思い出ストーリー</h3>
+          <div className="space-y-2">
+            {(MEMBER_REPLAY_SCENARIOS[memberId] ?? []).map(s => (
+              <button
+                key={s.id}
+                onClick={() => router.push(`/story-replay?id=${s.id}`)}
+                className="w-full text-left"
+              >
+                <Card className="p-3 hover:shadow-md transition-shadow cursor-pointer border-indigo-200/30 hover:border-indigo-400/50">
+                  <div className="flex items-center gap-3">
+                    <BookOpen className="w-4 h-4 text-indigo-400" />
+                    <span className="text-sm text-gray-700 dark:text-gray-300">{s.label}</span>
+                  </div>
+                </Card>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Stories (Album) */}
       <div>
