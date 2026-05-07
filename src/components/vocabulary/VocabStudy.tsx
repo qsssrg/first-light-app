@@ -322,7 +322,7 @@ export function VocabStudy() {
 
     return (
       <div className="flex flex-col items-center justify-center min-h-[70vh] px-6 space-y-6">
-        <div className="w-full max-w-sm space-y-4">
+        <div className="w-full max-w-sm md:max-w-lg space-y-4">
           <p className="text-sm text-gray-500 text-center">今日の学習 ───</p>
           <div className="space-y-2 text-center">
             <p className="text-sm text-gray-700 dark:text-gray-300">{studied}問に取り組みました</p>
@@ -363,7 +363,7 @@ export function VocabStudy() {
           const correctRate = studied > 0 ? maxCombo / studied : 0;
           const encouragement = getEncouragement(studied, correctRate);
           return (
-            <div className="w-full max-w-sm space-y-4">
+            <div className="w-full max-w-sm md:max-w-lg space-y-4">
               <div className="text-center space-y-2 text-sm text-gray-600 dark:text-gray-400">
                 <p>{studied}問に取り組みました</p>
                 {newWordsEncountered > 0 && <p>新しく{newWordsEncountered}語に出会いました</p>}
@@ -421,7 +421,7 @@ export function VocabStudy() {
             {step === 'meaning' ? '意味を選んでください' : '正しい和訳を選んでください'}
           </p>
 
-          <div className="w-full max-w-sm space-y-2">
+          <div className="w-full max-w-sm md:max-w-lg space-y-2">
             {options.map((opt, i) => (
               <button
                 key={`${currentIndex}-${step}-${i}`}

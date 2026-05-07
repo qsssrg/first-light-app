@@ -38,7 +38,7 @@ export default function AlbumPage() {
 
   return (
     <div className="pb-20">
-      <div className="max-w-lg mx-auto py-6 px-4 space-y-4">
+      <div className="max-w-lg md:max-w-2xl lg:max-w-3xl mx-auto py-6 px-4 space-y-4">
         <div className="flex items-center justify-between">
           <h2 className="text-lg font-bold">アルバム</h2>
           <span className="text-xs text-gray-500">{unlockedCount} / 25 解放済み</span>

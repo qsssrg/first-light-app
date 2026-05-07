@@ -140,19 +140,19 @@ export function Onboarding({ onComplete }: { onComplete: () => void }) {
   if (step === 'assessment') {
     const q = ASSESSMENT_QUESTIONS[questionIndex];
     return (
-      <div className="px-4 py-8 space-y-6 max-w-md mx-auto">
+      <div className="px-4 py-8 space-y-6 max-w-md md:max-w-xl lg:max-w-2xl mx-auto">
         <div className="space-y-2">
           <Progress value={((questionIndex + 1) / ASSESSMENT_QUESTIONS.length) * 100} className="h-1.5" />
           <p className="text-xs text-gray-500 text-right">{questionIndex + 1} / {ASSESSMENT_QUESTIONS.length}</p>
         </div>
-        <Card className="p-6">
-          <h3 className="text-sm font-medium mb-4">{q.question}</h3>
-          <div className="space-y-3">
+        <Card className="p-6 md:p-8">
+          <h3 className="text-sm md:text-lg font-medium mb-4 md:mb-6">{q.question}</h3>
+          <div className="space-y-3 md:space-y-4">
             {q.options.map((opt, i) => (
               <button
                 key={i}
                 onClick={() => handleAnswer(q.axis, opt.score)}
-                className="w-full text-left p-3 rounded-lg border border-gray-200 dark:border-gray-700 hover:border-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950 transition-colors text-sm"
+                className="w-full text-left p-3 md:p-4 rounded-lg border border-gray-200 dark:border-gray-700 hover:border-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950 transition-colors text-sm md:text-base"
               >
                 {opt.text}
               </button>
@@ -170,7 +170,7 @@ export function Onboarding({ onComplete }: { onComplete: () => void }) {
   const strongMember = MEMBERS.find(m => m.axis === strongAxis)!;
 
   return (
-    <div className="px-4 py-8 space-y-6 max-w-md mx-auto text-center">
+    <div className="px-4 py-8 space-y-6 max-w-md md:max-w-xl lg:max-w-2xl mx-auto text-center">
       <h2 className="text-xl font-bold">レベル判定完了！</h2>
       <MemberAvatar member={strongMember} size="xl" showName />
       <p className="text-sm text-gray-600 dark:text-gray-400">

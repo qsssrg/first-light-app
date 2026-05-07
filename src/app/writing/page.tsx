@@ -24,7 +24,7 @@ export default function WritingPage() {
 
   return (
     <div className="pb-20">
-      <div className="max-w-lg mx-auto py-6 px-4 space-y-4">
+      <div className="max-w-lg md:max-w-2xl lg:max-w-3xl mx-auto py-6 px-4 space-y-4">
         <h2 className="text-lg font-bold">ライティング</h2>
         <Card className="p-8 text-center">
           <PenTool className="w-12 h-12 text-gray-300 mx-auto mb-4" />

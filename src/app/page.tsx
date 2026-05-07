@@ -79,7 +79,7 @@ export default function Page() {
 
   return (
     <div className="pb-20">
-      <div className="max-w-lg mx-auto px-4 py-6">
+      <div className="max-w-lg md:max-w-2xl lg:max-w-3xl mx-auto px-4 py-6">
         <HomeScreen />
       </div>
       <BottomNav />
