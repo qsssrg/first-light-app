@@ -335,6 +335,22 @@ export function HomeScreen() {
         </Card>
       </Link>
 
+      {/* ライティング学習 — full-width card */}
+      <Link href="/writing-study">
+        <Card className="p-4 hover:shadow-md transition-shadow cursor-pointer border-pink-300 dark:border-pink-700 bg-gradient-to-r from-pink-50 to-rose-50 dark:from-pink-950/30 dark:to-rose-950/30">
+          <div className="flex items-center gap-3">
+            <div className="p-2.5 bg-pink-100 dark:bg-pink-900 rounded-full">
+              <Flame className="w-5 h-5 text-pink-600 dark:text-pink-400" />
+            </div>
+            <div className="flex-1">
+              <p className="text-sm font-bold text-pink-900 dark:text-pink-100">ライティング学習を進める</p>
+              <p className="text-xs text-pink-600 dark:text-pink-400">ユウキと一緒に英文を書こう</p>
+            </div>
+            <ArrowRight className="w-4 h-4 text-pink-400" />
+          </div>
+        </Card>
+      </Link>
+
       </div>
 
       {/* 単語帳 + 分析 — side by side */}
