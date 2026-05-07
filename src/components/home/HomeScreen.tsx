@@ -60,8 +60,8 @@ function useGreeting(dueCardCount: number, totalXp: number): { member: ReturnTyp
     const name = getPlayerName() || 'マネージャー';
     const hour = new Date().getHours();
 
-    // Time period: late-night(0-5), morning(6-9), daytime(10-16), evening(17-20), night(21-23)
-    const period = hour < 6 ? 'latenight' : hour < 10 ? 'morning' : hour < 17 ? 'daytime' : hour < 21 ? 'evening' : 'night';
+    // Time period: latenight(0-4), earlymorning(5-6), morning(7-11), daytime(12-16), evening(17-20), night(21-23)
+    const period = hour < 5 ? 'latenight' : hour < 7 ? 'earlymorning' : hour < 12 ? 'morning' : hour < 17 ? 'daytime' : hour < 21 ? 'evening' : 'night';
 
     type Msg = { id: string; msg: string };
     let msgs: Msg[];
@@ -71,6 +71,10 @@ function useGreeting(dueCardCount: number, totalXp: number): { member: ReturnTyp
         latenight: [
           { id: 'ren', msg: `…${name}、こんな時間か。${dueCardCount}語溜まってるけど、無理すんなよ。` },
           { id: 'kai', msg: `${name}、まだ起きてるのか。${dueCardCount}語の学習が待ってる。少しだけやって寝よう。` },
+        ],
+        earlymorning: [
+          { id: 'kai', msg: `${name}、朝早いな。${dueCardCount}語の学習が待ってる。朝の頭はよく回るぞ。` },
+          { id: 'sora', msg: `早起きですね、${name}さん。${dueCardCount}語、朝のうちに片付けちゃいましょう。` },
         ],
         morning: [
           { id: 'haruto', msg: `おはよう、${name}さん！ ${dueCardCount}語の学習が溜まってるよ。一緒にやろう。` },
@@ -96,6 +100,10 @@ function useGreeting(dueCardCount: number, totalXp: number): { member: ReturnTyp
           { id: 'sora', msg: `…${name}さん、まだ起きてるんですね。あと${dueCardCount}語だけ、一緒にやりませんか。` },
           { id: 'ren', msg: `${name}…あと${dueCardCount}語か。サクッと終わらせて寝ようぜ。` },
         ],
+        earlymorning: [
+          { id: 'haruto', msg: `早起きだね、${name}さん。あと${dueCardCount}語、朝のうちにやっちゃおう。` },
+          { id: 'yuuki', msg: `${name}、早起き！ あと${dueCardCount}語だよ！ サクッとやろ！` },
+        ],
         morning: [
           { id: 'sora', msg: `おはようございます、${name}さん。${dueCardCount}語の学習があります。` },
           { id: 'haruto', msg: `おはよう、${name}さん。あと${dueCardCount}語で完了だよ。` },
@@ -119,6 +127,10 @@ function useGreeting(dueCardCount: number, totalXp: number): { member: ReturnTyp
         latenight: [
           { id: 'kai', msg: `${name}、夜中に始めるのか…。まぁ、付き合うよ。チャプターを進めてみよう。` },
         ],
+        earlymorning: [
+          { id: 'kai', msg: `${name}、早起きだな。朝イチでチャプターを進めよう。頭が冴えてるうちに。` },
+          { id: 'yuuki', msg: `${name}、早起き偉い！ 朝からチャプター行っちゃおう！` },
+        ],
         morning: [
           { id: 'kai', msg: `おはよう、${name}。まだ始めたばかりだな。チャプターを進めてみよう。` },
           { id: 'yuuki', msg: `おはよ〜${name}！ 最初はどんどん進めていこ！` },
@@ -140,6 +152,10 @@ function useGreeting(dueCardCount: number, totalXp: number): { member: ReturnTyp
         latenight: [
           { id: 'ren', msg: `…${name}。こんな時間に来るとは、やる気だな。新しい単語に挑戦するか。` },
           { id: 'kai', msg: `${name}、夜中まで頑張ってるのか。…俺も付き合うよ。` },
+        ],
+        earlymorning: [
+          { id: 'sora', msg: `早起きですね、${name}さん。朝の静かな時間に新しい単語…いいですね。` },
+          { id: 'ren', msg: `${name}、朝早いな。…嫌いじゃないぜ、そういうの。新しい単語やるか。` },
         ],
         morning: [
           { id: 'haruto', msg: `おはよう、${name}さん。新しい単語に出会いませんか？` },
