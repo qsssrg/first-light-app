@@ -122,7 +122,7 @@ export function Onboarding({ onComplete }: { onComplete: () => void }) {
         <div className="text-center space-y-2">
           <h1 className="text-2xl font-bold">FIRST LIGHT</h1>
           <p className="text-sm text-gray-600 dark:text-gray-400">
-            5人のメンバーと一緒に、英語力を伸ばそう
+            5人のメンバーと一緒に、推しながら英語力を伸ばそう
           </p>
         </div>
         <div className="flex gap-2">

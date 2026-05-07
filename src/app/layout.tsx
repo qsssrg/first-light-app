@@ -16,8 +16,8 @@ const notoSansJP = Noto_Sans_JP({
 });
 
 export const metadata: Metadata = {
-  title: "FIRST LIGHT - 英語学習アプリ",
-  description: "5人のメンバーと一緒に英語力を伸ばそう",
+  title: "FIRST LIGHT - 推し活×勉強アプリ",
+  description: "5人のメンバーと一緒に、推しながら英語力を伸ばそう",
   manifest: "/manifest.json",
 };
 
