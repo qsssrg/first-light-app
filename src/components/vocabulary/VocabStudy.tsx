@@ -980,7 +980,7 @@ export function VocabStudy() {
         ) : step === 'meaning' ? (
           <>
             <div className="flex items-center justify-center gap-2 mb-3">
-              <p className="text-[10px] font-bold tracking-widest text-indigo-400 uppercase">{currentCard?.category}</p>
+              <p className="text-[10px] font-bold tracking-widest text-indigo-400">{currentCard?.category}</p>
               {currentCard && (
                 <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300 font-medium">
                   {getVocabLevelLabel(currentCard.word, currentCard.difficulty)}
