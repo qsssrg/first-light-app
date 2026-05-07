@@ -1,13 +1,12 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Home, Users, BookOpen, PenTool, BarChart3, Settings, Brain } from 'lucide-react';
+import { Home, BookOpen, PenTool, BarChart3, Settings, Brain } from 'lucide-react';
 import { usePathname, useRouter } from 'next/navigation';
 import { isPsychologyUnlocked } from '@/lib/psychology-settings';
 
 const BASE_NAV = [
   { href: '/', icon: Home, label: 'ホーム' },
-  { href: '/chapters', icon: Users, label: 'チャプター' },
   { href: '/vocabulary', icon: BookOpen, label: '単語帳' },
   { href: '/writing-practice', icon: PenTool, label: '添削' },
   { href: '/dashboard', icon: BarChart3, label: '分析' },
