@@ -313,7 +313,6 @@ function NewsItem({ news, index }: { news: typeof FAKE_NEWS[0]; index: number })
           <span className={`text-[10px] font-medium px-1.5 py-0.5 rounded ${TAG_COLORS[news.tag] || 'bg-gray-100 text-gray-600'}`}>
             {news.tag}
           </span>
-          <span className="text-[9px] text-gray-400">{isEnglish ? 'EN' : 'JP'}</span>
         </div>
         <div className="flex-1 min-w-0">
           <p className={`text-sm font-medium transition-opacity duration-300 ${isEnglish ? 'text-indigo-600 dark:text-indigo-400' : ''}`}>
