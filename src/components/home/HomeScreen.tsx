@@ -158,17 +158,23 @@ export function HomeScreen() {
       </div>
 
       {/* Members row */}
-      <div className="flex justify-around px-2">
-        {MEMBERS.map(member => (
-          <Link key={member.id} href={`/members?id=${member.id}`}>
-            <MemberAvatar member={member} size="md" showName />
-          </Link>
-        ))}
+      <div>
+        <div className="flex items-center justify-between px-2 mb-2">
+          <span className="text-[10px] font-bold tracking-[0.2em] text-gray-500 uppercase">Members</span>
+          <Link href="/members" className="text-[10px] text-indigo-400 hover:text-indigo-300">全員を見る →</Link>
+        </div>
+        <div className="flex justify-around px-2">
+          {MEMBERS.map(member => (
+            <Link key={member.id} href={`/members?id=${member.id}`}>
+              <MemberAvatar member={member} size="md" showName />
+            </Link>
+          ))}
+        </div>
       </div>
 
       {/* Chapter progress card */}
       <Link href="/chapters/">
-        <div className="rounded-xl bg-gradient-to-r from-indigo-600/80 via-purple-600/80 to-fuchsia-600/80 p-4 shadow-lg shadow-purple-500/10 hover:shadow-xl hover:shadow-purple-500/20 active:scale-[0.98] transition-all cursor-pointer">
+        <div className="rounded-xl bg-gradient-to-r from-teal-600/80 via-cyan-600/80 to-sky-600/80 p-4 shadow-lg shadow-teal-500/10 hover:shadow-xl hover:shadow-teal-500/20 active:scale-[0.98] transition-all cursor-pointer">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-full bg-white/15 flex items-center justify-center shrink-0">
               <BookOpen className="w-5 h-5 text-white" />
