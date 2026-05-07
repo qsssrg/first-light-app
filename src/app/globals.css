@@ -149,6 +149,15 @@ button[data-slot="button"]:active {
   transform: translateY(1px);
 }
 
+/* News ticker animation */
+@keyframes news-ticker {
+  0% { transform: translateX(100%); }
+  100% { transform: translateX(-100%); }
+}
+.animate-news-ticker {
+  animation: news-ticker 12s linear infinite;
+}
+
 /* Game effects animations */
 @keyframes combo-flash {
   0% { opacity: 0; transform: scale(0.3); }

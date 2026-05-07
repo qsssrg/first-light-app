@@ -264,11 +264,11 @@ export function HomeScreen() {
   );
 }
 
-function NewsSection() {
-  const [news] = useState(() => {
-    const shuffled = [...FAKE_NEWS].sort(() => Math.random() - 0.5);
-    return shuffled.slice(0, 3);
-  });
+function NewsItem({ news, index }: { news: typeof FAKE_NEWS[0]; index: number }) {
+  const [isEnglish, setIsEnglish] = useState(false);
+
+  const title = isEnglish ? news.titleEn : news.title;
+  const body = isEnglish ? news.bodyEn : news.body;
 
   const TAG_COLORS: Record<string, string> = {
     TV: 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300',
@@ -284,23 +284,47 @@ function NewsSection() {
   };
 
   return (
+    <Card
+      className="p-3 cursor-pointer hover:shadow-sm transition-all"
+      onClick={() => setIsEnglish(!isEnglish)}
+    >
+      <div className="flex items-start gap-2">
+        <div className="flex flex-col items-center gap-1 shrink-0">
+          <span className={`text-[10px] font-medium px-1.5 py-0.5 rounded ${TAG_COLORS[news.tag] || 'bg-gray-100 text-gray-600'}`}>
+            {news.tag}
+          </span>
+          <span className="text-[9px] text-gray-400">{isEnglish ? 'EN' : 'JP'}</span>
+        </div>
+        <div className="flex-1 min-w-0">
+          <p className={`text-sm font-medium transition-opacity duration-300 ${isEnglish ? 'text-indigo-600 dark:text-indigo-400' : ''}`}>
+            {title}
+          </p>
+          <div className="overflow-hidden mt-0.5">
+            <p className={`text-xs text-gray-500 whitespace-nowrap animate-news-ticker`}>
+              {body}
+            </p>
+          </div>
+        </div>
+      </div>
+    </Card>
+  );
+}
+
+function NewsSection() {
+  const [news] = useState(() => {
+    const shuffled = [...FAKE_NEWS].sort(() => Math.random() - 0.5);
+    return shuffled.slice(0, 3);
+  });
+
+  return (
     <div>
       <h3 className="text-sm font-bold mb-3 flex items-center gap-2">
         <Newspaper className="w-4 h-4" /> FIRST LIGHT NEWS
+        <span className="text-[10px] text-gray-400 font-normal ml-auto">タップで日英切替</span>
       </h3>
       <div className="space-y-2">
         {news.map((n, i) => (
-          <Card key={i} className="p-3 hover:shadow-sm transition-shadow">
-            <div className="flex items-start gap-2">
-              <span className={`text-[10px] font-medium px-1.5 py-0.5 rounded shrink-0 ${TAG_COLORS[n.tag] || 'bg-gray-100 text-gray-600'}`}>
-                {n.tag}
-              </span>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium line-clamp-1">{n.title}</p>
-                <p className="text-xs text-gray-500 line-clamp-1">{n.body}</p>
-              </div>
-            </div>
-          </Card>
+          <NewsItem key={i} news={n} index={i} />
         ))}
       </div>
     </div>
