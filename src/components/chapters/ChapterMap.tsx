@@ -7,6 +7,12 @@ import { Card } from '@/components/ui/card';
 import { Lock, Crown } from 'lucide-react';
 import Link from 'next/link';
 
+const PAIR_MEMBERS: Record<string, [string, string]> = {
+  ch6: ['haruto', 'kai'],
+  ch7: ['ren', 'sora'],
+  ch8: ['yuuki', 'kai'],
+};
+
 export function ChapterMap() {
   // TODO: check stageProgress to determine if all basic chapters are cleared
   // For now, advanced chapters are always visible but show a "clear all basic" hint
@@ -57,7 +63,9 @@ export function ChapterMap() {
         )}
         <div className="space-y-3">
           {ADVANCED_CHAPTERS.map(chapter => {
-            const member = MEMBERS.find(m => m.id === chapter.memberId);
+            const pair = PAIR_MEMBERS[chapter.id];
+            const member1 = pair ? MEMBERS.find(m => m.id === pair[0]) : null;
+            const member2 = pair ? MEMBERS.find(m => m.id === pair[1]) : null;
             return (
               <Link
                 key={chapter.id}
@@ -66,7 +74,11 @@ export function ChapterMap() {
               >
                 <Card className={`p-4 transition-shadow ${!allBasicCleared ? 'opacity-40' : 'hover:shadow-md active:scale-[0.98]'}`}>
                   <div className="flex items-center gap-4">
-                    {member && <MemberAvatar member={member} size="lg" />}
+                    {/* Stacked avatars */}
+                    <div className="flex items-center shrink-0">
+                      {member1 && <div className="z-10"><MemberAvatar member={member1} size="lg" /></div>}
+                      {member2 && <div className="-ml-4 z-0 ring-2 ring-white dark:ring-gray-900 rounded-full"><MemberAvatar member={member2} size="lg" /></div>}
+                    </div>
                     <div className="flex-1">
                       <div className="flex items-center gap-2">
                         <h3 className="font-bold text-sm">Ch.{chapter.number} {chapter.titleJa}</h3>
