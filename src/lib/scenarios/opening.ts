@@ -134,7 +134,7 @@ export const preAssessmentScenario: Scenario = {
 
 export const postAssessmentScenario: Scenario = {
   id: 'post-assessment',
-  background: 'studio',
+  background: 'stylish-office',
   lines: [
     { type: 'dialog', character: 'kai', text: '{playerName}、テストお疲れさま。結果が出たよ。' },
     { type: 'dialog', character: 'kai', text: 'なるほど…{playerName}の全体像が見えてきた。' },
