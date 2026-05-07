@@ -13,16 +13,17 @@ import type { WritingSubmission } from '@/types';
 import Link from 'next/link';
 
 const PROMPTS = [
-  'Describe your favorite place to relax and explain why you enjoy spending time there.',
-  'Do you think social media has a positive or negative impact on society? Explain your opinion.',
-  'Write about a person who has influenced your life and explain how they changed you.',
-  'Should students be required to learn a second language? Give reasons for your answer.',
-  'Describe a challenge you faced and how you overcame it.',
-  'What is one invention that you think has changed the world the most? Explain why.',
+  { text: 'Describe your favorite place to relax and explain why you enjoy spending time there.', level: '英検2級' },
+  { text: 'Do you think social media has a positive or negative impact on society? Explain your opinion.', level: '英検準1級' },
+  { text: 'Write about a person who has influenced your life and explain how they changed you.', level: '英検2級' },
+  { text: 'Should students be required to learn a second language? Give reasons for your answer.', level: '英検準1級' },
+  { text: 'Describe a challenge you faced and how you overcame it.', level: '英検2級' },
+  { text: 'What is one invention that you think has changed the world the most? Explain why.', level: 'TOEFL' },
 ];
 
 export function WritingPractice() {
-  const [prompt, setPrompt] = useState(PROMPTS[Math.floor(Math.random() * PROMPTS.length)]);
+  const [promptData, setPromptData] = useState(PROMPTS[Math.floor(Math.random() * PROMPTS.length)]);
+  const prompt = promptData.text;
   const [text, setText] = useState('');
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<WritingSubmission | null>(null);
@@ -97,7 +98,7 @@ Remember the Montessori principle: acknowledge growth rather than just praise.`,
   };
 
   const newPrompt = () => {
-    setPrompt(PROMPTS[Math.floor(Math.random() * PROMPTS.length)]);
+    setPromptData(PROMPTS[Math.floor(Math.random() * PROMPTS.length)]);
     setText('');
     setResult(null);
   };
@@ -153,7 +154,10 @@ Remember the Montessori principle: acknowledge growth rather than just praise.`,
 
       <Card className="p-4 bg-blue-50 dark:bg-blue-950 border-blue-200 dark:border-blue-800">
         <p className="text-xs text-blue-600 dark:text-blue-400 mb-1">お題</p>
-        <p className="text-sm font-medium">{prompt}</p>
+        <div className="flex items-start gap-2">
+          <p className="text-sm font-medium flex-1">{prompt}</p>
+          <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-indigo-100 dark:bg-indigo-900 text-indigo-600 dark:text-indigo-300 font-medium shrink-0">{promptData.level}</span>
+        </div>
       </Card>
 
       <div className="relative">

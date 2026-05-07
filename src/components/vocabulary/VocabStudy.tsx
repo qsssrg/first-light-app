@@ -20,7 +20,7 @@ import { EXAMPLE_TRANSLATIONS } from '@/lib/example-translations-data';
 import { EXAMPLE_VARIANTS } from '@/lib/example-variants-data';
 import { getPlayerName } from '@/lib/player-name';
 import { getStudyGoal } from '@/lib/study-goals';
-import { shouldExcludeWord } from '@/lib/vocab-source';
+import { shouldExcludeWord, getVocabLevelLabel } from '@/lib/vocab-source';
 import { useProfile } from '@/lib/hooks';
 import { ENGLISH_DEFINITIONS } from '@/lib/english-definitions-data';
 import { addNewVocabCards } from '@/lib/vocab-add';
@@ -979,7 +979,14 @@ export function VocabStudy() {
           </>
         ) : step === 'meaning' ? (
           <>
-            <p className="text-[10px] font-bold tracking-widest text-indigo-400 uppercase mb-3">{currentCard?.category}</p>
+            <div className="flex items-center justify-center gap-2 mb-3">
+              <p className="text-[10px] font-bold tracking-widest text-indigo-400 uppercase">{currentCard?.category}</p>
+              {currentCard && (
+                <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300 font-medium">
+                  {getVocabLevelLabel(currentCard.word, currentCard.difficulty)}
+                </span>
+              )}
+            </div>
             <div className="flex items-center justify-center gap-2">
               <h3 className="text-3xl font-black tracking-tight">{currentCard?.word}</h3>
               {currentCard?.word && <SpeakButton text={currentCard.word} />}

@@ -22,6 +22,22 @@ export function getVocabSource(word: string): VocabSource {
   return 'common'; // sample-vocab, stage-vocab
 }
 
+/** Get a display label for the word's level */
+export function getVocabLevelLabel(word: string, difficulty: number): string {
+  const source = getVocabSource(word);
+  if (source === 'toefl') return 'TOEFL';
+  if (source === 'eiken') {
+    if (difficulty <= 3) return '英検2級';
+    if (difficulty <= 4) return '英検準1級';
+    return '英検1級';
+  }
+  // common (sample/stage)
+  if (difficulty <= 1) return '英検5級';
+  if (difficulty <= 2) return '英検3級';
+  if (difficulty <= 3) return '英検2級';
+  return '英検準1級';
+}
+
 /** Filter out words based on goal settings */
 export function shouldExcludeWord(word: string, eikenNone: boolean, toeflNone: boolean): boolean {
   const source = getVocabSource(word);
