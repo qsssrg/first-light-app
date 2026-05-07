@@ -6,8 +6,11 @@ import { useLiveQuery } from 'dexie-react-hooks';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Send, Loader2, BookOpen } from 'lucide-react';
+import { Send, Loader2, BookOpen, AlertCircle } from 'lucide-react';
+import { hasApiKey } from '@/lib/api-key';
+import { callClaude } from '@/lib/claude-client';
 import type { WritingSubmission } from '@/types';
+import Link from 'next/link';
 
 const PROMPTS = [
   'Describe your favorite place to relax and explain why you enjoy spending time there.',
@@ -28,18 +31,41 @@ export function WritingPractice() {
 
   const handleSubmit = async () => {
     if (!text.trim() || text.trim().split(' ').length < 10) return;
+    if (!hasApiKey()) return;
     setLoading(true);
 
     try {
-      const res = await fetch('/api/writing', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt, text }),
-      });
+      const responseText = await callClaude([{
+        role: 'user',
+        content: `You are an English writing tutor for a Japanese learner preparing for EIKEN and TOEFL exams.
 
-      if (!res.ok) throw new Error('API error');
+The student was given this prompt: "${prompt}"
 
-      const data = await res.json();
+They wrote:
+"""
+${text}
+"""
+
+Please provide:
+1. A score from 0-100
+2. Brief feedback (2-3 sentences in Japanese) acknowledging what they did well and suggesting improvement
+3. Up to 3 specific corrections
+
+Respond in this exact JSON format:
+{
+  "score": <number>,
+  "feedback": "<Japanese feedback string>",
+  "corrections": [
+    {"original": "<original phrase>", "corrected": "<corrected phrase>", "explanation": "<explanation in Japanese>", "type": "<grammar|vocabulary|style|spelling>"}
+  ]
+}
+
+Remember the Montessori principle: acknowledge growth rather than just praise.`,
+      }]);
+
+      const jsonMatch = responseText.match(/\{[\s\S]*\}/);
+      const data = jsonMatch ? JSON.parse(jsonMatch[0]) : { feedback: responseText, score: null, corrections: [] };
+
       const submission: Omit<WritingSubmission, 'id'> = {
         date: new Date(),
         prompt,
@@ -51,13 +77,15 @@ export function WritingPractice() {
 
       const id = await db.writingSubmissions.add(submission as WritingSubmission);
       setResult({ ...submission, id } as WritingSubmission);
-    } catch {
-      // If API fails, save without feedback
+    } catch (err) {
+      const message = err instanceof Error && err.message === 'API_KEY_NOT_SET'
+        ? 'APIキーが設定されていません。設定画面で入力してください。'
+        : 'API接続エラー。APIキーを確認してください。';
       const submission: Omit<WritingSubmission, 'id'> = {
         date: new Date(),
         prompt,
         userText: text,
-        feedback: 'API接続エラー。後で再添削できます。',
+        feedback: message,
         score: null,
         corrections: [],
       };
@@ -129,9 +157,20 @@ export function WritingPractice() {
         </span>
       </div>
 
+      {!hasApiKey() && (
+        <Link href="/settings">
+          <Card className="p-3 border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-950/50 cursor-pointer hover:shadow-md transition-shadow">
+            <div className="flex items-center gap-2">
+              <AlertCircle className="w-4 h-4 text-amber-500 shrink-0" />
+              <p className="text-xs text-amber-700 dark:text-amber-300">APIキーが未設定です。設定画面で入力してください。</p>
+            </div>
+          </Card>
+        </Link>
+      )}
+
       <Button
         onClick={handleSubmit}
-        disabled={loading || text.trim().split(' ').length < 10}
+        disabled={loading || text.trim().split(' ').length < 10 || !hasApiKey()}
         className="w-full"
       >
         {loading ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> 添削中...</> : <><Send className="w-4 h-4 mr-2" /> 添削を依頼</>}

@@ -5,7 +5,10 @@ import { SPEAKING_QUESTIONS, TYPE_LABELS, type SpeakingQuestion, type SpeakingTy
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Mic, MicOff, Play, Loader2, Star, RotateCcw } from 'lucide-react';
+import { Mic, MicOff, Play, Loader2, Star, RotateCcw, AlertCircle } from 'lucide-react';
+import { hasApiKey } from '@/lib/api-key';
+import { callClaude } from '@/lib/claude-client';
+import Link from 'next/link';
 
 interface Feedback {
   grammar: number;
@@ -109,24 +112,41 @@ export function SpeakingPractice() {
 
   const submitForFeedback = async () => {
     if (!currentQ || !transcript.trim()) return;
+    if (!hasApiKey()) return;
     setLoading(true);
 
     try {
-      const res = await fetch('/api/speaking', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          prompt: currentQ.prompt,
-          transcript: transcript.trim(),
-          timeLimit: currentQ.timeLimit,
-          type: currentQ.type,
-        }),
-      });
-      const data = await res.json();
-      setFeedback(data.feedback);
+      const wordCount = transcript.trim().split(/\s+/).length;
+      const estimatedWPM = Math.round((wordCount / currentQ.timeLimit) * 60);
+
+      const responseText = await callClaude([{
+        role: 'user',
+        content: `You are an English speaking test evaluator for a Japanese student preparing for ${currentQ.type === 'toefl' ? 'TOEFL iBT' : 'EIKEN Pre-1'}.
+
+Question/Prompt: "${currentQ.prompt}"
+Student's response (transcribed from speech): "${transcript.trim()}"
+Word count: ${wordCount}
+Estimated speaking speed: ${estimatedWPM} WPM (target: 120-150 WPM)
+Time limit: ${currentQ.timeLimit} seconds
+
+Evaluate and respond in this exact JSON format:
+{
+  "grammar": <1-5>,
+  "vocabulary": <1-5>,
+  "fluency": <1-5>,
+  "content": <1-5>,
+  "comment": "<Japanese, 2-3 sentence overall feedback>",
+  "corrections": [{"original": "<error phrase>", "corrected": "<fixed phrase>"}],
+  "suggestion": "<Japanese, one specific tip to improve>"
+}`,
+      }]);
+
+      const jsonMatch = responseText.match(/\{[\s\S]*\}/);
+      const parsed = jsonMatch ? JSON.parse(jsonMatch[0]) : { grammar: 3, vocabulary: 3, fluency: 3, content: 3, comment: responseText, corrections: [], suggestion: '' };
+      setFeedback(parsed);
       setPhase('feedback');
     } catch {
-      setFeedback({ grammar: 3, vocabulary: 3, fluency: 3, content: 3, comment: 'エラーが発生しました', corrections: [], suggestion: '' });
+      setFeedback({ grammar: 3, vocabulary: 3, fluency: 3, content: 3, comment: 'APIエラー。APIキーを確認してください。', corrections: [], suggestion: '' });
       setPhase('feedback');
     } finally {
       setLoading(false);
@@ -147,6 +167,17 @@ export function SpeakingPractice() {
       <div className="space-y-4 px-4">
         <h2 className="text-lg font-bold">スピーキング練習</h2>
         <p className="text-xs text-gray-500">マイクに向かって英語で話そう。音声認識でテキスト化されます。</p>
+
+        {!hasApiKey() && (
+          <Link href="/settings">
+            <Card className="p-3 border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-950/50 cursor-pointer hover:shadow-md transition-shadow">
+              <div className="flex items-center gap-2">
+                <AlertCircle className="w-4 h-4 text-amber-500 shrink-0" />
+                <p className="text-xs text-amber-700 dark:text-amber-300">APIキーが未設定です。設定画面で入力してください。</p>
+              </div>
+            </Card>
+          </Link>
+        )}
 
         <div className="flex gap-1.5">
           {([['all', 'すべて'], ['narration', 'ナレーション'], ['qa', 'Q&A'], ['toefl', 'TOEFL']] as const).map(([key, label]) => (
