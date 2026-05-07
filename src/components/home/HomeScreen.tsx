@@ -21,10 +21,10 @@ function NextActionGuide({ profile, dueCardCount }: { profile: any; dueCardCount
       return { text: 'まずレベルを測ろう', desc: 'あなたの英語力を5つの軸で判定します', href: '/settings', icon: Target };
     }
     if (dueCardCount > 0) {
-      return { text: `${dueCardCount}語の学習しよう`, desc: '単語を学習して語彙力を伸ばそう', href: '/vocabulary', icon: BookOpen };
+      return { text: `${dueCardCount}語の学習しよう`, desc: '単語を学習して語彙力を伸ばそう', href: '/vocab-study', icon: BookOpen };
     }
     if (profile.totalXp < 100) {
-      return { text: '単語帳を始めよう', desc: '新しい単語を追加して学習スタート', href: '/vocabulary', icon: BookOpen };
+      return { text: '単語学習を始めよう', desc: '新しい単語を追加して学習スタート', href: '/vocab-study', icon: BookOpen };
     }
     if (!profile.lastStudyAt || Date.now() - new Date(profile.lastStudyAt).getTime() > 86400000) {
       return { text: '今日の学習をしよう', desc: '毎日の積み重ねが力になる', href: '/vocabulary', icon: Flame };
@@ -295,6 +295,22 @@ export function HomeScreen() {
 
       {/* Quick actions */}
       <div className="grid grid-cols-2 gap-3">
+        <Link href="/vocab-study">
+          <Card className="p-4 hover:shadow-md transition-shadow cursor-pointer border-purple-200 dark:border-purple-800">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-purple-100 dark:bg-purple-900 rounded-lg">
+                <Sparkles className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+              </div>
+              <div>
+                <p className="text-sm font-medium">単語学習</p>
+                <p className="text-xs text-gray-500">
+                  {dueCards.length > 0 ? `${dueCards.length}語が学習待ち` : '学習する単語なし'}
+                </p>
+              </div>
+            </div>
+          </Card>
+        </Link>
+
         <Link href="/vocabulary">
           <Card className="p-4 hover:shadow-md transition-shadow cursor-pointer">
             <div className="flex items-center gap-3">
@@ -303,9 +319,7 @@ export function HomeScreen() {
               </div>
               <div>
                 <p className="text-sm font-medium">単語帳</p>
-                <p className="text-xs text-gray-500">
-                  {dueCards.length > 0 ? `${dueCards.length}語が学習待ち` : '学習する単語なし'}
-                </p>
+                <p className="text-xs text-gray-500">一覧・検索</p>
               </div>
             </div>
           </Card>

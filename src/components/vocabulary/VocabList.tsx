@@ -99,7 +99,7 @@ const CATEGORY_LABELS: Record<string, string> = {
   culture: '文化',
 };
 
-export function VocabList({ onBack }: { onBack: () => void }) {
+export function VocabList({ onBack }: { onBack?: () => void } = {}) {
   const learnedCards = useVocabCards();
   const [filter, setFilter] = useState<FilterMode>('all');
   const [categoryFilter, setCategoryFilter] = useState<string>('all');
@@ -138,7 +138,7 @@ export function VocabList({ onBack }: { onBack: () => void }) {
     <div className="space-y-4 px-4">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <h2 className="text-lg font-bold">単語一覧</h2>
+        <h2 className="text-lg font-bold">単語帳</h2>
         <Button variant="outline" size="sm" onClick={onBack}>
           学習に戻る
         </Button>

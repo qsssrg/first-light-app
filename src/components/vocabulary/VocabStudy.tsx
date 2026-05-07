@@ -624,12 +624,19 @@ export function VocabStudy() {
               <Home className="w-4 h-4" /> ホームに戻る
             </button>
           </Link>
-          <button
-            onClick={resetSession}
-            className="w-full py-3 rounded-xl text-sm font-medium border-2 border-gray-700/50 text-gray-300 hover:border-gray-500 hover:bg-gray-800/30 active:scale-[0.98] transition-all flex items-center justify-center gap-2"
-          >
-            <RotateCcw className="w-4 h-4" /> もう一度やる
-          </button>
+          <div className="flex gap-2.5">
+            <button
+              onClick={resetSession}
+              className="flex-1 py-3 rounded-xl text-sm font-medium border-2 border-gray-700/50 text-gray-300 hover:border-gray-500 hover:bg-gray-800/30 active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+            >
+              <RotateCcw className="w-4 h-4" /> もう一度
+            </button>
+            <Link href="/vocabulary" className="flex-1">
+              <button className="w-full py-3 rounded-xl text-sm font-medium border-2 border-blue-700/50 text-blue-300 hover:border-blue-500 hover:bg-blue-800/30 active:scale-[0.98] transition-all flex items-center justify-center gap-2">
+                <Star className="w-4 h-4" /> 単語帳へ
+              </button>
+            </Link>
+          </div>
         </div>
       </div>
     );
