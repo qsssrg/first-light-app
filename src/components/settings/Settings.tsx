@@ -638,19 +638,35 @@ function BackupSection() {
 
 function PsychologyEventToggle() {
   const [enabled, setEnabled] = useState(() => isPsychologyEventEnabled());
+  const [showEvent, setShowEvent] = useState(false);
   const handleToggle = () => {
     const next = !enabled;
     setPsychologyEventEnabled(next);
     setEnabled(next);
+    if (next) {
+      setShowEvent(true);
+      setTimeout(() => setShowEvent(false), 2500);
+    }
   };
   return (
-    <div className="flex items-center justify-between p-4">
-      <div>
-        <p className="text-sm font-medium">心理学バラエティ番組</p>
-        <p className="text-xs text-gray-500">ONにすると番組オファーイベントが発生</p>
+    <>
+      <div className="flex items-center justify-between p-4">
+        <div>
+          <p className="text-sm font-medium">心理学バラエティ番組</p>
+          <p className="text-xs text-gray-500">ONにすると番組オファーイベントが発生</p>
+        </div>
+        <Switch checked={enabled} onCheckedChange={handleToggle} />
       </div>
-      <Switch checked={enabled} onCheckedChange={handleToggle} />
-    </div>
+      {showEvent && (
+        <div className="fixed inset-0 pointer-events-none z-50 flex items-center justify-center">
+          <div className="animate-combo-flash text-center">
+            <p className="text-4xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-fuchsia-400 drop-shadow-[0_0_20px_rgba(168,85,247,0.5)]">
+              イベント発生！
+            </p>
+          </div>
+        </div>
+      )}
+    </>
   );
 }
 
