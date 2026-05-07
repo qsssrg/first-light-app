@@ -64,12 +64,13 @@ export async function grantDailyAffinityBonus(pointsPerMember: number = 2): Prom
   if (lastGranted === today) return false;
 
   for (const memberId of ALL_MEMBERS) {
+    const randomPts = Math.floor(Math.random() * 3) + 1; // 1-3pt
     let record = await db.memberAffinity.where('memberId').equals(memberId).first();
     if (!record) {
       const id = await db.memberAffinity.add({ memberId, level: 1, points: 0 });
       record = { id, memberId, level: 1, points: 0 };
     }
-    const newPoints = record.points + pointsPerMember;
+    const newPoints = record.points + randomPts;
     await db.memberAffinity.update(record.id!, {
       points: newPoints,
       level: getAffinityLevel(newPoints),
