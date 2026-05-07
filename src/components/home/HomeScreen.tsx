@@ -60,52 +60,110 @@ function useGreeting(dueCardCount: number, totalXp: number): { member: ReturnTyp
     const name = getPlayerName() || 'マネージャー';
     const hour = new Date().getHours();
 
-    // Time-based greeting prefix
-    const timeGreeting = hour < 6 ? 'こんな時間まで…' :
-                         hour < 10 ? 'おはよう' :
-                         hour < 17 ? 'やあ' :
-                         hour < 21 ? 'お疲れ様' : '夜遅くまで頑張ってるね';
+    // Time period: late-night(0-5), morning(6-9), daytime(10-16), evening(17-20), night(21-23)
+    const period = hour < 6 ? 'latenight' : hour < 10 ? 'morning' : hour < 17 ? 'daytime' : hour < 21 ? 'evening' : 'night';
 
-    // Context-based action suggestion
-    let actionMsg: string;
-    let memberId: string;
+    type Msg = { id: string; msg: string };
+    let msgs: Msg[];
 
     if (dueCardCount > 10) {
-      const msgs = [
-        { id: 'haruto', msg: `${timeGreeting}、${name}さん！ 学習する単語が${dueCardCount}個溜まってるよ。一緒に単語帳やろう。` },
-        { id: 'kai', msg: `${timeGreeting}、${name}。学習待ちの単語が${dueCardCount}語ある。忘れる前にやっておこう。` },
-        { id: 'yuuki', msg: `${timeGreeting}〜${name}！ ${dueCardCount}語が学習待ちだよ〜！ やっちゃおう！` },
-      ];
-      const pick = msgs[Math.floor(Math.random() * msgs.length)];
-      memberId = pick.id;
-      actionMsg = pick.msg;
+      const base: Record<string, Msg[]> = {
+        latenight: [
+          { id: 'ren', msg: `…${name}、こんな時間か。${dueCardCount}語溜まってるけど、無理すんなよ。` },
+          { id: 'kai', msg: `${name}、まだ起きてるのか。${dueCardCount}語の学習が待ってる。少しだけやって寝よう。` },
+        ],
+        morning: [
+          { id: 'haruto', msg: `おはよう、${name}さん！ ${dueCardCount}語の学習が溜まってるよ。一緒にやろう。` },
+          { id: 'yuuki', msg: `おはよ〜${name}！ ${dueCardCount}語が待ってるよ！ やっちゃおう！` },
+        ],
+        daytime: [
+          { id: 'kai', msg: `${name}、学習待ちが${dueCardCount}語ある。忘れる前にやっておこう。` },
+          { id: 'haruto', msg: `${name}さん、${dueCardCount}語の学習が溜まってるよ。一緒に片付けよう。` },
+        ],
+        evening: [
+          { id: 'sora', msg: `お疲れさまです、${name}さん。${dueCardCount}語の学習があります。` },
+          { id: 'kai', msg: `お疲れ、${name}。${dueCardCount}語の学習、今日中にやっておくか。` },
+        ],
+        night: [
+          { id: 'ren', msg: `${name}、夜遅くまでお疲れ。${dueCardCount}語あるけど、少しだけにしとけよ。` },
+          { id: 'haruto', msg: `遅い時間ですね、${name}さん。${dueCardCount}語ありますが、無理しないでくださいね。` },
+        ],
+      };
+      msgs = base[period];
     } else if (dueCardCount > 0) {
-      const msgs = [
-        { id: 'sora', msg: `${timeGreeting}、${name}さん。${dueCardCount}語のの学習があります。さっと片付けちゃいましょう。` },
-        { id: 'haruto', msg: `${timeGreeting}、${name}さん。あと${dueCardCount}語で今日のの学習は完了だよ。` },
-      ];
-      const pick = msgs[Math.floor(Math.random() * msgs.length)];
-      memberId = pick.id;
-      actionMsg = pick.msg;
+      const base: Record<string, Msg[]> = {
+        latenight: [
+          { id: 'sora', msg: `…${name}さん、まだ起きてるんですね。あと${dueCardCount}語だけ、一緒にやりませんか。` },
+          { id: 'ren', msg: `${name}…あと${dueCardCount}語か。サクッと終わらせて寝ようぜ。` },
+        ],
+        morning: [
+          { id: 'sora', msg: `おはようございます、${name}さん。${dueCardCount}語の学習があります。` },
+          { id: 'haruto', msg: `おはよう、${name}さん。あと${dueCardCount}語で完了だよ。` },
+        ],
+        daytime: [
+          { id: 'sora', msg: `${name}さん、${dueCardCount}語の学習があります。さっと片付けちゃいましょう。` },
+          { id: 'haruto', msg: `${name}さん、あと${dueCardCount}語で今日の学習は完了だよ。` },
+        ],
+        evening: [
+          { id: 'haruto', msg: `${name}さん、あと${dueCardCount}語です。今日中に終わらせましょう。` },
+          { id: 'yuuki', msg: `${name}〜！ あと${dueCardCount}語！ もうちょっとだよ！` },
+        ],
+        night: [
+          { id: 'kai', msg: `${name}、あと${dueCardCount}語だ。終わらせてゆっくり休もう。` },
+          { id: 'sora', msg: `${name}さん…あと${dueCardCount}語ですね。頑張りましょう。` },
+        ],
+      };
+      msgs = base[period];
     } else if (totalXp < 50) {
-      const msgs = [
-        { id: 'kai', msg: `${timeGreeting}、${name}。まだ始めたばかりだな。チャプターを進めてみよう。` },
-        { id: 'yuuki', msg: `${timeGreeting}〜${name}！ 最初はどんどん進めていこ！ チャプターがおすすめ！` },
-      ];
-      const pick = msgs[Math.floor(Math.random() * msgs.length)];
-      memberId = pick.id;
-      actionMsg = pick.msg;
+      const base: Record<string, Msg[]> = {
+        latenight: [
+          { id: 'kai', msg: `${name}、夜中に始めるのか…。まぁ、付き合うよ。チャプターを進めてみよう。` },
+        ],
+        morning: [
+          { id: 'kai', msg: `おはよう、${name}。まだ始めたばかりだな。チャプターを進めてみよう。` },
+          { id: 'yuuki', msg: `おはよ〜${name}！ 最初はどんどん進めていこ！` },
+        ],
+        daytime: [
+          { id: 'kai', msg: `${name}、まだ始めたばかりだな。チャプターを進めてみよう。` },
+          { id: 'yuuki', msg: `${name}！ まずはチャプターがおすすめ！` },
+        ],
+        evening: [
+          { id: 'kai', msg: `${name}、まだ始めたばかりだな。今日はチャプターを1つ進めてみないか。` },
+        ],
+        night: [
+          { id: 'kai', msg: `${name}、夜遅くまでお疲れ。軽くチャプターを進めてみるか。` },
+        ],
+      };
+      msgs = base[period];
     } else {
-      const msgs = [
-        { id: 'ren', msg: `${timeGreeting}、${name}。学習する単語は全部終わったな。単語帳で新しい単語を追加してみないか？` },
-        { id: 'kai', msg: `${timeGreeting}、${name}。順調だ。まだ覚えてない単語がたくさんあるぞ。単語帳に追加しよう。` },
-        { id: 'haruto', msg: `${timeGreeting}、${name}さん。新しい単語に出会いませんか？ 単語帳を開いてみてください。` },
-        { id: 'yuuki', msg: `${timeGreeting}〜${name}！ 学習する単語全部やったの？ すごい！ もっと単語増やしちゃおう！` },
-      ];
-      const pick = msgs[Math.floor(Math.random() * msgs.length)];
-      memberId = pick.id;
-      actionMsg = pick.msg;
+      const base: Record<string, Msg[]> = {
+        latenight: [
+          { id: 'ren', msg: `…${name}。こんな時間に来るとは、やる気だな。新しい単語に挑戦するか。` },
+          { id: 'kai', msg: `${name}、夜中まで頑張ってるのか。…俺も付き合うよ。` },
+        ],
+        morning: [
+          { id: 'haruto', msg: `おはよう、${name}さん。新しい単語に出会いませんか？` },
+          { id: 'yuuki', msg: `おはよ〜${name}！ 今日も単語増やしちゃおう！` },
+        ],
+        daytime: [
+          { id: 'ren', msg: `${name}、学習する単語は全部終わったな。新しい単語を追加してみないか？` },
+          { id: 'kai', msg: `${name}、順調だ。まだ覚えてない単語がたくさんあるぞ。` },
+        ],
+        evening: [
+          { id: 'haruto', msg: `${name}さん、今日もお疲れさま。新しい単語に出会いませんか？` },
+          { id: 'sora', msg: `${name}さん、今日も頑張りましたね。単語帳を開いてみてください。` },
+        ],
+        night: [
+          { id: 'ren', msg: `${name}、遅くまでお疲れ。もう少しだけ、新しい単語やってみないか。` },
+          { id: 'yuuki', msg: `${name}〜！ まだやれる？ 新しい単語増やしちゃおう！` },
+        ],
+      };
+      msgs = base[period];
     }
+
+    const pick = msgs[Math.floor(Math.random() * msgs.length)];
+    let memberId = pick.id;
+    let actionMsg = pick.msg;
 
     setGreeting({ member: getMember(memberId)!, message: actionMsg });
   }, [dueCardCount, totalXp]);
