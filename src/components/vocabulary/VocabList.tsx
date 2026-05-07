@@ -5,7 +5,8 @@ import { useVocabCards } from '@/lib/hooks';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { SpeakButton } from '@/components/common/SpeakButton';
-import { ChevronDown, ChevronRight, BookOpen, BookX, Filter } from 'lucide-react';
+import { ChevronDown, ChevronRight, BookOpen, BookX, Settings } from 'lucide-react';
+import Link from 'next/link';
 import { EIKEN5_VOCAB } from '@/lib/eiken5-vocab';
 import { EIKEN4_VOCAB } from '@/lib/eiken4-vocab';
 import { EIKEN3_VOCAB } from '@/lib/eiken3-vocab';
@@ -13,6 +14,7 @@ import { EIKEN_PRE2_VOCAB } from '@/lib/eiken-pre2-vocab';
 import { EIKEN_PRE1_VOCAB } from '@/lib/eiken-pre1-vocab';
 import { EIKEN1_VOCAB } from '@/lib/eiken1-vocab';
 import { TOEFL_ACADEMIC_VOCAB } from '@/lib/toefl-academic-vocab';
+import { getStudyGoal, isEikenGrade, isToeflScore, EIKEN_GRADES, type EikenGrade } from '@/lib/study-goals';
 import type { VocabCard, ContentCategory } from '@/types';
 
 interface VocabSeed {
@@ -23,18 +25,67 @@ interface VocabSeed {
   difficulty: number;
 }
 
-// Merge all vocab sources into a single pool
-function getAllVocabSeeds(): VocabSeed[] {
+// Eiken grade → vocab sources mapping (cumulative: includes all lower grades)
+const EIKEN_VOCAB_MAP: Record<EikenGrade, VocabSeed[][]> = {
+  '5': [EIKEN5_VOCAB],
+  '4': [EIKEN5_VOCAB, EIKEN4_VOCAB],
+  '3': [EIKEN5_VOCAB, EIKEN4_VOCAB, EIKEN3_VOCAB],
+  'pre2': [EIKEN5_VOCAB, EIKEN4_VOCAB, EIKEN3_VOCAB, EIKEN_PRE2_VOCAB],
+  '2': [EIKEN5_VOCAB, EIKEN4_VOCAB, EIKEN3_VOCAB, EIKEN_PRE2_VOCAB],
+  'pre1': [EIKEN5_VOCAB, EIKEN4_VOCAB, EIKEN3_VOCAB, EIKEN_PRE2_VOCAB, EIKEN_PRE1_VOCAB],
+  '1': [EIKEN5_VOCAB, EIKEN4_VOCAB, EIKEN3_VOCAB, EIKEN_PRE2_VOCAB, EIKEN_PRE1_VOCAB, EIKEN1_VOCAB],
+};
+
+const ALL_EIKEN = [EIKEN5_VOCAB, EIKEN4_VOCAB, EIKEN3_VOCAB, EIKEN_PRE2_VOCAB, EIKEN_PRE1_VOCAB, EIKEN1_VOCAB];
+
+// Get vocab seeds filtered by study goal
+function getGoalFilteredSeeds(): { seeds: VocabSeed[]; filterLabel: string } {
+  const goal = getStudyGoal();
+  const pools: VocabSeed[][] = [];
+  const labels: string[] = [];
+
+  // Eiken filtering
+  if (isEikenGrade(goal.eiken)) {
+    const gradeLabel = EIKEN_GRADES.find(g => g.grade === goal.eiken)?.label ?? goal.eiken;
+    pools.push(...(EIKEN_VOCAB_MAP[goal.eiken] ?? ALL_EIKEN));
+    labels.push(`英検5級〜${gradeLabel}`);
+  } else if (goal.eiken === 'auto') {
+    pools.push(...ALL_EIKEN);
+    labels.push('英検（おまかせ）');
+  } else if (goal.eiken === 'none') {
+    // exclude all eiken
+  } else {
+    // undefined = include all
+    pools.push(...ALL_EIKEN);
+    labels.push('英検（全級）');
+  }
+
+  // TOEFL filtering
+  if (isToeflScore(goal.toeflTarget) || goal.toeflTarget === 'auto') {
+    pools.push(TOEFL_ACADEMIC_VOCAB);
+    labels.push('TOEFL');
+  } else if (goal.toeflTarget === 'none') {
+    // exclude toefl
+  } else {
+    pools.push(TOEFL_ACADEMIC_VOCAB);
+    labels.push('TOEFL');
+  }
+
   const seeds: VocabSeed[] = [];
   const seen = new Set<string>();
-
-  for (const v of [...EIKEN5_VOCAB, ...EIKEN4_VOCAB, ...EIKEN3_VOCAB, ...EIKEN_PRE2_VOCAB, ...EIKEN_PRE1_VOCAB, ...EIKEN1_VOCAB, ...TOEFL_ACADEMIC_VOCAB]) {
-    if (!seen.has(v.word)) {
-      seen.add(v.word);
-      seeds.push(v);
+  for (const pool of pools) {
+    for (const v of pool) {
+      if (!seen.has(v.word)) {
+        seen.add(v.word);
+        seeds.push(v);
+      }
     }
   }
-  return seeds.sort((a, b) => a.word.localeCompare(b.word));
+
+  return {
+    seeds: seeds.sort((a, b) => a.word.localeCompare(b.word)),
+    filterLabel: labels.length > 0 ? `対象: ${labels.join(' + ')}` : '対象: なし',
+  };
 }
 
 type FilterMode = 'all' | 'learned' | 'unlearned';
@@ -54,7 +105,7 @@ export function VocabList({ onBack }: { onBack: () => void }) {
   const [categoryFilter, setCategoryFilter] = useState<string>('all');
   const [expandedWord, setExpandedWord] = useState<string | null>(null);
 
-  const allSeeds = useMemo(() => getAllVocabSeeds(), []);
+  const { seeds: allSeeds, filterLabel } = useMemo(() => getGoalFilteredSeeds(), []);
   const learnedMap = useMemo(() => {
     const map = new Map<string, VocabCard>();
     for (const c of learnedCards) map.set(c.word, c);
@@ -98,7 +149,7 @@ export function VocabList({ onBack }: { onBack: () => void }) {
         <div className="flex items-center justify-between text-sm">
           <span>学習済み: <strong>{learnedCount}</strong> / {totalCount}</span>
           <span className="text-xs text-gray-500">
-            {totalCount > 0 ? Math.round((learnedCount / totalCount) * 100) : 0}%
+            {totalCount > 0 ? ((learnedCount / totalCount) * 100).toFixed(2) : '0.00'}%
           </span>
         </div>
         <div className="mt-2 h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
@@ -108,6 +159,14 @@ export function VocabList({ onBack }: { onBack: () => void }) {
           />
         </div>
       </Card>
+
+      {/* Goal filter label + link */}
+      <div className="flex items-center justify-between text-xs">
+        <span className="text-gray-500">{filterLabel}</span>
+        <Link href="/settings" className="text-indigo-400 hover:text-indigo-300 flex items-center gap-1">
+          <Settings className="w-3 h-3" /> 学習目標を変更
+        </Link>
+      </div>
 
       {/* Filters */}
       <div className="flex gap-2 flex-wrap">
