@@ -551,7 +551,7 @@ export function VocabStudy() {
             </div>
           ) : (
             <div className="mb-2 flex items-center gap-2 px-4">
-              <p className="text-sm text-gray-300 italic">{displayExample}</p>
+              <p className="text-sm text-gray-100 italic">{displayExample}</p>
               {displayExample && <SpeakButton text={displayExample} className="shrink-0" />}
             </div>
           )}
@@ -649,7 +649,7 @@ export function VocabStudy() {
 
           {(step === 'example-result' || step === 'cloze-result' || step === 'word-to-def-result') && (
             <div className="flex items-center justify-center gap-2 mb-3 px-2">
-              <p className="text-sm text-gray-400 italic">{displayExample}</p>
+              <p className="text-sm text-gray-100 italic">{displayExample}</p>
               {displayExample && <SpeakButton text={displayExample} className="shrink-0" />}
             </div>
           )}
