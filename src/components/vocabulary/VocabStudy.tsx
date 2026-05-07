@@ -23,6 +23,7 @@ import { getStudyGoal } from '@/lib/study-goals';
 import { shouldExcludeWord } from '@/lib/vocab-source';
 import { useProfile } from '@/lib/hooks';
 import { ENGLISH_DEFINITIONS } from '@/lib/english-definitions-data';
+import { addNewVocabCards } from '@/lib/vocab-add';
 
 type EncouragementLevel = 'great' | 'good' | 'struggle';
 
@@ -221,6 +222,56 @@ function generateClozeOptions(correctCard: VocabCard, allCards: VocabCard[]): { 
   const others = allCards.filter(c => c.word !== correctCard.word);
   const distractors = shuffle(others).slice(0, 3).map(c => c.word);
   return { sentence, options: shuffle([correctCard.word, ...distractors]) };
+}
+
+function NoCardsPrompt({ onAdded }: { onAdded: () => void }) {
+  const [loading, setLoading] = useState(false);
+  const [added, setAdded] = useState(0);
+  const [member] = useState(() => MEMBERS[Math.floor(Math.random() * MEMBERS.length)]);
+  const name = getPlayerName() || 'マネージャー';
+
+  const handleAdd = async () => {
+    setLoading(true);
+    const count = await addNewVocabCards(15);
+    setAdded(count);
+    setLoading(false);
+    if (count > 0) {
+      setTimeout(onAdded, 1500);
+    }
+  };
+
+  return (
+    <div className="flex-1 flex flex-col items-center justify-center space-y-6 px-4">
+      <Card className="p-5 w-full max-w-sm md:max-w-lg">
+        <div className="flex items-start gap-4">
+          <div className="shrink-0">
+            <MemberAvatar member={member} size="lg" />
+          </div>
+          <div className="flex-1">
+            <p className="text-xs text-gray-500 mb-1">{member.nameJa}</p>
+            <p className="text-sm text-gray-700 dark:text-gray-300">
+              {name}、復習はバッチリだね！ もっと単語勉強しちゃう？
+            </p>
+          </div>
+        </div>
+      </Card>
+
+      {added > 0 ? (
+        <p className="text-sm text-green-500 font-medium">{added}語の新しい単語を追加しました！</p>
+      ) : (
+        <div className="flex gap-3">
+          <Button onClick={handleAdd} disabled={loading}>
+            {loading ? '追加中…' : '新しい単語を追加する'}
+          </Button>
+          <Link href="/">
+            <Button variant="outline">
+              <Home className="w-4 h-4 mr-1" /> ホームに戻る
+            </Button>
+          </Link>
+        </div>
+      )}
+    </div>
+  );
 }
 
 export function VocabStudy() {
@@ -465,11 +516,7 @@ export function VocabStudy() {
         </p>
 
         {isNoCards && studied === 0 ? (
-          <div className="flex-1 flex flex-col items-center justify-center space-y-4">
-            <Sparkles className="w-16 h-16 text-yellow-400" />
-            <p className="text-lg font-bold text-gray-300">復習する単語がありません</p>
-            <p className="text-sm text-gray-500">新しい単語を追加するか、時間をおいて戻ってきてください</p>
-          </div>
+          <NoCardsPrompt onAdded={resetSession} />
         ) : (
           <div className="flex-1 space-y-5">
             {/* Rank badge */}

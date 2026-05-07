@@ -97,10 +97,10 @@ function useGreeting(dueCardCount: number, totalXp: number): { member: ReturnTyp
       actionMsg = pick.msg;
     } else {
       const msgs = [
-        { id: 'ren', msg: `${timeGreeting}、${name}。復習は全部終わってるな。新しい単語に挑戦するか？` },
-        { id: 'kai', msg: `${timeGreeting}、${name}。順調だ。今日は新しいチャプターに挑戦してみないか。` },
-        { id: 'haruto', msg: `${timeGreeting}、${name}さん。今日は何を学びましょうか。` },
-        { id: 'sora', msg: `${timeGreeting}、${name}さん。今日も一緒に頑張りましょう。` },
+        { id: 'ren', msg: `${timeGreeting}、${name}。復習は全部終わってるな。単語帳で新しい単語を追加してみないか？` },
+        { id: 'kai', msg: `${timeGreeting}、${name}。順調だ。まだ覚えてない単語がたくさんあるぞ。単語帳に追加しよう。` },
+        { id: 'haruto', msg: `${timeGreeting}、${name}さん。新しい単語に出会いませんか？ 単語帳を開いてみてください。` },
+        { id: 'yuuki', msg: `${timeGreeting}〜${name}！ 復習終わったの？ すごい！ もっと単語増やしちゃおう！` },
       ];
       const pick = msgs[Math.floor(Math.random() * msgs.length)];
       memberId = pick.id;
