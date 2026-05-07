@@ -6,7 +6,12 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { SpeakButton } from '@/components/common/SpeakButton';
 import { ChevronDown, ChevronRight, BookOpen, BookX, Filter } from 'lucide-react';
+import { EIKEN5_VOCAB } from '@/lib/eiken5-vocab';
+import { EIKEN4_VOCAB } from '@/lib/eiken4-vocab';
+import { EIKEN3_VOCAB } from '@/lib/eiken3-vocab';
+import { EIKEN_PRE2_VOCAB } from '@/lib/eiken-pre2-vocab';
 import { EIKEN_PRE1_VOCAB } from '@/lib/eiken-pre1-vocab';
+import { EIKEN1_VOCAB } from '@/lib/eiken1-vocab';
 import { TOEFL_ACADEMIC_VOCAB } from '@/lib/toefl-academic-vocab';
 import type { VocabCard, ContentCategory } from '@/types';
 
@@ -23,7 +28,7 @@ function getAllVocabSeeds(): VocabSeed[] {
   const seeds: VocabSeed[] = [];
   const seen = new Set<string>();
 
-  for (const v of [...EIKEN_PRE1_VOCAB, ...TOEFL_ACADEMIC_VOCAB]) {
+  for (const v of [...EIKEN5_VOCAB, ...EIKEN4_VOCAB, ...EIKEN3_VOCAB, ...EIKEN_PRE2_VOCAB, ...EIKEN_PRE1_VOCAB, ...EIKEN1_VOCAB, ...TOEFL_ACADEMIC_VOCAB]) {
     if (!seen.has(v.word)) {
       seen.add(v.word);
       seeds.push(v);
