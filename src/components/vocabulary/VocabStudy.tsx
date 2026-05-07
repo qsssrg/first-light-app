@@ -24,6 +24,9 @@ import { shouldExcludeWord } from '@/lib/vocab-source';
 import { useProfile } from '@/lib/hooks';
 import { ENGLISH_DEFINITIONS } from '@/lib/english-definitions-data';
 import { addNewVocabCards } from '@/lib/vocab-add';
+import { addAffinityPoints } from '@/lib/affinity';
+import { AFFINITY_LABELS } from '@/lib/db';
+import { getMember } from '@/lib/members';
 
 type EncouragementLevel = 'great' | 'good' | 'struggle';
 
@@ -313,6 +316,7 @@ export function VocabStudy() {
   const [phase, setPhase] = useState<SessionPhase>('study');
   const [lastXp, setLastXp] = useState(0);
   const [xpTrigger, setXpTrigger] = useState(0);
+  const [affinityLevelUp, setAffinityLevelUp] = useState<{ memberId: string; level: number } | null>(null);
   const startTimeRef = useRef(Date.now());
 
   // Generate options once per card (memoized by index)
@@ -457,6 +461,13 @@ export function VocabStudy() {
           comboMax: newCombo,
           duration: 0,
         } as any);
+
+        // Add affinity points to Haruto (vocabulary)
+        const aff = await addAffinityPoints('vocabulary', 5);
+        if (aff.leveled) {
+          setAffinityLevelUp({ memberId: aff.memberId, level: aff.newLevel });
+          setTimeout(() => setAffinityLevelUp(null), 3000);
+        }
       }
 
       if (currentCard.repetitions === 0) {
@@ -820,6 +831,23 @@ export function VocabStudy() {
       <ComboFlash combo={combo} />
       <XpFloat xp={lastXp} trigger={xpTrigger} />
       <TokotonActivation active={tokotonJustActivated} />
+
+      {/* Affinity level-up notification */}
+      {affinityLevelUp && (() => {
+        const m = getMember(affinityLevelUp.memberId);
+        const label = AFFINITY_LABELS[affinityLevelUp.level - 1] ?? '';
+        return (
+          <div className="fixed inset-0 pointer-events-none z-50 flex items-center justify-center">
+            <div className="animate-combo-flash text-center">
+              {m && <div className="flex justify-center mb-2"><MemberAvatar member={m} size="lg" /></div>}
+              <p className="text-xl font-black text-pink-400 drop-shadow-[0_0_15px_rgba(236,72,153,0.5)]">
+                ♡ 親密度UP ♡
+              </p>
+              <p className="text-sm text-pink-300 mt-1">{m?.nameJa}との関係: {label}</p>
+            </div>
+          </div>
+        );
+      })()}
 
       {/* Progress header */}
       <div className="mb-4">

@@ -4,12 +4,13 @@ import { useState, useEffect } from 'react';
 import { MEMBERS } from '@/lib/members';
 import { STORY_CARDS } from '@/lib/stories';
 import { useProfile, useMemberAffinities } from '@/lib/hooks';
-import { getAffinityLevel, AFFINITY_LABELS } from '@/lib/db';
+// affinity imports consolidated below
 import { MemberAvatar } from '@/components/common/MemberAvatar';
 import { TypewriterText } from '@/components/common/TypewriterText';
 import { Card } from '@/components/ui/card';
 import { Lock, Play, MessageCircle, Image, User, Heart } from 'lucide-react';
 import { getPlayerName } from '@/lib/player-name';
+import { getAffinityLevel, AFFINITY_LABELS, AFFINITY_THRESHOLDS } from '@/lib/db';
 import Link from 'next/link';
 import { memberMemoryScenarios } from '@/lib/scenarios/member-memories';
 import { VNEngine } from '@/components/vn/VNEngine';
@@ -141,6 +142,7 @@ export function MemberDetail({ memberId }: { memberId: string }) {
               <h3 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">担当</h3>
               <p className="text-sm font-medium">{AXIS_LABELS[member.axis] || member.axis}</p>
             </Card>
+            <AffinityCard memberId={memberId} />
           </>
         )}
 
@@ -231,6 +233,35 @@ function PersonalMessage({ memberId }: { memberId: string }) {
   return (
     <Card className="p-4 border-indigo-200/30 bg-indigo-950/20 backdrop-blur-sm">
       <TypewriterText text={`「${message}」`} className="text-sm italic text-gray-800 dark:text-gray-100" />
+    </Card>
+  );
+}
+
+function AffinityCard({ memberId }: { memberId: string }) {
+  const affinities = useMemberAffinities();
+  const aff = affinities.find(a => a.memberId === memberId);
+  const points = aff?.points ?? 0;
+  const level = getAffinityLevel(points);
+  const label = AFFINITY_LABELS[level - 1] ?? '知り合い';
+  const nextThreshold = AFFINITY_THRESHOLDS[level] ?? AFFINITY_THRESHOLDS[AFFINITY_THRESHOLDS.length - 1];
+  const prevThreshold = AFFINITY_THRESHOLDS[level - 1] ?? 0;
+  const progress = nextThreshold > prevThreshold ? Math.round(((points - prevThreshold) / (nextThreshold - prevThreshold)) * 100) : 100;
+
+  return (
+    <Card className="p-4 backdrop-blur-sm bg-white/80 dark:bg-gray-900/80">
+      <h3 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 flex items-center gap-1">
+        <Heart className="w-3 h-3 text-pink-400" /> 親密度
+      </h3>
+      <div className="flex items-center justify-between mb-2">
+        <p className="text-sm font-bold text-pink-500">Lv.{level} {label}</p>
+        <p className="text-xs text-gray-500">{points}pt</p>
+      </div>
+      <div className="h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+        <div className="h-full bg-gradient-to-r from-pink-400 to-rose-500 rounded-full transition-all" style={{ width: `${progress}%` }} />
+      </div>
+      {level < 5 && (
+        <p className="text-[10px] text-gray-400 mt-1">次のレベルまで {nextThreshold - points}pt</p>
+      )}
     </Card>
   );
 }
