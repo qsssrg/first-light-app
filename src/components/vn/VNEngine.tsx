@@ -86,13 +86,24 @@ export function VNEngine({ scenario, onComplete, skippable = false }: VNEnginePr
         <div className="absolute inset-0" style={{ background: bg.overlay }} />
       )}
 
-      {/* Event CG (full-screen image over background) */}
-      {line.type === 'dialog' && (line as DialogLine).eventImage && (
-        <div
-          className="absolute inset-0 bg-contain bg-center bg-no-repeat transition-opacity duration-700"
-          style={{ backgroundImage: `url(${(line as DialogLine).eventImage})` }}
-        />
-      )}
+      {/* Event CG (full-screen image over background, responsive) */}
+      {line.type === 'dialog' && (line as DialogLine).eventImage && (() => {
+        const img = (line as DialogLine).eventImage!;
+        const mobileImg = img.replace('group-shot.jpg', 'group-shot-mobile.jpg');
+        const desktopImg = img.replace('group-shot.jpg', 'group-shot-desktop.jpg');
+        const hasVariants = mobileImg !== img;
+        return hasVariants ? (
+          <>
+            <div className="absolute inset-0 bg-contain bg-center bg-no-repeat transition-opacity duration-700 md:hidden"
+              style={{ backgroundImage: `url(${mobileImg})` }} />
+            <div className="absolute inset-0 bg-contain bg-center bg-no-repeat transition-opacity duration-700 hidden md:block"
+              style={{ backgroundImage: `url(${desktopImg})` }} />
+          </>
+        ) : (
+          <div className="absolute inset-0 bg-contain bg-center bg-no-repeat transition-opacity duration-700"
+            style={{ backgroundImage: `url(${img})` }} />
+        );
+      })()}
 
       {/* Character sprite (hidden when event CG is showing) */}
       {!(line.type === 'dialog' && (line as DialogLine).eventImage) && (
