@@ -503,13 +503,15 @@ export function VocabStudy() {
             </div>
           )}
 
-          {/* Show correct answer and user's wrong answer */}
-          {!isCorrectThisStep && selected !== null && (
+          {/* Show selected answer and correct answer */}
+          {selected !== null && (
             <div className="mt-3 space-y-2 text-left">
-              <p className="text-sm text-red-400 flex items-start gap-2">
-                <X className="w-4 h-4 shrink-0 mt-0.5" />
-                <span>{options[selected]}</span>
-              </p>
+              {!isCorrectThisStep && (
+                <p className="text-sm text-red-400 flex items-start gap-2">
+                  <X className="w-4 h-4 shrink-0 mt-0.5" />
+                  <span>{options[selected]}</span>
+                </p>
+              )}
               <p className="text-sm text-green-400 flex items-start gap-2">
                 <Check className="w-4 h-4 shrink-0 mt-0.5" />
                 <span>{correctAnswer}</span>
