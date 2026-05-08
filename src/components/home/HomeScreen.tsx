@@ -13,7 +13,7 @@ import Link from 'next/link';
 import { getPlayerName } from '@/lib/player-name';
 import { TypewriterText } from '@/components/common/TypewriterText';
 import { isPsychologyEventEnabled, isPsychologyUnlocked } from '@/lib/psychology-settings';
-import { grantDailyAffinityBonus } from '@/lib/affinity';
+import { addAffinityPointsToMember } from '@/lib/affinity';
 import { FAKE_NEWS } from '@/data/fake-news';
 import { Newspaper, RefreshCw } from 'lucide-react';
 
@@ -201,10 +201,17 @@ export function HomeScreen() {
   const dueCards = useDueCards();
   const greeting = useGreeting(dueCards.length, profile?.totalXp ?? 0);
 
-  // Daily affinity bonus (once per day, all members +2pt)
+  // Greeting affinity: give 0-2pt to the displayed member (once per session)
   useEffect(() => {
-    grantDailyAffinityBonus(2);
-  }, []);
+    if (!greeting.member) return;
+    const key = 'firstlight_greeting_affinity_session';
+    if (sessionStorage.getItem(key)) return;
+    const pts = Math.floor(Math.random() * 3); // 0, 1, or 2
+    if (pts > 0) {
+      addAffinityPointsToMember(greeting.member.id, pts);
+    }
+    sessionStorage.setItem(key, 'done');
+  }, [greeting.member]);
 
   if (!profile) return null;
 

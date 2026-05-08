@@ -49,6 +49,22 @@ export async function addAffinityPoints(
   };
 }
 
+/**
+ * Add affinity points directly to a specific member by ID.
+ */
+export async function addAffinityPointsToMember(memberId: string, points: number): Promise<void> {
+  let record = await db.memberAffinity.where('memberId').equals(memberId).first();
+  if (!record) {
+    const id = await db.memberAffinity.add({ memberId, level: 1, points: 0 });
+    record = { id, memberId, level: 1, points: 0 };
+  }
+  const newPoints = record.points + points;
+  await db.memberAffinity.update(record.id!, {
+    points: newPoints,
+    level: getAffinityLevel(newPoints),
+  });
+}
+
 const DAILY_BONUS_KEY = 'firstlight_daily_affinity';
 const ALL_MEMBERS = ['haruto', 'sora', 'ren', 'yuuki', 'kai'];
 
