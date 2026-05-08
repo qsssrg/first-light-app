@@ -1,11 +1,21 @@
 'use client';
 
+import { useState } from 'react';
 import { BASIC_CHAPTERS, ADVANCED_CHAPTERS } from '@/lib/chapters';
 import { MEMBERS } from '@/lib/members';
 import { MemberAvatar } from '@/components/common/MemberAvatar';
+import { TypewriterText } from '@/components/common/TypewriterText';
 import { Card } from '@/components/ui/card';
-import { Lock, Crown } from 'lucide-react';
+import { Lock, Crown, BookOpen } from 'lucide-react';
 import Link from 'next/link';
+
+const CHAPTER_COMMENTS: { id: string; msg: string }[] = [
+  { id: 'kai', msg: 'チャプターは俺たちと英語を学ぶ基本だ。一つずつクリアしていこう。' },
+  { id: 'haruto', msg: '各チャプターにはストーリーがあります。僕たちと一緒に進めましょう。' },
+  { id: 'sora', msg: '章ごとにテーマが違うので…飽きずに続けられると思います。' },
+  { id: 'ren', msg: '…一つずつやれば力はつく。焦るな。' },
+  { id: 'yuuki', msg: 'チャプター全クリ目指そう！ 一緒にがんばろ〜！' },
+];
 
 const PAIR_MEMBERS: Record<string, [string, string]> = {
   ch6: ['haruto', 'kai'],
@@ -18,6 +28,12 @@ export function ChapterMap() {
   // For now, advanced chapters are always visible but show a "clear all basic" hint
   const allBasicCleared = false; // placeholder
 
+  const [commentData] = useState(() => {
+    const pick = CHAPTER_COMMENTS[Math.floor(Math.random() * CHAPTER_COMMENTS.length)];
+    const member = MEMBERS.find(m => m.id === pick.id)!;
+    return { member, text: pick.msg };
+  });
+
   return (
     <div className="space-y-4 px-4">
       <div className="relative rounded-2xl overflow-hidden bg-gradient-to-br from-amber-600 via-orange-500 to-yellow-400 p-5 text-white shadow-lg mb-2">
@@ -28,7 +44,24 @@ export function ChapterMap() {
         </div>
       </div>
 
-      {/* Basic chapters — all unlocked */}
+      {/* Member comment card */}
+      <Card className="p-3">
+        <div className="flex items-start gap-3">
+          <div className="shrink-0 pt-0.5">
+            <MemberAvatar member={commentData.member} size="sm" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-xs text-gray-500 mb-0.5">{commentData.member.nameJa}</p>
+            <TypewriterText text={commentData.text} className="text-xs text-gray-700 dark:text-gray-300 leading-relaxed" speed={30} />
+          </div>
+        </div>
+      </Card>
+
+      {/* Basic chapters */}
+      <div className="flex items-center gap-2 mb-1">
+        <BookOpen className="w-4 h-4 text-teal-500" />
+        <h3 className="text-sm font-black tracking-wide">基本チャプター</h3>
+      </div>
       <div className="space-y-3">
         {BASIC_CHAPTERS.map(chapter => {
           const member = MEMBERS.find(m => m.id === chapter.memberId);
@@ -56,7 +89,7 @@ export function ChapterMap() {
       <div className="mt-6">
         <div className="flex items-center gap-2 mb-3">
           <Crown className="w-4 h-4 text-amber-500" />
-          <h3 className="text-sm font-black tracking-wide">上級チャプター</h3>
+          <h3 className="text-sm font-black tracking-wide">中級チャプター</h3>
         </div>
         {!allBasicCleared && (
           <p className="text-xs text-gray-500 mb-3">基本5チャプターをクリアすると解放されます</p>
