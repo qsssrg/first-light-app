@@ -18,7 +18,8 @@ import { getNextUnwatchedLevel, markLevelupWatched } from '@/lib/levelup-tracker
 import { getLevelupScenario } from '@/lib/scenarios/adapter';
 import { VNEngine } from '@/components/vn/VNEngine';
 import { FAKE_NEWS } from '@/data/fake-news';
-import { Newspaper, RefreshCw } from 'lucide-react';
+import { FAN_POSTS } from '@/data/fan-posts';
+import { Newspaper, RefreshCw, MessageSquare, Heart, UserCircle } from 'lucide-react';
 
 function NextActionGuide({ profile, dueCardCount }: { profile: any; dueCardCount: number }) {
   const getNextAction = () => {
@@ -467,6 +468,60 @@ export function HomeScreen() {
 
       {/* FIRST LIGHT News */}
       <NewsSection />
+
+      {/* Fan SNS Board */}
+      <FanBoard />
+    </div>
+  );
+}
+
+function FanBoard() {
+  const [posts, setPosts] = useState(() => {
+    const shuffled = [...FAN_POSTS].sort(() => Math.random() - 0.5);
+    return shuffled.slice(0, 4);
+  });
+  const name = getPlayerName() || 'マネージャー';
+
+  const refresh = () => {
+    const shuffled = [...FAN_POSTS].sort(() => Math.random() - 0.5);
+    setPosts(shuffled.slice(0, 4));
+  };
+
+  const CAT_COLORS: Record<string, string> = {
+    news: 'text-blue-500', message: 'text-pink-500', call: 'text-green-500',
+    rumor: 'text-amber-500', debate: 'text-red-500',
+  };
+
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-3">
+        <h3 className="text-sm font-bold flex items-center gap-2">
+          <MessageSquare className="w-4 h-4" /> ファン掲示板
+        </h3>
+        <button onClick={refresh} className="p-1.5 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800">
+          <RefreshCw className="w-3.5 h-3.5 text-gray-400" />
+        </button>
+      </div>
+      <div className="space-y-2">
+        {posts.map((p, i) => (
+          <Card key={i} className="p-3">
+            <div className="flex items-start gap-2.5">
+              <UserCircle className={`w-7 h-7 shrink-0 ${CAT_COLORS[p.cat] || 'text-gray-400'}`} />
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-bold">{p.user}</span>
+                  <span className="text-[9px] text-gray-400">{Math.floor(Math.random() * 23) + 1}h</span>
+                </div>
+                <p className="text-xs text-gray-700 dark:text-gray-300 mt-0.5">{p.text.replace(/\{playerName\}/g, name)}</p>
+                <div className="flex items-center gap-1 mt-1">
+                  <Heart className="w-3 h-3 text-gray-400" />
+                  <span className="text-[10px] text-gray-400">{p.likes}</span>
+                </div>
+              </div>
+            </div>
+          </Card>
+        ))}
+      </div>
     </div>
   );
 }
