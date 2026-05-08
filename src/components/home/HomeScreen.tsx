@@ -640,8 +640,9 @@ function FanBoard() {
                 const fixed = getRumorComments(p.text);
                 if (!fixed) return null;
                 const fMember = getMember(fixed.member.id);
+                const isPF = fixed.order === 'pf';
                 const playerBlock = (
-                  <div className="flex items-start gap-2 animate-[fadeSlideIn_0.3s_ease-out]">
+                  <div key="player" className={`flex items-start gap-2 ${isPF ? 'animate-[fadeSlideIn_0.3s_ease-out]' : 'animate-[fadeSlideIn_0.3s_ease-out_0.5s_both]'}`}>
                     <UserCircle className="w-6 h-6 shrink-0 text-indigo-400" />
                     <div className="flex-1">
                       <p className="text-[10px] text-indigo-400">{name}</p>
@@ -650,7 +651,7 @@ function FanBoard() {
                   </div>
                 );
                 const memberBlock = fMember ? (
-                  <div className="flex items-start gap-2 animate-[fadeSlideIn_0.3s_ease-out_0.5s_both]">
+                  <div key="member" className={`flex items-start gap-2 ${isPF ? 'animate-[fadeSlideIn_0.3s_ease-out_0.5s_both]' : 'animate-[fadeSlideIn_0.3s_ease-out]'}`}>
                     <MemberAvatar member={fMember} size="sm" />
                     <div className="flex-1">
                       <p className="text-[10px] text-gray-500">{fMember.nameJa}</p>
@@ -660,7 +661,7 @@ function FanBoard() {
                 ) : null;
                 return (
                   <div className="mt-2 pt-2 border-t border-gray-100 dark:border-gray-800 space-y-2">
-                    {fixed.order === 'pf' ? <>{playerBlock}{memberBlock}</> : <>{memberBlock}{playerBlock}</>}
+                    {isPF ? <>{playerBlock}{memberBlock}</> : <>{memberBlock}{playerBlock}</>}
                   </div>
                 );
               })() : isOpen && rMember ? (
