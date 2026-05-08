@@ -346,15 +346,17 @@ function MemberCommentsSection({ memberId, memberNameJa }: { memberId: string; m
         <Users className="w-3 h-3" /> メンバーから見た{memberNameJa}
       </h3>
       {comments.map(({ member, comment }) => (
-        <Card key={member.id} className="p-4 backdrop-blur-sm" style={{ backgroundColor: `${member.color}22` }}>
-          <div className="flex items-start gap-3">
-            <MemberAvatar member={member} size="sm" />
-            <div className="flex-1 min-w-0">
-              <p className="text-[10px] text-gray-500 mb-1">{member.nameJa}</p>
-              <TypewriterText text={`「${comment}」`} speed={25} className="text-xs text-gray-700 dark:text-gray-300 italic leading-relaxed" />
+        <Link key={member.id} href={`/members?id=${member.id}`}>
+          <Card className="p-4 backdrop-blur-sm cursor-pointer hover:shadow-md transition-shadow" style={{ backgroundColor: `${member.color}22` }}>
+            <div className="flex items-start gap-3">
+              <MemberAvatar member={member} size="sm" />
+              <div className="flex-1 min-w-0">
+                <p className="text-[10px] text-gray-500 mb-1">{member.nameJa}</p>
+                <TypewriterText text={`「${comment}」`} speed={25} className="text-xs text-gray-700 dark:text-gray-300 italic leading-relaxed" />
+              </div>
             </div>
-          </div>
-        </Card>
+          </Card>
+        </Link>
       ))}
     </div>
   );
