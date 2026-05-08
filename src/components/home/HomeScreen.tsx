@@ -25,21 +25,21 @@ import { FAKE_NEWS } from '@/data/fake-news';
 import { FAN_POSTS } from '@/data/fan-posts';
 import { Newspaper, RefreshCw, MessageSquare, Heart, UserCircle } from 'lucide-react';
 
-function NextActionGuide({ profile, dueCardCount }: { profile: any; dueCardCount: number }) {
+function NextActionGuide({ profile, dueCardCount, en }: { profile: any; dueCardCount: number; en: boolean }) {
   const getNextAction = () => {
     if (!profile.learnerType || profile.learnerType === 'balanced' && profile.totalXp === 0) {
-      return { text: 'まずレベルを測ろう', desc: 'あなたの英語力を5つの軸で判定します', href: '/settings', icon: Target };
+      return { text: en ? 'Take the assessment' : 'まずレベルを測ろう', desc: en ? 'Measure your English skills across 5 axes' : 'あなたの英語力を5つの軸で判定します', href: '/settings', icon: Target };
     }
     if (dueCardCount > 0) {
-      return { text: `${dueCardCount}語の学習しよう`, desc: '単語を学習して語彙力を伸ばそう', href: '/vocab-study', icon: BookOpen };
+      return { text: en ? `Study ${dueCardCount} words` : `${dueCardCount}語の学習しよう`, desc: en ? 'Build your vocabulary' : '単語を学習して語彙力を伸ばそう', href: '/vocab-study', icon: BookOpen };
     }
     if (profile.totalXp < 100) {
-      return { text: '単語学習を始めよう', desc: '新しい単語を追加して学習スタート', href: '/vocab-study', icon: BookOpen };
+      return { text: en ? 'Start learning words' : '単語学習を始めよう', desc: en ? 'Add new words and begin' : '新しい単語を追加して学習スタート', href: '/vocab-study', icon: BookOpen };
     }
     if (!profile.lastStudyAt || Date.now() - new Date(profile.lastStudyAt).getTime() > 86400000) {
-      return { text: '今日の学習をしよう', desc: '毎日の積み重ねが力になる', href: '/vocabulary', icon: Flame };
+      return { text: en ? 'Study today' : '今日の学習をしよう', desc: en ? 'Consistency is key' : '毎日の積み重ねが力になる', href: '/vocabulary', icon: Flame };
     }
-    return { text: 'ライティングに挑戦しよう', desc: '英語で文を書いてみよう', href: '/writing', icon: Sparkles };
+    return { text: en ? 'Try writing' : 'ライティングに挑戦しよう', desc: en ? 'Write sentences in English' : '英語で文を書いてみよう', href: '/writing', icon: Sparkles };
   };
 
   const action = getNextAction();
@@ -53,7 +53,7 @@ function NextActionGuide({ profile, dueCardCount }: { profile: any; dueCardCount
             <Lightbulb className="w-5 h-5 text-blue-600 dark:text-blue-400" />
           </div>
           <div className="flex-1">
-            <p className="text-sm font-medium text-blue-900 dark:text-blue-100">おすすめ: {action.text}</p>
+            <p className="text-sm font-medium text-blue-900 dark:text-blue-100">{en ? 'Suggested' : 'おすすめ'}: {action.text}</p>
             <p className="text-xs text-blue-600 dark:text-blue-400">{action.desc}</p>
           </div>
           <ArrowRight className="w-4 h-4 text-blue-400" />
@@ -216,6 +216,7 @@ const LEVELUP_MESSAGES: Record<string, (lv: number) => string> = {
 
 export function HomeScreen({ onVNPlaying }: { onVNPlaying?: (playing: boolean) => void }) {
   const profile = useProfile();
+  const en = profile?.settings?.englishSpeakerMode ?? false;
   const dueCards = useDueCards();
   const greeting = useGreeting(dueCards.length, profile?.totalXp ?? 0);
 
@@ -377,7 +378,7 @@ export function HomeScreen({ onVNPlaying }: { onVNPlaying?: (playing: boolean) =
       ) : null}
 
       {/* Next action guide - directly below member greeting */}
-      <NextActionGuide profile={profile} dueCardCount={dueCards.length} />
+      <NextActionGuide profile={profile} dueCardCount={dueCards.length} en={en} />
       </div>
 
       {/* Level card - game style, tap for level info */}
@@ -393,7 +394,7 @@ export function HomeScreen({ onVNPlaying }: { onVNPlaying?: (playing: boolean) =
             </div>
             <div className="mt-3">
               <Progress value={progress} className="h-2.5 bg-white/20" />
-              <p className="text-xs mt-1.5 opacity-70 font-medium">次のレベルまで {toNext} XP &gt;</p>
+              <p className="text-xs mt-1.5 opacity-70 font-medium">{en ? `${toNext} XP to next level >` : `次のレベルまで ${toNext} XP >`}</p>
             </div>
           </div>
         </div>
@@ -418,8 +419,8 @@ export function HomeScreen({ onVNPlaying }: { onVNPlaying?: (playing: boolean) =
               <BookOpen className="w-5 h-5 text-teal-600 dark:text-teal-400" />
             </div>
             <div className="flex-1">
-              <p className="text-sm font-bold text-teal-900 dark:text-teal-100">チャプターを進める</p>
-              <p className="text-xs text-teal-600 dark:text-teal-400">カイとチャプターを進めよう</p>
+              <p className="text-sm font-bold text-teal-900 dark:text-teal-100">{en ? 'Continue Chapters' : 'チャプターを進める'}</p>
+              <p className="text-xs text-teal-600 dark:text-teal-400">{en ? 'Learn with Kai' : 'カイとチャプターを進めよう'}</p>
             </div>
             <ArrowRight className="w-4 h-4 text-teal-400" />
           </div>
@@ -437,8 +438,8 @@ export function HomeScreen({ onVNPlaying }: { onVNPlaying?: (playing: boolean) =
                 <Sparkles className="w-5 h-5 text-purple-600 dark:text-purple-400" />
               </div>
               <div className="flex-1">
-                <p className="text-sm font-medium">心理学バラエティ番組</p>
-                <p className="text-xs text-gray-500">メンバーと心理学を学ぼう</p>
+                <p className="text-sm font-medium">{en ? 'Psychology Show' : '心理学バラエティ番組'}</p>
+                <p className="text-xs text-gray-500">{en ? 'Learn psychology with members' : 'メンバーと心理学を学ぼう'}</p>
               </div>
               <ArrowRight className="w-4 h-4 text-gray-400" />
             </div>
@@ -454,8 +455,8 @@ export function HomeScreen({ onVNPlaying }: { onVNPlaying?: (playing: boolean) =
               <Sparkles className="w-5 h-5 text-purple-600 dark:text-purple-400" />
             </div>
             <div className="flex-1">
-              <p className="text-sm font-bold text-purple-900 dark:text-purple-100">単語学習を進める</p>
-              <p className="text-xs text-purple-600 dark:text-purple-400">ハルトと単語を覚えよう</p>
+              <p className="text-sm font-bold text-purple-900 dark:text-purple-100">{en ? 'Study Vocabulary' : '単語学習を進める'}</p>
+              <p className="text-xs text-purple-600 dark:text-purple-400">{en ? 'Learn words with Haruto' : 'ハルトと単語を覚えよう'}</p>
             </div>
             <ArrowRight className="w-4 h-4 text-purple-400" />
           </div>
@@ -470,8 +471,8 @@ export function HomeScreen({ onVNPlaying }: { onVNPlaying?: (playing: boolean) =
               <Flame className="w-5 h-5 text-pink-600 dark:text-pink-400" />
             </div>
             <div className="flex-1">
-              <p className="text-sm font-bold text-pink-900 dark:text-pink-100">ライティング学習を進める</p>
-              <p className="text-xs text-pink-600 dark:text-pink-400">ユウキと一緒に英文を書こう</p>
+              <p className="text-sm font-bold text-pink-900 dark:text-pink-100">{en ? 'Writing Practice' : 'ライティング学習を進める'}</p>
+              <p className="text-xs text-pink-600 dark:text-pink-400">{en ? 'Write with Yuuki' : 'ユウキと一緒に英文を書こう'}</p>
             </div>
             <ArrowRight className="w-4 h-4 text-pink-400" />
           </div>
@@ -489,8 +490,8 @@ export function HomeScreen({ onVNPlaying }: { onVNPlaying?: (playing: boolean) =
                 <BookOpen className="w-5 h-5 text-blue-600 dark:text-blue-400" />
               </div>
               <div>
-                <p className="text-sm font-medium">単語帳</p>
-                <p className="text-xs text-gray-500">一覧・検索</p>
+                <p className="text-sm font-medium">{en ? 'Vocab' : '単語帳'}</p>
+                <p className="text-xs text-gray-500">{en ? 'List & Search' : '一覧・検索'}</p>
               </div>
             </div>
           </Card>
@@ -503,8 +504,8 @@ export function HomeScreen({ onVNPlaying }: { onVNPlaying?: (playing: boolean) =
                 <Target className="w-5 h-5 text-green-600 dark:text-green-400" />
               </div>
               <div>
-                <p className="text-sm font-medium">分析</p>
-                <p className="text-xs text-gray-500">成長を確認</p>
+                <p className="text-sm font-medium">{en ? 'Analytics' : '分析'}</p>
+                <p className="text-xs text-gray-500">{en ? 'Track growth' : '成長を確認'}</p>
               </div>
             </div>
           </Card>
@@ -519,7 +520,7 @@ export function HomeScreen({ onVNPlaying }: { onVNPlaying?: (playing: boolean) =
               <Flame className="w-5 h-5 text-orange-500" />
               <div>
                 <p className="text-lg font-bold">{profile.streak}</p>
-                <p className="text-xs text-gray-500">日連続 &gt;</p>
+                <p className="text-xs text-gray-500">{en ? 'day streak >' : '日連続 >'}</p>
               </div>
             </div>
           </Card>

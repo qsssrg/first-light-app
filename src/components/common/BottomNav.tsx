@@ -4,19 +4,22 @@ import { useState, useEffect } from 'react';
 import { Home, BookOpen, BarChart3, Settings, Brain } from 'lucide-react';
 import { usePathname, useRouter } from 'next/navigation';
 import { isPsychologyUnlocked } from '@/lib/psychology-settings';
+import { useProfile } from '@/lib/hooks';
 
 const BASE_NAV = [
-  { href: '/', icon: Home, label: 'ホーム' },
-  { href: '/vocabulary', icon: BookOpen, label: '単語帳' },
-  { href: '/dashboard', icon: BarChart3, label: '分析' },
+  { href: '/', icon: Home, label: 'ホーム', labelEN: 'Home' },
+  { href: '/vocabulary', icon: BookOpen, label: '単語帳', labelEN: 'Vocab' },
+  { href: '/dashboard', icon: BarChart3, label: '分析', labelEN: 'Analytics' },
 ];
 
-const PSYCHOLOGY_NAV = { href: '/psychology', icon: Brain, label: '心理学' };
-const SETTINGS_NAV = { href: '/settings', icon: Settings, label: '設定' };
+const PSYCHOLOGY_NAV = { href: '/psychology', icon: Brain, label: '心理学', labelEN: 'Psych' };
+const SETTINGS_NAV = { href: '/settings', icon: Settings, label: '設定', labelEN: 'Settings' };
 
 export function BottomNav() {
   const pathname = usePathname();
   const router = useRouter();
+  const profile = useProfile();
+  const en = profile?.settings?.englishSpeakerMode ?? false;
   const [psychUnlocked, setPsychUnlocked] = useState(false);
 
   useEffect(() => {
@@ -30,7 +33,7 @@ export function BottomNav() {
   return (
     <nav className="fixed bottom-0 left-0 right-0 bg-white/80 dark:bg-gray-900/80 backdrop-blur-lg border-t border-gray-200/50 dark:border-gray-800/50 z-50 safe-area-bottom">
       <div className="flex justify-around items-center h-16 max-w-lg md:max-w-2xl lg:max-w-3xl mx-auto">
-        {navItems.map(({ href, icon: Icon, label }) => {
+        {navItems.map(({ href, icon: Icon, label, labelEN }) => {
           const isActive = pathname === href || (href !== '/' && pathname.startsWith(href));
           return (
             <button
@@ -43,7 +46,7 @@ export function BottomNav() {
               }`}
             >
               <Icon className="w-5 h-5" />
-              <span className="text-[10px] font-medium">{label}</span>
+              <span className="text-[10px] font-medium">{en ? labelEN : label}</span>
             </button>
           );
         })}
