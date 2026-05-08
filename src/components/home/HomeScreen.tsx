@@ -475,16 +475,26 @@ export function HomeScreen() {
   );
 }
 
+const MEMBER_REACTIONS: Record<string, { members: string[]; reactions: string[] }> = {
+  news: { members: ['kai', 'haruto', 'ren'], reactions: ['ありがたいな。みんなの応援が力になる。', 'こういう反応…嬉しいです。', '…見てくれてるんだな。'] },
+  message: { members: ['haruto', 'yuuki', 'sora'], reactions: ['あ…読んでくれてるんですね。照れます…。', 'うわ〜！嬉しい〜！もっと頑張る！', '…ありがとうございます。僕も読んでます。'] },
+  call: { members: ['yuuki', 'kai'], reactions: ['ファンの皆さん最高〜！ 盛り上げてこ！', 'ファンの団結力、いつも感謝してる。'] },
+  rumor: { members: ['kai', 'yuuki', 'ren'], reactions: ['…バレてる…？', 'えっ、バレちゃったの！？', '…気にするな。'] },
+  debate: { members: ['kai', 'haruto'], reactions: ['みんな仲良くしてくれ…頼むから。', '推しへの愛は素敵ですけど…穏やかにいきましょう。'] },
+};
+
 function FanBoard() {
   const [posts, setPosts] = useState(() => {
     const shuffled = [...FAN_POSTS].sort(() => Math.random() - 0.5);
     return shuffled.slice(0, 4);
   });
+  const [expanded, setExpanded] = useState<number | null>(null);
   const name = getPlayerName() || 'マネージャー';
 
   const refresh = () => {
     const shuffled = [...FAN_POSTS].sort(() => Math.random() - 0.5);
     setPosts(shuffled.slice(0, 4));
+    setExpanded(null);
   };
 
   const CAT_COLORS: Record<string, string> = {
@@ -503,24 +513,40 @@ function FanBoard() {
         </button>
       </div>
       <div className="space-y-2">
-        {posts.map((p, i) => (
-          <Card key={i} className="p-3">
-            <div className="flex items-start gap-2.5">
-              <UserCircle className={`w-7 h-7 shrink-0 ${CAT_COLORS[p.cat] || 'text-gray-400'}`} />
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2">
-                  <span className="text-xs font-bold">{p.user}</span>
-                  <span className="text-[9px] text-gray-400">{Math.floor(Math.random() * 23) + 1}h</span>
-                </div>
-                <p className="text-xs text-gray-700 dark:text-gray-300 mt-0.5">{p.text.replace(/\{playerName\}/g, name)}</p>
-                <div className="flex items-center gap-1 mt-1">
-                  <Heart className="w-3 h-3 text-gray-400" />
-                  <span className="text-[10px] text-gray-400">{p.likes}</span>
+        {posts.map((p, i) => {
+          const reaction = MEMBER_REACTIONS[p.cat] ?? MEMBER_REACTIONS.message;
+          const rMemberId = reaction.members[i % reaction.members.length];
+          const rText = reaction.reactions[i % reaction.reactions.length];
+          const rMember = getMember(rMemberId);
+          const isOpen = expanded === i;
+          return (
+            <Card key={i} className="p-3 cursor-pointer transition-shadow hover:shadow-sm" onClick={() => setExpanded(isOpen ? null : i)}>
+              <div className="flex items-start gap-2.5">
+                <UserCircle className={`w-7 h-7 shrink-0 ${CAT_COLORS[p.cat] || 'text-gray-400'}`} />
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-bold">{p.user}</span>
+                    <span className="text-[9px] text-gray-400">{Math.floor(Math.random() * 23) + 1}h</span>
+                  </div>
+                  <p className="text-xs text-gray-700 dark:text-gray-300 mt-0.5">{p.text.replace(/\{playerName\}/g, name)}</p>
+                  <div className="flex items-center gap-1 mt-1">
+                    <Heart className="w-3 h-3 text-gray-400" />
+                    <span className="text-[10px] text-gray-400">{p.likes}</span>
+                  </div>
                 </div>
               </div>
-            </div>
-          </Card>
-        ))}
+              {isOpen && rMember && (
+                <div className="mt-2 pt-2 border-t border-gray-100 dark:border-gray-800 flex items-start gap-2">
+                  <MemberAvatar member={rMember} size="sm" />
+                  <div className="flex-1">
+                    <p className="text-[10px] text-gray-500">{rMember.nameJa}</p>
+                    <p className="text-xs text-gray-600 dark:text-gray-300 italic">「{rText}」</p>
+                  </div>
+                </div>
+              )}
+            </Card>
+          );
+        })}
       </div>
     </div>
   );
