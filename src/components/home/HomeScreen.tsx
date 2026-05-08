@@ -245,6 +245,7 @@ export function HomeScreen({ onVNPlaying }: { onVNPlaying?: (playing: boolean) =
   useEffect(() => {
     if (isBirthdayToday()) {
       setBirthdayPhase('confetti');
+      onVNPlaying?.(true);
       markBirthdayCelebrated();
       setTimeout(() => setBirthdayPhase('vn'), 4000);
     }
@@ -265,7 +266,7 @@ export function HomeScreen({ onVNPlaying }: { onVNPlaying?: (playing: boolean) =
               left: `${Math.random() * 100}%`,
               backgroundColor: colors[i % colors.length],
               animationDelay: `${Math.random() * 2}s`,
-              animationDuration: `${2 + Math.random() * 2}s`,
+              ['--fall-duration' as string]: `${2.5 + Math.random() * 2}s`,
               width: `${6 + Math.random() * 8}px`,
               height: `${6 + Math.random() * 8}px`,
               borderRadius: Math.random() > 0.5 ? '50%' : '2px',
@@ -286,7 +287,7 @@ export function HomeScreen({ onVNPlaying }: { onVNPlaying?: (playing: boolean) =
     return (
       <VNEngine
         scenario={birthdayScenario}
-        onComplete={() => setBirthdayPhase('none')}
+        onComplete={() => { setBirthdayPhase('none'); onVNPlaying?.(false); }}
         skippable
       />
     );

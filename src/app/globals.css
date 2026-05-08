@@ -211,21 +211,16 @@ button[data-slot="button"]:active {
 
 /* Birthday confetti */
 @keyframes confetti-fall {
-  0% { transform: translateY(-100vh) rotate(0deg); opacity: 1; }
-  100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
-}
-@keyframes confetti-sway {
-  0%, 100% { transform: translateX(0); }
-  25% { transform: translateX(15px); }
-  75% { transform: translateX(-15px); }
+  0% { top: -5%; opacity: 1; }
+  100% { top: 110%; opacity: 0; }
 }
 .confetti-piece {
   position: fixed;
-  top: -10px;
+  top: -5%;
   width: 10px;
   height: 10px;
   border-radius: 2px;
-  animation: confetti-fall 3s ease-in forwards, confetti-sway 1s ease-in-out infinite;
+  animation: confetti-fall var(--fall-duration, 3s) ease-in forwards;
   z-index: 100;
 }
 @keyframes birthday-flash {
