@@ -11,6 +11,8 @@ import { Card } from '@/components/ui/card';
 import { BookOpen, Flame, Target, Sparkles, ArrowRight, Lightbulb } from 'lucide-react';
 import Link from 'next/link';
 import { getPlayerName } from '@/lib/player-name';
+import { AvatarSilhouette } from '@/components/common/AvatarSilhouette';
+import { getAvatarStyle } from '@/lib/user-avatar';
 import { TypewriterText } from '@/components/common/TypewriterText';
 import { isPsychologyEventEnabled, isPsychologyUnlocked } from '@/lib/psychology-settings';
 import { addAffinityPointsToMember } from '@/lib/affinity';
@@ -643,7 +645,9 @@ function FanBoard() {
                 const isPF = fixed.order === 'pf';
                 const playerBlock = (
                   <div key="player" className={`flex items-start gap-2 ${isPF ? 'animate-[fadeSlideIn_0.3s_ease-out]' : 'animate-[fadeSlideIn_0.3s_ease-out_0.5s_both]'}`}>
-                    <UserCircle className="w-6 h-6 shrink-0 text-indigo-400" />
+                    <div className="w-6 h-6 shrink-0 rounded-full overflow-hidden">
+                      <AvatarSilhouette style={getAvatarStyle()} size={24} />
+                    </div>
                     <div className="flex-1">
                       <p className="text-[10px] text-indigo-400">{name}</p>
                       <TypewriterText text={`「${fixed.player}」`} speed={30} className="text-xs text-indigo-300 italic" />
