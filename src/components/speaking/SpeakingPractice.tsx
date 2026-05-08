@@ -205,7 +205,7 @@ Evaluate and respond in this exact JSON format:
             <Card key={q.id} className="p-4 hover:shadow-md transition-shadow cursor-pointer" onClick={() => startQuestion(q)}>
               <div className="flex items-center gap-2 mb-1">
                 <Badge variant="secondary" className="text-[10px]">{TYPE_LABELS[q.type]}</Badge>
-                <span className="text-[10px] text-gray-400">{q.timeLimit}秒</span>
+                <span className="text-[10px] text-gray-400">{q.timeLimit}{en ? 's' : '秒'}</span>
               </div>
               <p className="text-sm">{q.prompt}</p>
               {q.type === 'narration' && <p className="text-xs text-gray-500 mt-1">{q.description}</p>}
@@ -231,7 +231,7 @@ Evaluate and respond in this exact JSON format:
         <Button onClick={startRecording} className="w-full h-14 text-lg bg-red-600 hover:bg-red-700">
           <Mic className="w-5 h-5 mr-2" /> 録音開始
         </Button>
-        <Button variant="outline" onClick={() => setPhase('select')} className="w-full">戻る</Button>
+        <Button variant="outline" onClick={() => setPhase('select')} className="w-full">{en ? 'Back' : '戻る'}</Button>
       </div>
     );
   }
@@ -245,7 +245,7 @@ Evaluate and respond in this exact JSON format:
             <Mic className="w-10 h-10 text-white" />
           </div>
           <p className="text-3xl font-bold mt-4">{timeLeft}s</p>
-          <p className="text-xs text-gray-500 mt-1">録音中...</p>
+          <p className="text-xs text-gray-500 mt-1">{en ? 'Recording...' : '録音中...'}</p>
         </div>
 
         {transcript && (
@@ -309,7 +309,7 @@ Evaluate and respond in this exact JSON format:
 
       <Card className="p-4">
         <div className="grid grid-cols-4 gap-2 text-center">
-          {([['grammar', '文法'], ['vocabulary', '語彙'], ['fluency', '流暢さ'], ['content', '内容']] as const).map(([key, label]) => (
+          {([['grammar', en ? 'Grammar' : '文法'], ['vocabulary', en ? 'Vocabulary' : '語彙'], ['fluency', en ? 'Fluency' : '流暢さ'], ['content', en ? 'Content' : '内容']] as const).map(([key, label]) => (
             <div key={key}>
               <div className="flex justify-center gap-0.5 mb-1">
                 {Array.from({ length: 5 }).map((_, i) => (

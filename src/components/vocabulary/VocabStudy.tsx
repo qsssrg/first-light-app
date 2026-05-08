@@ -557,12 +557,12 @@ export function VocabStudy() {
             {/* Rank badge with explanation */}
             {studied > 0 && (
               <div className="flex flex-col items-center gap-2">
-                <p className="text-[10px] text-gray-500 tracking-wider uppercase">ランク</p>
+                <p className="text-[10px] text-gray-500 tracking-wider uppercase">{isEnglishMode ? 'Rank' : 'ランク'}</p>
                 <div className={`w-24 h-24 rounded-2xl bg-gradient-to-br ${rankColors[rank]} flex items-center justify-center shadow-2xl`}>
                   <span className="text-5xl font-black">{rank}</span>
                 </div>
                 <p className="text-xs text-gray-500">
-                  {rank === 'S' ? '正答率95%+' : rank === 'A' ? '正答率70%+' : rank === 'B' ? '正答率50%+' : '正答率50%未満'}
+                  {rank === 'S' ? (isEnglishMode ? '95%+ accuracy' : '正答率95%+') : rank === 'A' ? (isEnglishMode ? '70%+ accuracy' : '正答率70%+') : rank === 'B' ? (isEnglishMode ? '50%+ accuracy' : '正答率50%+') : (isEnglishMode ? 'Under 50%' : '正答率50%未満')}
                 </p>
               </div>
             )}
@@ -706,7 +706,7 @@ export function VocabStudy() {
           )}
 
           <p className="text-xs text-gray-500 mb-4">
-            {step === 'meaning' ? '意味を選んでください' : '正しい和訳を選んでください'}
+            {step === 'meaning' ? (isEnglishMode ? 'Choose the meaning' : '意味を選んでください') : (isEnglishMode ? 'Choose the translation' : '正しい和訳を選んでください')}
           </p>
 
           <div className="w-full max-w-sm md:max-w-lg space-y-2">
@@ -739,7 +739,7 @@ export function VocabStudy() {
             onClick={() => setPhase('tokoton-end')}
             className="text-xs text-gray-400 hover:text-gray-600 underline decoration-dotted"
           >
-            今日はここまで
+            isEnglishMode ? 'End session' : '今日はここまで'
           </button>
         </div>
       </div>
@@ -826,10 +826,10 @@ export function VocabStudy() {
             onClick={handleNext}
             className="w-full py-3.5 rounded-xl text-sm font-bold tracking-wide bg-gradient-to-r from-indigo-500 via-purple-500 to-fuchsia-500 text-white shadow-lg shadow-purple-500/30 hover:shadow-xl active:scale-[0.98] transition-all"
           >
-            {step === 'meaning-result' ? '例文クイズへ →'
+            {step === 'meaning-result' ? (isEnglishMode ? 'Translation Quiz →' : '例文クイズへ →')
               : step === 'def-to-word-result' ? 'Definition Quiz →'
               : step === 'word-to-def-result' ? 'Cloze Quiz →'
-              : '次の問題 →'}
+              : (isEnglishMode ? 'Next →' : '次の問題 →')}
           </button>
         </div>
       </div>
@@ -942,7 +942,7 @@ export function VocabStudy() {
               <h3 className="text-3xl font-black tracking-tight">{currentCard?.word}</h3>
               {currentCard?.word && <SpeakButton text={currentCard.word} />}
             </div>
-            <p className="text-xs text-gray-500 mt-4">この単語の意味は？</p>
+            <p className="text-xs text-gray-500 mt-4">{isEnglishMode ? 'What does this word mean?' : 'この単語の意味は？'}</p>
           </>
         ) : (
           <>
@@ -951,7 +951,7 @@ export function VocabStudy() {
               <p className="text-base leading-relaxed text-gray-800 dark:text-gray-100 italic font-medium">{displayExample}</p>
               {displayExample && <SpeakButton text={displayExample} className="shrink-0" />}
             </div>
-            <p className="text-xs text-gray-500 mt-3">正しい和訳を選んでください</p>
+            <p className="text-xs text-gray-500 mt-3">{isEnglishMode ? 'Choose the correct translation' : '正しい和訳を選んでください'}</p>
           </>
         )}
 

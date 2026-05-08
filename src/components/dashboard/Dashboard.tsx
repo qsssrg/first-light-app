@@ -55,6 +55,7 @@ function SM2HelpLabel() {
 
 export function Dashboard() {
   const profile = useProfile();
+  const en = profile?.settings?.englishSpeakerMode ?? false;
   const sessions = useStudySessions();
   const vocabCards = useVocabCards();
 
@@ -89,7 +90,7 @@ export function Dashboard() {
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_40%,rgba(255,255,255,0.08)_0%,transparent_50%)]" />
         <div className="absolute top-0 right-0 w-24 h-24 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/2" />
         <div className="relative">
-          <h2 className="text-xl font-black tracking-wide">分析</h2>
+          <h2 className="text-xl font-black tracking-wide">{en ? 'Analytics' : '分析'}</h2>
           <p className="text-xs opacity-60 mt-0.5">Analytics Dashboard</p>
         </div>
       </div>
@@ -275,7 +276,7 @@ export function Dashboard() {
 
       {/* Skill balance — radar chart */}
       <Card className="p-4 backdrop-blur-sm bg-white/80 dark:bg-gray-900/80 border-white/20 dark:border-gray-700/30">
-        <h3 className="text-sm font-bold mb-2">スキルバランス</h3>
+        <h3 className="text-sm font-bold mb-2">{en ? 'Skill Balance' : 'スキルバランス'}</h3>
         {(() => {
           const axes = Object.keys(profile.skills) as SkillAxis[];
           const cx = 120, cy = 120, r = 85;
@@ -311,7 +312,7 @@ export function Dashboard() {
 
       {/* Study calendar */}
       <Card className="p-4 backdrop-blur-sm bg-white/80 dark:bg-gray-900/80">
-        <h3 className="text-sm font-medium mb-3">学習カレンダー（30日間）</h3>
+        <h3 className="text-sm font-medium mb-3">{en ? 'Study Calendar (30 days)' : '学習カレンダー（30日間）'}</h3>
         <div className="grid grid-cols-10 gap-1">
           {last30Days.map(date => {
             const count = sessionsByDate[date] || 0;
@@ -331,7 +332,7 @@ export function Dashboard() {
 
       {/* Vocab stats */}
       <Card className="p-4 backdrop-blur-sm bg-white/80 dark:bg-gray-900/80">
-        <h3 className="text-sm font-medium mb-3">単語帳の状況</h3>
+        <h3 className="text-sm font-medium mb-3">{en ? 'Vocabulary Status' : '単語帳の状況'}</h3>
         <div className="grid grid-cols-3 gap-4 text-center">
           <div>
             <p className="text-2xl font-bold text-green-600">{masteredCards}</p>
@@ -339,11 +340,11 @@ export function Dashboard() {
           </div>
           <div>
             <p className="text-2xl font-bold text-yellow-600">{learningCards}</p>
-            <p className="text-xs text-gray-500">学習中</p>
+            <p className="text-xs text-gray-500">{en ? 'Learning' : '学習中'}</p>
           </div>
           <div>
             <p className="text-2xl font-bold text-gray-400">{newCards}</p>
-            <p className="text-xs text-gray-500">未学習</p>
+            <p className="text-xs text-gray-500">{en ? 'New' : '未学習'}</p>
           </div>
         </div>
       </Card>
@@ -472,7 +473,7 @@ export function Dashboard() {
         if (missedWords.length === 0) return null;
         return (
           <Card className="p-4 backdrop-blur-sm bg-white/80 dark:bg-gray-900/80">
-            <h3 className="text-sm font-medium mb-3">よく間違える単語 トップ{Math.min(10, missedWords.length)}</h3>
+            <h3 className="text-sm font-medium mb-3">{en ? 'Most Missed Words Top ' : 'よく間違える単語 トップ'}{Math.min(10, missedWords.length)}</h3>
             <div className="space-y-1.5">
               {missedWords.map((card, i) => (
                 <div key={card.id ?? i} className="flex items-center justify-between text-xs py-1 border-b border-gray-100 dark:border-gray-800 last:border-0">
@@ -511,7 +512,7 @@ export function Dashboard() {
 
         return (
           <Card className="p-4 backdrop-blur-sm bg-white/80 dark:bg-gray-900/80">
-            <h3 className="text-sm font-medium mb-3">成長曲線（週次XP）</h3>
+            <h3 className="text-sm font-medium mb-3">{en ? 'Growth Curve (Weekly XP)' : '成長曲線（週次XP）'}</h3>
             <div className="flex items-end gap-1 h-24">
               {weeks.map(([week, data]) => {
                 const height = (data.xp / maxXp) * 100;
@@ -544,9 +545,9 @@ export function Dashboard() {
 
       {/* Session history */}
       <Card className="p-4 backdrop-blur-sm bg-white/80 dark:bg-gray-900/80">
-        <h3 className="text-sm font-medium mb-3">最近のセッション</h3>
+        <h3 className="text-sm font-medium mb-3">{en ? 'Recent Sessions' : '最近のセッション'}</h3>
         {sessions.length === 0 ? (
-          <p className="text-xs text-gray-500 text-center py-4">まだセッションがありません</p>
+          <p className="text-xs text-gray-500 text-center py-4">{en ? 'No sessions yet' : 'まだセッションがありません'}</p>
         ) : (
           <div className="space-y-2">
             {sessions.slice(0, 10).map((session, i) => (
