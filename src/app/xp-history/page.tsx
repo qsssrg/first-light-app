@@ -93,7 +93,7 @@ export default function XpHistoryPage() {
           <div className="flex items-end gap-1 h-64">
             {dailyData.map((day, i) => {
               const total = Object.values(day.slots).reduce((a, b) => a + b, 0);
-              const height = (total / maxXp) * 95;
+              const height = (total / 1000) * 100;
 
               return (
                 <div key={day.date} className="flex-1 flex flex-col items-center gap-0.5">
