@@ -19,6 +19,8 @@ import { MemberAvatar } from '@/components/common/MemberAvatar';
 import type { SkillAxis } from '@/types';
 import { getStudyGoal, setStudyGoal, EIKEN_GRADES, type StudyGoal, type EikenSetting, type ToeflSetting } from '@/lib/study-goals';
 import { isPsychologyEventEnabled, setPsychologyEventEnabled } from '@/lib/psychology-settings';
+import { getAvatarStyle, setAvatarStyle, AVATAR_OPTIONS, type AvatarStyle } from '@/lib/user-avatar';
+import { AvatarSilhouette } from '@/components/common/AvatarSilhouette';
 
 export function Settings() {
   const profile = useProfile();
@@ -55,12 +57,7 @@ export function Settings() {
             <p>タイプ: {profile.learnerType}</p>
             <p>開始日: {new Date(profile.createdAt).toLocaleDateString('ja-JP')}</p>
           </div>
-          <div className="w-16 h-16 rounded-full bg-gradient-to-br from-indigo-500/20 to-purple-500/20 border border-indigo-400/30 flex items-center justify-center shrink-0">
-            <svg viewBox="0 0 64 64" className="w-10 h-10 text-indigo-300/70" fill="currentColor">
-              <circle cx="32" cy="20" r="10" />
-              <path d="M16 52c0-8.8 7.2-16 16-16s16 7.2 16 16" />
-            </svg>
-          </div>
+          <AvatarSelector />
         </div>
         <div className="flex gap-2 mt-3">
           <a href="#name-change" className="flex-1">
@@ -761,5 +758,55 @@ function ApiKeySection() {
         </div>
       </div>
     </Card>
+  );
+}
+
+function AvatarSelector() {
+  const [current, setCurrent] = useState<AvatarStyle>(() => getAvatarStyle());
+  const [open, setOpen] = useState(false);
+
+  const handleSelect = (style: AvatarStyle) => {
+    setAvatarStyle(style);
+    setCurrent(style);
+    setOpen(false);
+  };
+
+  return (
+    <>
+      <button
+        onClick={() => setOpen(true)}
+        className="w-16 h-16 rounded-full bg-gradient-to-br from-indigo-500/20 to-purple-500/20 border border-indigo-400/30 flex items-center justify-center shrink-0 cursor-pointer hover:border-indigo-400/60 transition-colors active:scale-95"
+        title="アバターを変更"
+      >
+        <AvatarSilhouette style={current} size={40} className="text-indigo-300/70" />
+      </button>
+      {open && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center" onClick={() => setOpen(false)}>
+          <div className="absolute inset-0 bg-black/30" />
+          <div className="relative w-72 p-4 rounded-xl bg-white dark:bg-gray-800 shadow-2xl border border-gray-200 dark:border-gray-700" onClick={e => e.stopPropagation()}>
+            <p className="text-sm font-bold mb-3">アバターを選ぶ</p>
+            <div className="grid grid-cols-4 gap-3">
+              {AVATAR_OPTIONS.map(opt => (
+                <button
+                  key={opt.id}
+                  onClick={() => handleSelect(opt.id)}
+                  className={`flex flex-col items-center gap-1 p-2 rounded-lg transition-colors ${
+                    current === opt.id
+                      ? 'bg-indigo-500/20 border border-indigo-400'
+                      : 'hover:bg-gray-100 dark:hover:bg-gray-700 border border-transparent'
+                  }`}
+                >
+                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-500/20 to-purple-500/20 flex items-center justify-center">
+                    <AvatarSilhouette style={opt.id} size={28} className="text-indigo-300" />
+                  </div>
+                  <span className="text-[9px] text-gray-500">{opt.label}</span>
+                </button>
+              ))}
+            </div>
+            <button onClick={() => setOpen(false)} className="w-full mt-3 py-1.5 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 text-xs font-medium">閉じる</button>
+          </div>
+        </div>
+      )}
+    </>
   );
 }
