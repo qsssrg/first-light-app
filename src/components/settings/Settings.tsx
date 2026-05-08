@@ -412,7 +412,7 @@ function OshiMemberSection({ currentOshi }: { currentOshi?: string }) {
         ⭐ 推しメンバー
       </h3>
       <p className="text-xs text-gray-500 mb-3">
-        推しメンバーの親密度が2倍たまります。箱推しは均等に応援。
+        推しメンバーを選ぶと親密度が2倍たまります。「箱推し」は全員1倍設定になります。
         {currentOshi ? '' : 'タップして選んでね。'}
       </p>
       <div className="grid grid-cols-3 gap-2">
