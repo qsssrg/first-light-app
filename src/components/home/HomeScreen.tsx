@@ -645,8 +645,8 @@ function FanBoard() {
                 const isPF = fixed.order === 'pf';
                 const playerBlock = (
                   <div key="player" className={`flex items-start gap-2 ${isPF ? 'animate-[fadeSlideIn_0.3s_ease-out]' : 'animate-[fadeSlideIn_0.3s_ease-out_0.5s_both]'}`}>
-                    <div className="w-6 h-6 shrink-0 rounded-full overflow-hidden">
-                      <AvatarSilhouette style={getAvatarStyle()} size={24} />
+                    <div className="w-8 h-8 shrink-0 rounded-full overflow-hidden">
+                      <AvatarSilhouette style={getAvatarStyle()} size={32} />
                     </div>
                     <div className="flex-1">
                       <p className="text-[10px] text-indigo-400">{name}</p>
