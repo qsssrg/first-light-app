@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { MEMBERS } from '@/lib/members';
 import { STORY_CARDS } from '@/lib/stories';
 import { useProfile, useMemberAffinities } from '@/lib/hooks';
@@ -328,7 +328,7 @@ function AffinityCard({ memberId }: { memberId: string }) {
 }
 
 function MemberCommentsSection({ memberId, memberNameJa }: { memberId: string; memberNameJa: string }) {
-  const [comments] = useState(() => {
+  const comments = useMemo(() => {
     const aboutMe = MEMBER_COMMENTS.filter(c => c.about === memberId);
     const otherMembers = MEMBERS.filter(m => m.id !== memberId);
     return otherMembers.map(m => {
@@ -336,7 +336,7 @@ function MemberCommentsSection({ memberId, memberNameJa }: { memberId: string; m
       const pick = pool[Math.floor(Math.random() * pool.length)];
       return { member: m, comment: pick?.text ?? '' };
     }).filter(c => c.comment);
-  });
+  }, [memberId]);
 
   if (comments.length === 0) return null;
 
