@@ -491,23 +491,35 @@ export function HomeScreen({ onVNPlaying }: { onVNPlaying?: (playing: boolean) =
   );
 }
 
-const PLAYER_RUMOR_REACTIONS = [
-  'え、やば！ 見られてた！',
-  '情報シャットアウトしてくれるって言ってたのに〜',
-  'なんで知ってるの…？',
-  'さすがファン、察しが良すぎる…',
-  'も、もうこの仕事辞めようかな…',
-  'バレた…？ バレてない…？ どっち…！？',
+/** Rumor固定コメント — 投稿テキストの先頭20文字をキーにマッチ */
+const RUMOR_FIXED_COMMENTS: { match: string; player: string; member: { id: string; text: string } }[] = [
+  // 既存修正6件
+  { match: 'リムジンでスカウトしてた人', player: '登場が派手すぎなのよ…', member: { id: 'kai', text: 'ごめん、見つけちゃったから思わず…' } },
+  { match: '事務所に出入りしてた美人', player: '嬉しいけど嬉しくない！ バレてるじゃん！！', member: { id: 'haruto', text: '美人だそうです。良かったですね' } },
+  { match: 'カイくん、女優さんと一緒', player: '私のこと？', member: { id: 'kai', text: '女優デビューおめでとう笑' } },
+  { match: 'レンくんのストーリー、同じカフェ', player: '私もあそこ行くのやめとこ', member: { id: 'ren', text: 'やべ、あのカフェ特定されてる' } },
+  { match: 'ユウキくん、最近誰かと一緒', player: 'な、何を呑気な…', member: { id: 'yuuki', text: 'あれー？ これ、{playerName}のことかもー' } },
+  { match: '新メンバー加入説', player: 'なんで男性アイドルグループに私が加入するんですかー！', member: { id: 'sora', text: '誰のことだろう…もしかして{playerName}さん？' } },
+  // 新規9件
+  { match: 'この前の配信ライブに女の人', player: 'ファンの探偵力を舐めちゃいけません…こわ…', member: { id: 'sora', text: 'なんでこんな情報が…' } },
+  { match: 'ハルトのノートに書いてあった', player: 'わー！ なんで名前書いてるんですか！', member: { id: 'haruto', text: 'すみません。何でもメモ取るタイプなもんで…' } },
+  { match: 'リムジンで乗りつけて女子を拉致', player: 'そっちの方向で噂が広がってくれると助かります', member: { id: 'ren', text: 'ははっ！ みんな想像力豊かだな' } },
+  { match: 'ユウキが外国人ファンに', player: '海外フェスに出るってバレてますけど…', member: { id: 'yuuki', text: 'あはは…うっかりだなぁコイツ。誰が投稿したの？' } },
+  { match: 'FIRST LIGHTのリムジンに乗っていった', player: 'ひー！ ヤバい！ ファンに嫌われてる！！', member: { id: 'kai', text: '迷惑かけてゴメン…今度からタクシーで裏口から入って' } },
+  { match: 'おとといハルトが投稿してた歌詞', player: 'リムジン女って言われてるんだ…ショック。。。', member: { id: 'haruto', text: 'あ、いや…この歌詞はずっと前に書いてたもので…' } },
+  { match: '親戚が芸能関係なんだけど、レン', player: '女教師…', member: { id: 'ren', text: '芸能関係者なら余計なこと言うなよ、ったく！' } },
+  { match: 'ラジオとかでのユウキの話が最近', player: 'いや、あの…それもダメです', member: { id: 'yuuki', text: 'ファンは想像力豊かだよねー。恋人じゃないよー、{playerName}だよー' } },
+  { match: '最近FIRST LIGHTに敏腕女子マネ', player: '出しませんって！ 敏腕マネージャーじゃないし！', member: { id: 'sora', text: 'リムジン女も定着してきましたね笑' } },
 ];
 
-const MEMBER_FOLLOW_REACTIONS = [
-  { id: 'kai', text: '大丈夫だ。バレてない。全部ただの憶測だよ。' },
-  { id: 'yuuki', text: 'ネットの人って想像力すごいよね〜。気にしないで！' },
-  { id: 'haruto', text: '大丈夫ですよ、{playerName}さん。僕たちが守りますから。' },
-  { id: 'ren', text: '…ただの噂だ。放っとけ。俺たちがついてる。' },
-  { id: 'sora', text: '…大丈夫です。事務所が管理してくれてますから、安心してください。' },
-  { id: 'kai', text: '安心しろ、{playerName}。何があっても俺たちが守る。' },
-];
+function getRumorComments(text: string): { player: string; member: { id: string; text: string } } | null {
+  for (const entry of RUMOR_FIXED_COMMENTS) {
+    if (text.includes(entry.match)) {
+      return { player: entry.player, member: entry.member };
+    }
+  }
+  return null;
+}
 
 const MEMBER_REACTIONS: Record<string, { members: string[]; reactions: string[] }> = {
   news: {
@@ -625,9 +637,9 @@ function FanBoard() {
                 </div>
               </div>
               {isOpen && p.cat === 'rumor' ? (() => {
-                const playerReaction = PLAYER_RUMOR_REACTIONS[i % PLAYER_RUMOR_REACTIONS.length];
-                const followPick = MEMBER_FOLLOW_REACTIONS[i % MEMBER_FOLLOW_REACTIONS.length];
-                const followMember = getMember(followPick.id);
+                const fixed = getRumorComments(p.text);
+                if (!fixed) return null;
+                const followMember = getMember(fixed.member.id);
                 return (
                   <div className="mt-2 pt-2 border-t border-gray-100 dark:border-gray-800 space-y-2">
                     {/* Player reaction */}
@@ -635,7 +647,7 @@ function FanBoard() {
                       <UserCircle className="w-6 h-6 shrink-0 text-indigo-400" />
                       <div className="flex-1">
                         <p className="text-[10px] text-indigo-400">{name}</p>
-                        <TypewriterText text={`「${playerReaction}」`} speed={30} className="text-xs text-indigo-300 italic" />
+                        <TypewriterText text={`「${fixed.player}」`} speed={30} className="text-xs text-indigo-300 italic" />
                       </div>
                     </div>
                     {/* Member follow-up */}
@@ -644,7 +656,7 @@ function FanBoard() {
                         <MemberAvatar member={followMember} size="sm" />
                         <div className="flex-1">
                           <p className="text-[10px] text-gray-500">{followMember.nameJa}</p>
-                          <TypewriterText text={`「${followPick.text.replace(/\{playerName\}/g, name)}」`} speed={30} className="text-xs text-gray-600 dark:text-gray-300 italic" />
+                          <TypewriterText text={`「${fixed.member.text.replace(/\{playerName\}/g, name)}」`} speed={30} className="text-xs text-gray-600 dark:text-gray-300 italic" />
                         </div>
                       </div>
                     )}
