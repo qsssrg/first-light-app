@@ -22,6 +22,7 @@ import { getBirthday, setBirthday } from '@/lib/birthday';
 import { isPsychologyEventEnabled, setPsychologyEventEnabled } from '@/lib/psychology-settings';
 import { getAvatarStyle, setAvatarStyle, AVATAR_OPTIONS, type AvatarStyle } from '@/lib/user-avatar';
 import { AvatarSilhouette } from '@/components/common/AvatarSilhouette';
+import { TypewriterText } from '@/components/common/TypewriterText';
 
 export function Settings() {
   const profile = useProfile();
@@ -64,6 +65,7 @@ export function Settings() {
           </div>
         </div>
         <BirthdayInput />
+        <PlayerMonologue />
         <div className="flex gap-2 mt-3">
           <a href="#name-change" className="flex-1">
             <Button variant="outline" size="sm" className="w-full text-xs"><UserPen className="w-3 h-3 mr-1" />名前を変更</Button>
@@ -296,6 +298,43 @@ function GoalSettingSection() {
         </p>
       )}
     </Card>
+  );
+}
+
+const PLAYER_MONOLOGUES = [
+  '毎日メンバーに会ってるからか、緊張しなくなってきた',
+  'そういえば、なんで私を探してたんだろう？',
+  '時々思わせぶりなことを言ってくるけど…勘違いだよね！',
+  'リムジン女って呼ばれてるらしい…やめてほしい',
+  'カイさんに呼び捨てされると未だにドキッとする',
+  'ユウキくん、またSNSで余計なこと言ってないよね…',
+  'ハルトくんのノートに名前書かれてたの、まだ気になる',
+  'レンさんと同じカフェに行けなくなった…',
+  'ソラくんが推薦してた本、私も読んでみようかな',
+  'この仕事、夢みたいだけど…バレたらどうしよう',
+  'リムジンで迎えに来るのだけはもうやめてください…目立つから…',
+  'ファンの探偵力をマジで舐めてた',
+  '事務所の廊下ですれ違うだけでも心臓バクバクする',
+  'あの配信、袖から見てたの最高だったな…',
+  'カイさんが「俺たちが守る」って言ってくれたの、まだ覚えてる',
+  'ユウキくんのノリに毎日ツッコむのが日課になってきた',
+  'ハルトくんの歌詞、なんか最近やたら刺さるんだけど…',
+  'レンさんのギター、生で聴くと鳥肌立つ',
+  'ソラくんとは読書の趣味が合いそう',
+  '英語教えてるはずなのに、私の方が学んでる気がする',
+  'メンバーの誕生日、全部覚えちゃった…プロのファンかな',
+  'いつか海外フェスの舞台袖から見れるのかな…楽しみ',
+  '帰り道、つい鼻歌でFIRST LIGHTの曲歌っちゃう',
+  '推し活してた頃は想像もしなかった今の状況…',
+  '秘密を守るの、意外と大変。友達に言いたい…！',
+];
+
+function PlayerMonologue() {
+  const [text] = useState(() => PLAYER_MONOLOGUES[Math.floor(Math.random() * PLAYER_MONOLOGUES.length)]);
+  return (
+    <div className="mt-3 pt-3 border-t border-gray-100 dark:border-gray-800">
+      <TypewriterText text={`（${text}）`} speed={30} className="text-xs text-gray-400 dark:text-gray-500 italic" />
+    </div>
   );
 }
 
