@@ -17,6 +17,7 @@ export function getBirthday(): { month: number; day: number } | null {
 export function setBirthday(month: number, day: number): void {
   if (typeof window === 'undefined') return;
   localStorage.setItem(BIRTHDAY_KEY, JSON.stringify({ month, day }));
+  localStorage.removeItem(BIRTHDAY_CELEBRATED_KEY);
 }
 
 /** Check if today is the user's birthday and hasn't been celebrated yet today */
