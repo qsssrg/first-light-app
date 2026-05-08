@@ -177,7 +177,8 @@ export function Dashboard() {
                 <p className="text-xs font-medium text-gray-500 mb-1">{guideMember.nameJa}</p>
 
                 {/* Milestone — member voice */}
-                <div className="relative bg-gray-100 dark:bg-gray-800 rounded-xl rounded-tl-none px-3 py-2.5 mb-2">
+                <div className="relative bg-gray-100 dark:bg-gray-800 rounded-xl px-3 py-2.5 mb-2">
+                  <div className="absolute -top-1.5 left-4 w-3 h-3 bg-gray-100 dark:bg-gray-800 rotate-45" />
                   <p className="text-sm leading-relaxed">
                     {(() => {
                       const ms: Record<string, string> = {
