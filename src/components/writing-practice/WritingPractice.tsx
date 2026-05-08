@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { db } from '@/lib/db';
 import { useLiveQuery } from 'dexie-react-hooks';
+import { useProfile } from '@/lib/hooks';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -54,6 +55,8 @@ function YuukiGuideCard() {
 }
 
 export function WritingPractice() {
+  const profile = useProfile();
+  const en = profile?.settings?.englishSpeakerMode ?? false;
   const [promptData, setPromptData] = useState(PROMPTS[Math.floor(Math.random() * PROMPTS.length)]);
   const prompt = promptData.text;
   const [text, setText] = useState('');
@@ -141,7 +144,7 @@ Remember the Montessori principle: acknowledge growth rather than just praise.`,
         <div className="relative rounded-2xl overflow-hidden bg-gradient-to-br from-rose-600 via-pink-500 to-fuchsia-400 p-5 text-white shadow-lg mb-2">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_40%,rgba(255,255,255,0.08)_0%,transparent_50%)]" />
         <div className="relative">
-          <h2 className="text-xl font-black tracking-wide">添削結果</h2>
+          <h2 className="text-xl font-black tracking-wide">{en ? 'Writing Result' : '添削結果'}</h2>
           <p className="text-xs opacity-60 mt-0.5">Writing Result</p>
         </div>
       </div>
@@ -151,12 +154,12 @@ Remember the Montessori principle: acknowledge growth rather than just praise.`,
           </div>
         )}
         <Card className="p-4">
-          <h3 className="text-sm font-medium mb-2">フィードバック</h3>
+          <h3 className="text-sm font-medium mb-2">{en ? 'Feedback' : 'フィードバック'}</h3>
           <p className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-line">{result.feedback}</p>
         </Card>
         {result.corrections.length > 0 && (
           <Card className="p-4">
-            <h3 className="text-sm font-medium mb-2">修正箇所</h3>
+            <h3 className="text-sm font-medium mb-2">{en ? 'Corrections' : '修正箇所'}</h3>
             <div className="space-y-2">
               {result.corrections.map((c, i) => (
                 <div key={i} className="text-xs border-l-2 border-blue-400 pl-2">
@@ -169,7 +172,7 @@ Remember the Montessori principle: acknowledge growth rather than just praise.`,
             </div>
           </Card>
         )}
-        <Button onClick={newPrompt} className="w-full">次のお題に挑戦</Button>
+        <Button onClick={newPrompt} className="w-full">{en ? 'Next Prompt' : '次のお題に挑戦'}</Button>
       </div>
     );
   }
@@ -179,7 +182,7 @@ Remember the Montessori principle: acknowledge growth rather than just praise.`,
       <div className="relative rounded-2xl overflow-hidden bg-gradient-to-br from-rose-600 via-pink-500 to-fuchsia-400 p-5 text-white shadow-lg mb-2">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_40%,rgba(255,255,255,0.08)_0%,transparent_50%)]" />
         <div className="relative">
-          <h2 className="text-xl font-black tracking-wide">ライティング練習</h2>
+          <h2 className="text-xl font-black tracking-wide">{en ? 'Writing Practice' : 'ライティング練習'}</h2>
           <p className="text-xs opacity-60 mt-0.5">Writing Practice</p>
         </div>
       </div>
@@ -188,7 +191,7 @@ Remember the Montessori principle: acknowledge growth rather than just praise.`,
 
       <Card className="p-4 bg-blue-50 dark:bg-blue-950 border-blue-200 dark:border-blue-800">
         <div className="flex items-center gap-2 mb-1">
-          <p className="text-xs text-blue-600 dark:text-blue-400">お題</p>
+          <p className="text-xs text-blue-600 dark:text-blue-400">{en ? 'Prompt' : 'お題'}</p>
           <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-indigo-100 dark:bg-indigo-900 text-indigo-600 dark:text-indigo-300 font-medium">{promptData.level}</span>
         </div>
         <p className="text-sm font-medium">{prompt}</p>
@@ -198,7 +201,7 @@ Remember the Montessori principle: acknowledge growth rather than just praise.`,
         <textarea
           value={text}
           onChange={(e) => setText(e.target.value)}
-          placeholder="英語で書いてみよう（10語以上）"
+          placeholder={en ? "Write in English (10+ words)" : "英語で書いてみよう（10語以上）"}
           rows={8}
           className="w-full border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-900 resize-none"
         />
@@ -223,7 +226,7 @@ Remember the Montessori principle: acknowledge growth rather than just praise.`,
         disabled={loading || text.trim().split(' ').length < 10 || !hasApiKey()}
         className="w-full"
       >
-        {loading ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> 添削中...</> : <><Send className="w-4 h-4 mr-2" /> 添削を依頼</>}
+        {loading ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" />{en ? ' Reviewing...' : ' 添削中...'}</> : <><Send className="w-4 h-4 mr-2" />{en ? ' Submit for Review' : ' 添削を依頼'}</>}
       </Button>
 
       <button onClick={newPrompt} className="w-full text-xs text-gray-500 hover:text-gray-700">
@@ -234,7 +237,7 @@ Remember the Montessori principle: acknowledge growth rather than just praise.`,
       {submissions.length > 0 && (
         <div className="pt-4 border-t">
           <h3 className="text-sm font-medium mb-2 flex items-center gap-2">
-            <BookOpen className="w-4 h-4" /> 過去の添削
+            <BookOpen className="w-4 h-4" />{en ? ' Past Reviews' : ' 過去の添削'}
           </h3>
           <div className="space-y-2">
             {submissions.map(s => (

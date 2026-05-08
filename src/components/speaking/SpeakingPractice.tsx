@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useRef, useCallback, useEffect } from 'react';
+import { useState, useRef, useCallback, useEffect, useMemo } from 'react';
+import { useProfile } from '@/lib/hooks';
 import { SPEAKING_QUESTIONS, TYPE_LABELS, type SpeakingQuestion, type SpeakingType } from '@/lib/speaking-data';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -23,6 +24,8 @@ interface Feedback {
 type Phase = 'select' | 'prepare' | 'record' | 'review' | 'feedback';
 
 export function SpeakingPractice() {
+  const profile = useProfile();
+  const en = profile?.settings?.englishSpeakerMode ?? false;
   const [phase, setPhase] = useState<Phase>('select');
   const [filter, setFilter] = useState<SpeakingType | 'all'>('all');
   const [currentQ, setCurrentQ] = useState<SpeakingQuestion | null>(null);
@@ -168,11 +171,11 @@ Evaluate and respond in this exact JSON format:
         <div className="relative rounded-2xl overflow-hidden bg-gradient-to-br from-violet-600 via-purple-500 to-indigo-400 p-5 text-white shadow-lg mb-2">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_40%,rgba(255,255,255,0.08)_0%,transparent_50%)]" />
         <div className="relative">
-          <h2 className="text-xl font-black tracking-wide">スピーキング練習</h2>
+          <h2 className="text-xl font-black tracking-wide">{en ? 'Speaking Practice' : 'スピーキング練習'}</h2>
           <p className="text-xs opacity-60 mt-0.5">Speaking</p>
         </div>
       </div>
-        <p className="text-xs text-gray-500">マイクに向かって英語で話そう。音声認識でテキスト化されます。</p>
+        <p className="text-xs text-gray-500">{en ? 'Speak in English. Your voice will be transcribed.' : 'マイクに向かって英語で話そう。音声認識でテキスト化されます。'}</p>
 
         {!hasApiKey() && (
           <Link href="/settings">
@@ -186,7 +189,7 @@ Evaluate and respond in this exact JSON format:
         )}
 
         <div className="flex gap-1.5">
-          {([['all', 'すべて'], ['narration', 'ナレーション'], ['qa', 'Q&A'], ['toefl', 'TOEFL']] as const).map(([key, label]) => (
+          {([['all', en ? 'All' : 'すべて'], ['narration', en ? 'Narration' : 'ナレーション'], ['qa', 'Q&A'], ['toefl', 'TOEFL']] as const).map(([key, label]) => (
             <button
               key={key}
               onClick={() => setFilter(key)}
@@ -224,7 +227,7 @@ Evaluate and respond in this exact JSON format:
             <p className="text-xs text-gray-500 bg-gray-50 dark:bg-gray-900 p-2 rounded">{currentQ!.description}</p>
           )}
         </Card>
-        <p className="text-xs text-gray-500 text-center">準備ができたらマイクボタンを押してください（{currentQ!.timeLimit}秒）</p>
+        <p className="text-xs text-gray-500 text-center">{en ? 'Press the mic button when ready' : '準備ができたらマイクボタンを押してください'}（{currentQ!.timeLimit}秒）</p>
         <Button onClick={startRecording} className="w-full h-14 text-lg bg-red-600 hover:bg-red-700">
           <Mic className="w-5 h-5 mr-2" /> 録音開始
         </Button>
@@ -283,7 +286,7 @@ Evaluate and respond in this exact JSON format:
 
         <div className="flex gap-2">
           <Button onClick={submitForFeedback} disabled={loading || !transcript.trim()} className="flex-1">
-            {loading ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> 評価中</> : 'フィードバックを受ける'}
+            {loading ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" />{en ? ' Evaluating' : ' 評価中'}</> : 'フィードバックを受ける'}
           </Button>
           <Button variant="outline" onClick={() => { setPhase('prepare'); setTranscript(''); }}>
             <RotateCcw className="w-4 h-4" />
@@ -302,7 +305,7 @@ Evaluate and respond in this exact JSON format:
   // Feedback phase
   return (
     <div className="space-y-4 px-4">
-      <h3 className="text-sm font-bold">スピーキング評価</h3>
+      <h3 className="text-sm font-bold">{en ? 'Speaking Evaluation' : 'スピーキング評価'}</h3>
 
       <Card className="p-4">
         <div className="grid grid-cols-4 gap-2 text-center">

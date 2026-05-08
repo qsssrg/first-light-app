@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useCallback, useRef } from 'react';
+import { useProfile } from '@/lib/hooks';
 import { LISTENING_QUESTIONS, DICTATION_EXERCISES, type ListeningQuestion } from '@/lib/listening-data';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -12,6 +13,8 @@ type Mode = 'select' | 'quiz' | 'dictation' | 'result';
 type Speed = 0.8 | 1.0 | 1.2;
 
 export function ListeningPractice() {
+  const profile = useProfile();
+  const en = profile?.settings?.englishSpeakerMode ?? false;
   const [mode, setMode] = useState<Mode>('select');
   const [filter, setFilter] = useState<'all' | 'eiken2' | 'eiken_pre1' | 'toefl'>('all');
   const [questions, setQuestions] = useState<ListeningQuestion[]>([]);
@@ -81,11 +84,11 @@ export function ListeningPractice() {
         <div className="relative rounded-2xl overflow-hidden bg-gradient-to-br from-sky-600 via-blue-500 to-indigo-400 p-5 text-white shadow-lg mb-2">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_40%,rgba(255,255,255,0.08)_0%,transparent_50%)]" />
         <div className="relative">
-          <h2 className="text-xl font-black tracking-wide">リスニング練習</h2>
+          <h2 className="text-xl font-black tracking-wide">{en ? 'Listening Practice' : 'リスニング練習'}</h2>
           <p className="text-xs opacity-60 mt-0.5">Listening</p>
         </div>
       </div>
-        <p className="text-xs text-gray-500">Web Speech APIで英語音声を再生します。イヤホン推奨。</p>
+        <p className="text-xs text-gray-500">{en ? 'English audio via Web Speech API. Headphones recommended.' : 'Web Speech APIで英語音声を再生します。イヤホン推奨。'}</p>
 
         {/* Level filter */}
         <div className="flex gap-1.5">
@@ -102,7 +105,7 @@ export function ListeningPractice() {
 
         {/* Speed selector */}
         <Card className="p-4">
-          <p className="text-xs text-gray-500 mb-2">再生速度</p>
+          <p className="text-xs text-gray-500 mb-2">{en ? 'Speed' : '再生速度'}</p>
           <div className="flex gap-2">
             {([0.8, 1.0, 1.2] as Speed[]).map(s => (
               <button
@@ -133,7 +136,7 @@ export function ListeningPractice() {
     return (
       <div className="text-center py-8 px-4 space-y-4">
         <Headphones className="w-12 h-12 text-blue-500 mx-auto" />
-        <h2 className="text-xl font-bold">リスニング完了</h2>
+        <h2 className="text-xl font-bold">{en ? 'Listening Complete' : 'リスニング完了'}</h2>
         <p className="text-3xl font-bold">{score} / {questions.length}</p>
         <p className="text-sm text-gray-500">正答率 {percent}%</p>
         <div className="flex gap-2 justify-center">
@@ -172,7 +175,7 @@ export function ListeningPractice() {
           >
             {isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}
           </Button>
-          <p className="text-xs text-gray-400 mt-2">タップして音声を再生</p>
+          <p className="text-xs text-gray-400 mt-2">{en ? 'Tap to play audio' : 'タップして音声を再生'}</p>
         </Card>
 
         <textarea
@@ -192,7 +195,7 @@ export function ListeningPractice() {
 
         <div className="flex gap-2">
           {!dictRevealed ? (
-            <Button onClick={() => setDictRevealed(true)} className="flex-1">答えを見る</Button>
+            <Button onClick={() => setDictRevealed(true)} className="flex-1">{en ? 'Show Answer' : '答えを見る'}</Button>
           ) : (
             <Button onClick={() => { setDictIndex(dictIndex + 1); setDictInput(''); setDictRevealed(false); stopSpeech(); }} className="flex-1">
               次の問題
@@ -236,7 +239,7 @@ export function ListeningPractice() {
             <RotateCcw className="w-3 h-3" />
           </Button>
         </div>
-        <p className="text-xs text-gray-400 mt-2">▶ をタップして音声を再生</p>
+        <p className="text-xs text-gray-400 mt-2">{en ? 'Tap ▶ to play audio' : '▶ をタップして音声を再生'}</p>
       </Card>
 
       {/* Question */}
