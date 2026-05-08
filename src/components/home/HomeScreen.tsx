@@ -14,6 +14,9 @@ import { getPlayerName } from '@/lib/player-name';
 import { TypewriterText } from '@/components/common/TypewriterText';
 import { isPsychologyEventEnabled, isPsychologyUnlocked } from '@/lib/psychology-settings';
 import { addAffinityPointsToMember } from '@/lib/affinity';
+import { getNextUnwatchedLevel, markLevelupWatched } from '@/lib/levelup-tracker';
+import { getLevelupScenario } from '@/lib/scenarios/adapter';
+import { VNEngine } from '@/components/vn/VNEngine';
 import { FAKE_NEWS } from '@/data/fake-news';
 import { Newspaper, RefreshCw } from 'lucide-react';
 
@@ -213,7 +216,34 @@ export function HomeScreen() {
     sessionStorage.setItem(key, 'done');
   }, [greeting.member]);
 
+  const [playingLevelup, setPlayingLevelup] = useState(false);
+  const [unwatchedLevel, setUnwatchedLevel] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (profile) {
+      setUnwatchedLevel(getNextUnwatchedLevel(profile.level));
+    }
+  }, [profile?.level]);
+
   if (!profile) return null;
+
+  // Playing a level-up VN
+  if (playingLevelup && unwatchedLevel) {
+    const scenario = getLevelupScenario(unwatchedLevel);
+    if (scenario) {
+      return (
+        <VNEngine
+          scenario={scenario}
+          onComplete={() => {
+            markLevelupWatched(unwatchedLevel);
+            setPlayingLevelup(false);
+            setUnwatchedLevel(getNextUnwatchedLevel(profile.level));
+          }}
+          skippable
+        />
+      );
+    }
+  }
 
   const progress = getLevelProgress(profile.totalXp) * 100;
   const toNext = xpToNextLevel(profile.totalXp);
@@ -222,7 +252,7 @@ export function HomeScreen() {
     <div className="space-y-5 pb-4">
       {/* Group 1: Member greeting + recommended action (tight) */}
       <div className="space-y-2">
-      {/* Member greeting — psychology call-out or normal */}
+      {/* Member greeting — priority: psychology > level-up > normal */}
       {isPsychologyEventEnabled() && !isPsychologyUnlocked() ? (
         <Link href="/psychology">
           <Card className="p-4 cursor-pointer border-purple-300 dark:border-purple-700 hover:shadow-md transition-shadow">
@@ -241,6 +271,25 @@ export function HomeScreen() {
             </div>
           </Card>
         </Link>
+      ) : unwatchedLevel ? (
+        <Card
+          className="p-4 cursor-pointer border-amber-300 dark:border-amber-700 hover:shadow-md transition-shadow"
+          onClick={() => setPlayingLevelup(true)}
+        >
+          <div className="flex items-start gap-4">
+            <div className="shrink-0 relative">
+              <MemberAvatar member={getMember('kai')!} size="lg" />
+              <span className="absolute -top-1 -right-1 w-3 h-3 bg-amber-400 rounded-full animate-pulse" />
+            </div>
+            <div className="flex-1 min-w-0 pt-1">
+              <p className="text-xs text-gray-500 mb-1">カイ</p>
+              <TypewriterText text={`レベルアップおめでとう！ Lv.${unwatchedLevel}の新しいストーリーが解放されたぞ。`} className="text-sm font-bold text-amber-700 dark:text-amber-300 flex-1" />
+              <div className="mt-2">
+                <span className="inline-block px-4 py-1.5 rounded-full bg-amber-500 text-white text-xs font-bold tracking-wider shadow-md">ストーリーを見る →</span>
+              </div>
+            </div>
+          </div>
+        </Card>
       ) : greeting.member && greeting.message ? (
         <Card className="p-4">
           <div className="flex items-start gap-4">
