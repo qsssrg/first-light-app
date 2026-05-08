@@ -775,10 +775,10 @@ function AvatarSelector() {
     <>
       <button
         onClick={() => setOpen(true)}
-        className="w-16 h-16 rounded-full bg-gradient-to-br from-indigo-500/20 to-purple-500/20 border border-indigo-400/30 flex items-center justify-center shrink-0 cursor-pointer hover:border-indigo-400/60 transition-colors active:scale-95"
+        className="w-20 h-20 rounded-full bg-gradient-to-br from-indigo-500/20 to-purple-500/20 border border-indigo-400/30 flex items-center justify-center shrink-0 cursor-pointer hover:border-indigo-400/60 transition-colors active:scale-95 overflow-hidden"
         title="アバターを変更"
       >
-        <AvatarSilhouette style={current} size={40} className="text-indigo-300/70" />
+        <AvatarSilhouette style={current} size={72} className="text-indigo-300/70" />
       </button>
       {open && (
         <div className="fixed inset-0 z-50 flex items-center justify-center" onClick={() => setOpen(false)}>
