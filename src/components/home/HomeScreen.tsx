@@ -491,6 +491,24 @@ export function HomeScreen({ onVNPlaying }: { onVNPlaying?: (playing: boolean) =
   );
 }
 
+const PLAYER_RUMOR_REACTIONS = [
+  'え、やば！ 見られてた！',
+  '情報シャットアウトしてくれるって言ってたのに〜',
+  'なんで知ってるの…？',
+  'さすがファン、察しが良すぎる…',
+  'も、もうこの仕事辞めようかな…',
+  'バレた…？ バレてない…？ どっち…！？',
+];
+
+const MEMBER_FOLLOW_REACTIONS = [
+  { id: 'kai', text: '大丈夫だ。バレてない。全部ただの憶測だよ。' },
+  { id: 'yuuki', text: 'ネットの人って想像力すごいよね〜。気にしないで！' },
+  { id: 'haruto', text: '大丈夫ですよ、{playerName}さん。僕たちが守りますから。' },
+  { id: 'ren', text: '…ただの噂だ。放っとけ。俺たちがついてる。' },
+  { id: 'sora', text: '…大丈夫です。事務所が管理してくれてますから、安心してください。' },
+  { id: 'kai', text: '安心しろ、{playerName}。何があっても俺たちが守る。' },
+];
+
 const MEMBER_REACTIONS: Record<string, { members: string[]; reactions: string[] }> = {
   news: { members: ['kai', 'haruto', 'ren'], reactions: ['ありがたいな。みんなの応援が力になる。', 'こういう反応…嬉しいです。', '…見てくれてるんだな。'] },
   message: { members: ['haruto', 'yuuki', 'sora'], reactions: ['あ…読んでくれてるんですね。照れます…。', 'うわ〜！嬉しい〜！もっと頑張る！', '…ありがとうございます。僕も読んでます。'] },
@@ -565,7 +583,33 @@ function FanBoard() {
                   </div>
                 </div>
               </div>
-              {isOpen && rMember && (
+              {isOpen && p.cat === 'rumor' ? (() => {
+                const playerReaction = PLAYER_RUMOR_REACTIONS[i % PLAYER_RUMOR_REACTIONS.length];
+                const followPick = MEMBER_FOLLOW_REACTIONS[i % MEMBER_FOLLOW_REACTIONS.length];
+                const followMember = getMember(followPick.id);
+                return (
+                  <div className="mt-2 pt-2 border-t border-gray-100 dark:border-gray-800 space-y-2">
+                    {/* Player reaction */}
+                    <div className="flex items-start gap-2 animate-[fadeSlideIn_0.3s_ease-out]">
+                      <UserCircle className="w-6 h-6 shrink-0 text-indigo-400" />
+                      <div className="flex-1">
+                        <p className="text-[10px] text-indigo-400">{name}</p>
+                        <TypewriterText text={`「${playerReaction}」`} speed={30} className="text-xs text-indigo-300 italic" />
+                      </div>
+                    </div>
+                    {/* Member follow-up */}
+                    {followMember && (
+                      <div className="flex items-start gap-2 animate-[fadeSlideIn_0.3s_ease-out_0.5s_both]">
+                        <MemberAvatar member={followMember} size="sm" />
+                        <div className="flex-1">
+                          <p className="text-[10px] text-gray-500">{followMember.nameJa}</p>
+                          <TypewriterText text={`「${followPick.text.replace(/\{playerName\}/g, name)}」`} speed={30} className="text-xs text-gray-600 dark:text-gray-300 italic" />
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                );
+              })() : isOpen && rMember ? (
                 <div className="mt-2 pt-2 border-t border-gray-100 dark:border-gray-800 flex items-start gap-2 animate-[fadeSlideIn_0.3s_ease-out]">
                   <MemberAvatar member={rMember} size="sm" />
                   <div className="flex-1">
@@ -573,7 +617,7 @@ function FanBoard() {
                     <TypewriterText text={`「${rText}」`} speed={30} className="text-xs text-gray-600 dark:text-gray-300 italic" />
                   </div>
                 </div>
-              )}
+              ) : null}
             </Card>
           );
         })}
