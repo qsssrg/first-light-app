@@ -21,6 +21,8 @@ import { getLevelupScenario } from '@/lib/scenarios/adapter';
 import { VNEngine } from '@/components/vn/VNEngine';
 import { isBirthdayToday, markBirthdayCelebrated } from '@/lib/birthday';
 import { birthdayScenario } from '@/lib/scenarios/birthday';
+import { getMemberBirthdayToday, markMemberBirthdayCelebrated } from '@/lib/member-birthday';
+import { getMemberBirthdayScenario } from '@/lib/scenarios/member-birthday';
 import { FAKE_NEWS } from '@/data/fake-news';
 import { FAN_POSTS } from '@/data/fan-posts';
 import { Newspaper, RefreshCw, MessageSquare, Heart, UserCircle } from 'lucide-react';
@@ -235,6 +237,7 @@ export function HomeScreen({ onVNPlaying }: { onVNPlaying?: (playing: boolean) =
   const [playingLevelup, setPlayingLevelup] = useState(false);
   const [unwatchedLevel, setUnwatchedLevel] = useState<number | null>(null);
   const [birthdayPhase, setBirthdayPhase] = useState<'none' | 'confetti' | 'vn'>('none');
+  const [memberBdEvent, setMemberBdEvent] = useState<{ memberId: string; isOshi: boolean; phase: 'none' | 'confetti' | 'vn' }>({ memberId: '', isOshi: false, phase: 'none' });
 
   useEffect(() => {
     if (profile) {
@@ -242,13 +245,30 @@ export function HomeScreen({ onVNPlaying }: { onVNPlaying?: (playing: boolean) =
     }
   }, [profile?.level]);
 
-  // Birthday check
+  // User birthday check (priority 1)
   useEffect(() => {
     if (isBirthdayToday()) {
       setBirthdayPhase('confetti');
       onVNPlaying?.(true);
       markBirthdayCelebrated();
       setTimeout(() => setBirthdayPhase('vn'), 4000);
+      return;
+    }
+    // Member birthday check (priority 2) — only if no user birthday
+    if (profile) {
+      const event = getMemberBirthdayToday(profile.settings?.oshiMemberId);
+      if (event) {
+        if (event.isOshi) {
+          setMemberBdEvent({ ...event, phase: 'confetti' });
+          onVNPlaying?.(true);
+          markMemberBirthdayCelebrated(event.memberId);
+          setTimeout(() => setMemberBdEvent(prev => ({ ...prev, phase: 'vn' })), 4000);
+        } else {
+          setMemberBdEvent({ ...event, phase: 'vn' });
+          onVNPlaying?.(true);
+          markMemberBirthdayCelebrated(event.memberId);
+        }
+      }
     }
   }, []);
 
@@ -289,6 +309,44 @@ export function HomeScreen({ onVNPlaying }: { onVNPlaying?: (playing: boolean) =
       <VNEngine
         scenario={birthdayScenario}
         onComplete={() => { setBirthdayPhase('none'); onVNPlaying?.(false); }}
+        skippable
+      />
+    );
+  }
+
+  // Member birthday confetti (oshi only)
+  if (memberBdEvent.phase === 'confetti' && memberBdEvent.memberId) {
+    const bdMember = getMember(memberBdEvent.memberId);
+    const colors = ['#ff6b6b', '#ffd93d', '#6bcb77', '#4d96ff', '#ff6eb4', '#a855f7', '#f97316'];
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
+        {Array.from({ length: 60 }).map((_, i) => (
+          <div key={i} className="confetti-piece" style={{
+            left: `${Math.random() * 100}%`,
+            backgroundColor: colors[i % colors.length],
+            animationDelay: `${Math.random() * 2}s`,
+            ['--fall-duration' as string]: `${2.5 + Math.random() * 2}s`,
+            width: `${6 + Math.random() * 8}px`,
+            height: `${6 + Math.random() * 8}px`,
+            borderRadius: Math.random() > 0.5 ? '50%' : '2px',
+          }} />
+        ))}
+        <div className="animate-birthday-flash text-center z-10">
+          <p className="text-5xl font-black text-white drop-shadow-lg">🎂</p>
+          <p className="text-2xl font-black text-white mt-2 drop-shadow-lg">Happy Birthday!</p>
+          <p className="text-lg text-white/80 mt-1">{bdMember?.nameJa}</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Member birthday VN
+  if (memberBdEvent.phase === 'vn' && memberBdEvent.memberId) {
+    const scenario = getMemberBirthdayScenario(memberBdEvent.memberId, memberBdEvent.isOshi);
+    return (
+      <VNEngine
+        scenario={scenario}
+        onComplete={() => { setMemberBdEvent({ memberId: '', isOshi: false, phase: 'none' }); onVNPlaying?.(false); }}
         skippable
       />
     );
