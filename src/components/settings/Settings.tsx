@@ -64,8 +64,8 @@ export function Settings() {
             <p>開始日: {new Date(profile.createdAt).toLocaleDateString('ja-JP')}</p>
           </div>
         </div>
-        <BirthdayInput />
         <PlayerMonologue />
+        <BirthdayInput />
         <div className="flex gap-2 mt-3">
           <a href="#name-change" className="flex-1">
             <Button variant="outline" size="sm" className="w-full text-xs"><UserPen className="w-3 h-3 mr-1" />名前を変更</Button>
@@ -333,7 +333,10 @@ function PlayerMonologue() {
   const [text] = useState(() => PLAYER_MONOLOGUES[Math.floor(Math.random() * PLAYER_MONOLOGUES.length)]);
   return (
     <div className="mt-3 pt-3 border-t border-gray-100 dark:border-gray-800">
-      <TypewriterText text={`（${text}）`} speed={30} className="text-xs text-gray-400 dark:text-gray-500 italic" />
+      <div className="relative ml-6 bg-indigo-50 dark:bg-indigo-950/30 rounded-lg rounded-tl-none p-2.5">
+        <div className="absolute -left-2 top-2 w-0 h-0 border-t-[6px] border-t-transparent border-r-[8px] border-r-indigo-50 dark:border-r-indigo-950/30 border-b-[6px] border-b-transparent" />
+        <TypewriterText text={`（${text}）`} speed={30} className="text-xs text-gray-500 dark:text-gray-400 italic" />
+      </div>
     </div>
   );
 }
