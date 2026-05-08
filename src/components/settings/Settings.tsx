@@ -18,6 +18,7 @@ import { MEMBERS } from '@/lib/members';
 import { MemberAvatar } from '@/components/common/MemberAvatar';
 import type { SkillAxis } from '@/types';
 import { getStudyGoal, setStudyGoal, EIKEN_GRADES, type StudyGoal, type EikenSetting, type ToeflSetting } from '@/lib/study-goals';
+import { getBirthday, setBirthday } from '@/lib/birthday';
 import { isPsychologyEventEnabled, setPsychologyEventEnabled } from '@/lib/psychology-settings';
 import { getAvatarStyle, setAvatarStyle, AVATAR_OPTIONS, type AvatarStyle } from '@/lib/user-avatar';
 import { AvatarSilhouette } from '@/components/common/AvatarSilhouette';
@@ -62,6 +63,7 @@ export function Settings() {
             <p>開始日: {new Date(profile.createdAt).toLocaleDateString('ja-JP')}</p>
           </div>
         </div>
+        <BirthdayInput />
         <div className="flex gap-2 mt-3">
           <a href="#name-change" className="flex-1">
             <Button variant="outline" size="sm" className="w-full text-xs"><UserPen className="w-3 h-3 mr-1" />名前を変更</Button>
@@ -294,6 +296,54 @@ function GoalSettingSection() {
         </p>
       )}
     </Card>
+  );
+}
+
+function BirthdayInput() {
+  const [bd, setBd] = useState(getBirthday);
+  const [saved, setSaved] = useState(false);
+
+  const handleChange = (month: number, day: number) => {
+    setBirthday(month, day);
+    setBd({ month, day });
+    setSaved(true);
+    setTimeout(() => setSaved(false), 1500);
+  };
+
+  return (
+    <div className="mt-3 pt-3 border-t border-gray-100 dark:border-gray-800">
+      <div className="flex items-center gap-2">
+        <span className="text-xs text-gray-600 dark:text-gray-400">🎂 誕生日:</span>
+        <select
+          value={bd?.month ?? ''}
+          onChange={e => {
+            const m = Number(e.target.value);
+            if (m > 0) handleChange(m, bd?.day ?? 1);
+          }}
+          className="text-xs bg-gray-100 dark:bg-gray-800 rounded px-2 py-1"
+        >
+          <option value="">月</option>
+          {Array.from({ length: 12 }, (_, i) => (
+            <option key={i + 1} value={i + 1}>{i + 1}月</option>
+          ))}
+        </select>
+        <select
+          value={bd?.day ?? ''}
+          onChange={e => {
+            const d = Number(e.target.value);
+            if (d > 0) handleChange(bd?.month ?? 1, d);
+          }}
+          className="text-xs bg-gray-100 dark:bg-gray-800 rounded px-2 py-1"
+        >
+          <option value="">日</option>
+          {Array.from({ length: 31 }, (_, i) => (
+            <option key={i + 1} value={i + 1}>{i + 1}日</option>
+          ))}
+        </select>
+        {saved && <span className="text-[10px] text-green-500">保存しました</span>}
+      </div>
+      <p className="text-[9px] text-gray-400 mt-1">誕生日にメンバーがお祝いしてくれます</p>
+    </div>
   );
 }
 

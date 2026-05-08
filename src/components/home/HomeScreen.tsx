@@ -19,6 +19,8 @@ import { addAffinityPointsToMember } from '@/lib/affinity';
 import { getNextUnwatchedLevel, markLevelupWatched } from '@/lib/levelup-tracker';
 import { getLevelupScenario } from '@/lib/scenarios/adapter';
 import { VNEngine } from '@/components/vn/VNEngine';
+import { isBirthdayToday, markBirthdayCelebrated } from '@/lib/birthday';
+import { birthdayScenario } from '@/lib/scenarios/birthday';
 import { FAKE_NEWS } from '@/data/fake-news';
 import { FAN_POSTS } from '@/data/fan-posts';
 import { Newspaper, RefreshCw, MessageSquare, Heart, UserCircle } from 'lucide-react';
@@ -231,6 +233,7 @@ export function HomeScreen({ onVNPlaying }: { onVNPlaying?: (playing: boolean) =
 
   const [playingLevelup, setPlayingLevelup] = useState(false);
   const [unwatchedLevel, setUnwatchedLevel] = useState<number | null>(null);
+  const [birthdayPhase, setBirthdayPhase] = useState<'none' | 'confetti' | 'vn'>('none');
 
   useEffect(() => {
     if (profile) {
@@ -238,7 +241,56 @@ export function HomeScreen({ onVNPlaying }: { onVNPlaying?: (playing: boolean) =
     }
   }, [profile?.level]);
 
+  // Birthday check
+  useEffect(() => {
+    if (isBirthdayToday()) {
+      setBirthdayPhase('confetti');
+      markBirthdayCelebrated();
+      setTimeout(() => setBirthdayPhase('vn'), 4000);
+    }
+  }, []);
+
   if (!profile) return null;
+
+  // Birthday confetti overlay
+  if (birthdayPhase === 'confetti') {
+    const colors = ['#ff6b6b', '#ffd93d', '#6bcb77', '#4d96ff', '#ff6eb4', '#a855f7', '#f97316'];
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
+        {Array.from({ length: 60 }).map((_, i) => (
+          <div
+            key={i}
+            className="confetti-piece"
+            style={{
+              left: `${Math.random() * 100}%`,
+              backgroundColor: colors[i % colors.length],
+              animationDelay: `${Math.random() * 2}s`,
+              animationDuration: `${2 + Math.random() * 2}s`,
+              width: `${6 + Math.random() * 8}px`,
+              height: `${6 + Math.random() * 8}px`,
+              borderRadius: Math.random() > 0.5 ? '50%' : '2px',
+            }}
+          />
+        ))}
+        <div className="animate-birthday-flash text-center z-10">
+          <p className="text-5xl font-black text-white drop-shadow-lg">🎉</p>
+          <p className="text-2xl font-black text-white mt-2 drop-shadow-lg">Happy Birthday!</p>
+          <p className="text-lg text-white/80 mt-1">{getPlayerName() || 'マネージャー'}</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Birthday VN
+  if (birthdayPhase === 'vn') {
+    return (
+      <VNEngine
+        scenario={birthdayScenario}
+        onComplete={() => setBirthdayPhase('none')}
+        skippable
+      />
+    );
+  }
 
   // Playing a level-up VN
   if (playingLevelup && unwatchedLevel) {
