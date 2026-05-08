@@ -309,23 +309,25 @@ function OshiMemberSection({ currentOshi }: { currentOshi?: string }) {
     }
   };
 
+  const isHakoshi = currentOshi === 'hakoshi';
+
   return (
-    <Card className="p-4">
+    <Card className="p-4 overflow-hidden">
       <h3 className="text-sm font-medium mb-2 flex items-center gap-2">
         ⭐ 推しメンバー
       </h3>
       <p className="text-xs text-gray-500 mb-3">
-        推しメンバーはホーム画面で優先表示され、親密度が2倍たまります。
+        推しメンバーの親密度が2倍たまります。箱推しは均等に応援。
         {currentOshi ? '' : 'タップして選んでね。'}
       </p>
-      <div className="flex gap-2 justify-center">
+      <div className="grid grid-cols-3 gap-2">
         {MEMBERS.map(m => (
           <button
             key={m.id}
             onClick={() => handleSelect(m.id)}
             className={`relative flex flex-col items-center gap-1 p-2 rounded-xl transition-all ${
               currentOshi === m.id
-                ? 'bg-yellow-500/10 border-2 border-yellow-400 scale-105'
+                ? 'bg-yellow-500/10 border-2 border-yellow-400'
                 : 'hover:bg-white/5 border-2 border-transparent'
             }`}
           >
@@ -336,6 +338,20 @@ function OshiMemberSection({ currentOshi }: { currentOshi?: string }) {
             )}
           </button>
         ))}
+        <button
+          onClick={() => handleSelect('hakoshi')}
+          className={`relative flex flex-col items-center gap-1 p-2 rounded-xl transition-all ${
+            isHakoshi
+              ? 'bg-yellow-500/10 border-2 border-yellow-400'
+              : 'hover:bg-white/5 border-2 border-transparent'
+          }`}
+        >
+          <div className="w-12 h-12 rounded-full bg-gradient-to-br from-pink-400 to-rose-500 flex items-center justify-center text-white text-lg">♥</div>
+          <span className="text-[10px] text-gray-500">箱推し</span>
+          {isHakoshi && (
+            <span className="absolute -top-1 -right-1 text-sm">⭐</span>
+          )}
+        </button>
       </div>
       {saved && (
         <p className="text-xs text-green-500 mt-2 text-center flex items-center justify-center gap-1">
