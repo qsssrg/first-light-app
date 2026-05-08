@@ -799,23 +799,23 @@ function AvatarSelector() {
       {open && (
         <div className="fixed inset-0 z-50 flex items-center justify-center" onClick={() => setOpen(false)}>
           <div className="absolute inset-0 bg-black/30" />
-          <div className="relative w-72 p-4 rounded-xl bg-white dark:bg-gray-800 shadow-2xl border border-gray-200 dark:border-gray-700" onClick={e => e.stopPropagation()}>
-            <p className="text-sm font-bold mb-3">アバターを選ぶ</p>
-            <div className="grid grid-cols-4 gap-3">
+          <div className="relative w-80 p-5 rounded-xl bg-white dark:bg-gray-800 shadow-2xl border border-gray-200 dark:border-gray-700" onClick={e => e.stopPropagation()}>
+            <p className="text-sm font-bold mb-4">アバターを選ぶ</p>
+            <div className="grid grid-cols-3 gap-4 justify-items-center">
               {AVATAR_OPTIONS.map(opt => (
                 <button
                   key={opt.id}
                   onClick={() => handleSelect(opt.id)}
-                  className={`flex flex-col items-center gap-1 p-2 rounded-lg transition-colors ${
+                  className={`flex flex-col items-center gap-1.5 p-2 rounded-xl transition-colors ${
                     current === opt.id
-                      ? 'bg-indigo-500/20 border border-indigo-400'
-                      : 'hover:bg-gray-100 dark:hover:bg-gray-700 border border-transparent'
+                      ? 'bg-indigo-500/20 border-2 border-indigo-400'
+                      : 'hover:bg-gray-100 dark:hover:bg-gray-700 border-2 border-transparent'
                   }`}
                 >
-                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-500/20 to-purple-500/20 flex items-center justify-center">
-                    <AvatarSilhouette style={opt.id} size={28} className="text-indigo-300" />
+                  <div className="w-16 h-16 rounded-full bg-gradient-to-br from-indigo-500/20 to-purple-500/20 flex items-center justify-center overflow-hidden">
+                    <AvatarSilhouette style={opt.id} size={56} className="text-indigo-300" />
                   </div>
-                  <span className="text-[9px] text-gray-500">{opt.label}</span>
+                  <span className="text-[10px] text-gray-500">{opt.label}</span>
                 </button>
               ))}
             </div>
