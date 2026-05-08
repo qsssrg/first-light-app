@@ -510,11 +510,50 @@ const MEMBER_FOLLOW_REACTIONS = [
 ];
 
 const MEMBER_REACTIONS: Record<string, { members: string[]; reactions: string[] }> = {
-  news: { members: ['kai', 'haruto', 'ren'], reactions: ['ありがたいな。みんなの応援が力になる。', 'こういう反応…嬉しいです。', '…見てくれてるんだな。'] },
-  message: { members: ['haruto', 'yuuki', 'sora'], reactions: ['あ…読んでくれてるんですね。照れます…。', 'うわ〜！嬉しい〜！もっと頑張る！', '…ありがとうございます。僕も読んでます。'] },
-  call: { members: ['yuuki', 'kai'], reactions: ['ファンの皆さん最高〜！ 盛り上げてこ！', 'ファンの団結力、いつも感謝してる。'] },
-  rumor: { members: ['kai', 'yuuki', 'ren'], reactions: ['…バレてる…？', 'えっ、バレちゃったの！？', '…気にするな。'] },
-  debate: { members: ['kai', 'haruto'], reactions: ['みんな仲良くしてくれ…頼むから。', '推しへの愛は素敵ですけど…穏やかにいきましょう。'] },
+  news: {
+    members: ['kai', 'haruto', 'ren', 'yuuki', 'sora'],
+    reactions: [
+      'こうやって取り上げてもらえるのは、本当にありがたいな。',
+      'ファンの皆さんがチェックしてくれてるの、嬉しいです。',
+      '…ちゃんと見てくれてるんだな。励みになる。',
+      'ニュースになるの嬉しい〜！ もっと頑張るね！',
+      '…こうして話題にしてもらえるのは、光栄です。',
+    ],
+  },
+  message: {
+    members: ['haruto', 'yuuki', 'sora', 'kai', 'ren'],
+    reactions: [
+      'こういうメッセージ…一つひとつ、ちゃんと読んでます。',
+      'うわ〜！ こういうの見ると元気出る！ ありがとう！',
+      '…言葉にしてくれるのって、すごく嬉しいです。',
+      '…ファンの気持ちが伝わってくる。ありがとう。',
+      '…こういう言葉、俺たちの力になるんだよな。',
+    ],
+  },
+  call: {
+    members: ['yuuki', 'kai', 'haruto', 'ren', 'sora'],
+    reactions: [
+      'ファン同士で盛り上がってくれるの最高〜！',
+      'こうやってファンが繋がってくれるの、嬉しいな。',
+      'みんなの一体感、いつもライブで感じてます。',
+      '…ファンの熱量、ステージからも見えてるぞ。',
+      '…皆さんが楽しんでくれてるのが一番です。',
+    ],
+  },
+  rumor: {
+    members: ['kai', 'yuuki', 'ren'],
+    reactions: ['…バレてる…？', 'えっ、バレちゃったの！？', '…気にするな。'],
+  },
+  debate: {
+    members: ['kai', 'haruto', 'yuuki', 'ren', 'sora'],
+    reactions: [
+      'いろんな意見があるのは健全だと思う。でも仲良くな。',
+      '議論してくれるのは嬉しいです。ただ、お互いを尊重してくれたら。',
+      '推しへの愛が溢れてるね！ でもケンカはダメだよ〜！',
+      '…熱くなるのは分かるけど、楽しくやれよ。',
+      '…色んな考え方があっていいと思います。大切なのは音楽を楽しむことですから。',
+    ],
+  },
 };
 
 function pickFanPosts() {
@@ -563,8 +602,10 @@ function FanBoard() {
           }
 
           const reaction = MEMBER_REACTIONS[p.cat] ?? MEMBER_REACTIONS.message;
-          const rMemberId = detectedMemberId ?? reaction.members[i % reaction.members.length];
-          const rText = reaction.reactions[i % reaction.reactions.length];
+          // Use text length as a simple hash for stable but varied selection
+          const hash = p.text.length + p.likes;
+          const rMemberId = detectedMemberId ?? reaction.members[hash % reaction.members.length];
+          const rText = reaction.reactions[hash % reaction.reactions.length];
           const rMember = getMember(rMemberId);
           const isOpen = expanded === i;
           return (
