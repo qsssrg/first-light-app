@@ -435,12 +435,12 @@ export function Dashboard() {
 
             {/* 2. 弱点対策に心掛けるべきこと */}
             {weakMember && (
-              <div className="rounded-lg p-3 bg-gray-800/30">
+              <div className="rounded-lg p-3 bg-amber-50 dark:bg-amber-950/40 border border-amber-200/50 dark:border-amber-800/30">
                 <div className="flex items-start gap-2.5">
                   <MemberAvatar member={weakMember} size="sm" />
                   <div className="flex-1 min-w-0">
-                    <p className="text-[10px] text-amber-400 mb-1">練習のコツ</p>
-                    <TypewriterText text={`「${SKILL_TIPS[weakAxis]}」`} speed={20} className="text-xs text-gray-700 dark:text-gray-300 italic leading-relaxed" />
+                    <p className="text-[10px] text-amber-600 dark:text-amber-400 font-medium mb-1">練習のコツ</p>
+                    <TypewriterText text={`「${SKILL_TIPS[weakAxis]}」`} speed={20} className="text-xs text-gray-800 dark:text-gray-200 italic leading-relaxed" />
                   </div>
                 </div>
               </div>
