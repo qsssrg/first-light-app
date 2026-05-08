@@ -52,12 +52,15 @@ export function Settings() {
       <Card className="p-4">
         <h3 className="text-sm font-medium mb-3">プロフィール</h3>
         <div className="flex items-center gap-4">
+          <div className="flex flex-col items-center gap-1">
+            <AvatarSelector />
+            <span className="text-[9px] text-indigo-400">変更</span>
+          </div>
           <div className="flex-1 text-xs text-gray-600 dark:text-gray-400 space-y-1">
             <p>名前: {profile.name || getPlayerName() || '未設定'}</p>
             <p>タイプ: {profile.learnerType}</p>
             <p>開始日: {new Date(profile.createdAt).toLocaleDateString('ja-JP')}</p>
           </div>
-          <AvatarSelector />
         </div>
         <div className="flex gap-2 mt-3">
           <a href="#name-change" className="flex-1">
