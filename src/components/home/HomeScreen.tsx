@@ -631,7 +631,7 @@ function FanBoard() {
                     <span className="text-xs font-bold">{p.user}</span>
                     <span className="text-[9px] text-gray-400">{Math.floor(Math.random() * 23) + 1}h</span>
                   </div>
-                  <p className="text-xs text-gray-700 dark:text-gray-100 mt-0.5">{p.text.replace(/\{playerName\}/g, name)}</p>
+                  <p className="text-xs font-medium text-gray-800 dark:text-white mt-0.5">{p.text.replace(/\{playerName\}/g, name)}</p>
                   <div className="flex items-center gap-1 mt-1">
                     <Heart className="w-3 h-3 text-gray-400" />
                     <span className="text-[10px] text-gray-400">{p.likes}</span>
