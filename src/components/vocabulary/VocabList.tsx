@@ -139,7 +139,7 @@ function MemberWordCard({ seeds }: { seeds: { word: string; meaning: string; exa
 
 export function VocabList({ onBack }: { onBack?: () => void } = {}) {
   const learnedCards = useVocabCards();
-  const [filter, setFilter] = useState<FilterMode>('all');
+  const [filter, setFilter] = useState<FilterMode>('learned');
   const [categoryFilter, setCategoryFilter] = useState<string>('all');
   const [expandedWord, setExpandedWord] = useState<string | null>(null);
 
