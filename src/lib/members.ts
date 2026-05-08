@@ -19,7 +19,7 @@ export const MEMBERS: Member[] = [
       motto: '一つの言葉が、世界を変えることもある',
       mbti: 'INFP',
       zodiac: '♎ 天秤座',
-      englishRole: '語彙担当',
+      englishRole: '語彙',
     },
   },
   {
@@ -40,7 +40,7 @@ export const MEMBERS: Member[] = [
       motto: 'わかるって、段階があるんだ',
       mbti: 'INTP',
       zodiac: '♐ 射手座',
-      englishRole: '読解担当',
+      englishRole: '読解',
     },
   },
   {
@@ -61,7 +61,7 @@ export const MEMBERS: Member[] = [
       motto: '音楽に言葉はいらない。でも、あったらもっといい',
       mbti: 'ISTP',
       zodiac: '♋ 蟹座',
-      englishRole: 'リスニング担当',
+      englishRole: 'リスニング',
     },
   },
   {
@@ -82,7 +82,7 @@ export const MEMBERS: Member[] = [
       motto: '言葉は、想いを届ける翼だ！',
       mbti: 'ESFP',
       zodiac: '♓ 魚座',
-      englishRole: 'ライティング担当',
+      englishRole: 'ライティング',
     },
   },
   {
@@ -103,7 +103,7 @@ export const MEMBERS: Member[] = [
       motto: '全体を見渡せば、答えは見えてくる',
       mbti: 'ENTJ',
       zodiac: '♈ 牡羊座',
-      englishRole: '文法担当',
+      englishRole: '文法',
     },
   },
 ];
