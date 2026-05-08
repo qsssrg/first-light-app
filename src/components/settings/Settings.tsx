@@ -332,9 +332,9 @@ const PLAYER_MONOLOGUES = [
 function PlayerMonologue() {
   const [text] = useState(() => PLAYER_MONOLOGUES[Math.floor(Math.random() * PLAYER_MONOLOGUES.length)]);
   return (
-    <div className="mt-3 pt-3 border-t border-gray-100 dark:border-gray-800">
-      <div className="relative ml-6 bg-indigo-50 dark:bg-indigo-950/30 rounded-lg rounded-tl-none p-2.5">
-        <div className="absolute -left-2 top-2 w-0 h-0 border-t-[6px] border-t-transparent border-r-[8px] border-r-indigo-50 dark:border-r-indigo-950/30 border-b-[6px] border-b-transparent" />
+    <div className="mt-2">
+      <div className="relative bg-indigo-50 dark:bg-indigo-950/30 rounded-lg rounded-tl-none p-2.5">
+        <div className="absolute left-6 -top-2 w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-b-[8px] border-b-indigo-50 dark:border-b-indigo-950/30" />
         <TypewriterText text={`（${text}）`} speed={30} className="text-xs text-gray-500 dark:text-gray-400 italic" />
       </div>
     </div>
