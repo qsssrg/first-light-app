@@ -5,18 +5,21 @@ import { PAST_EXAM_QUESTIONS } from '@/lib/past-exams';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Check, X } from 'lucide-react';
+import { useProfile } from '@/lib/hooks';
 import type { PastExamQuestion } from '@/types';
 
 type Filter = 'all' | 'eiken2' | 'eiken_pre1' | 'toefl';
 
 const FILTER_LABELS: Record<Filter, string> = {
-  all: 'すべて',
-  eiken2: '英検2級',
-  eiken_pre1: '英検準1級',
-  toefl: 'TOEFL',
+  all: 'すべて', eiken2: '英検2級', eiken_pre1: '英検準1級', toefl: 'TOEFL',
+};
+const FILTER_LABELS_EN: Record<Filter, string> = {
+  all: 'All', eiken2: 'Eiken Grade 2', eiken_pre1: 'Eiken Pre-1', toefl: 'TOEFL',
 };
 
 export function PastExams() {
+  const profile = useProfile();
+  const en = profile?.settings?.englishSpeakerMode ?? false;
   const [filter, setFilter] = useState<Filter>('all');
   const [answeredMap, setAnsweredMap] = useState<Record<string, number>>({});
 
@@ -34,14 +37,14 @@ export function PastExams() {
       <div className="relative rounded-2xl overflow-hidden bg-gradient-to-br from-slate-600 via-gray-500 to-zinc-400 p-5 text-white shadow-lg mb-2">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_40%,rgba(255,255,255,0.08)_0%,transparent_50%)]" />
         <div className="relative">
-          <h2 className="text-xl font-black tracking-wide">過去問ライブラリ</h2>
+          <h2 className="text-xl font-black tracking-wide">{en ? 'Past Exams' : '過去問ライブラリ'}</h2>
           <p className="text-xs opacity-60 mt-0.5">Past Exams</p>
         </div>
       </div>
 
       {/* Filter tabs */}
       <div className="flex gap-1.5 overflow-x-auto pb-1">
-        {(Object.entries(FILTER_LABELS) as [Filter, string][]).map(([key, label]) => (
+        {(Object.entries(en ? FILTER_LABELS_EN : FILTER_LABELS) as [Filter, string][]).map(([key, label]) => (
           <button
             key={key}
             onClick={() => setFilter(key)}

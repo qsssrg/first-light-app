@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import { useVocabCards } from '@/lib/hooks';
+import { useVocabCards, useProfile } from '@/lib/hooks';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { SpeakButton } from '@/components/common/SpeakButton';
@@ -94,6 +94,11 @@ function getGoalFilteredSeeds(): { seeds: VocabSeed[]; filterLabel: string } {
 
 type FilterMode = 'all' | 'learned' | 'unlearned';
 
+const CATEGORY_LABELS_EN: Record<string, string> = {
+  science: 'Science', society: 'Society', history: 'History',
+  technology: 'Technology', current: 'Current', culture: 'Culture',
+};
+
 const CATEGORY_LABELS: Record<string, string> = {
   science: '科学',
   society: '社会',
@@ -139,6 +144,8 @@ function MemberWordCard({ seeds }: { seeds: { word: string; meaning: string; exa
 
 export function VocabList({ onBack }: { onBack?: () => void } = {}) {
   const learnedCards = useVocabCards();
+  const profile = useProfile();
+  const en = profile?.settings?.englishSpeakerMode ?? false;
   const [filter, setFilter] = useState<FilterMode>('learned');
   const [categoryFilter, setCategoryFilter] = useState<string>('all');
   const [expandedWord, setExpandedWord] = useState<string | null>(null);
@@ -178,8 +185,8 @@ export function VocabList({ onBack }: { onBack?: () => void } = {}) {
       <div className="relative rounded-2xl overflow-hidden bg-gradient-to-br from-blue-600 via-indigo-500 to-violet-400 p-5 text-white shadow-lg mb-2">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_40%,rgba(255,255,255,0.08)_0%,transparent_50%)]" />
         <div className="relative">
-          <h2 className="text-xl font-black tracking-wide">単語帳</h2>
-          <p className="text-xs opacity-60 mt-0.5">Vocabulary Book</p>
+          <h2 className="text-xl font-black tracking-wide">{en ? 'Vocabulary' : '単語帳'}</h2>
+          <p className="text-xs opacity-60 mt-0.5">{en ? 'Word List' : 'Vocabulary Book'}</p>
         </div>
       </div>
 
@@ -189,7 +196,7 @@ export function VocabList({ onBack }: { onBack?: () => void } = {}) {
       {/* Stats */}
       <Card className="p-3">
         <div className="flex items-center justify-between text-sm">
-          <span>学習済み: <strong>{learnedCount}</strong> / {totalCount}</span>
+          <span>{en ? 'Learned' : '学習済み'}: <strong>{learnedCount}</strong> / {totalCount}</span>
           <span className="text-xs text-gray-500">
             {totalCount > 0 ? ((learnedCount / totalCount) * 100).toFixed(2) : '0.00'}%
           </span>
@@ -222,9 +229,9 @@ export function VocabList({ onBack }: { onBack?: () => void } = {}) {
                 : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400'
             }`}
           >
-            {f === 'all' && `すべて (${allSeeds.length})`}
-            {f === 'learned' && `学習済み (${learnedCount})`}
-            {f === 'unlearned' && `未学習 (${totalCount - learnedCount})`}
+            {f === 'all' && `${en ? "All" : "すべて"} (${allSeeds.length})`}
+            {f === 'learned' && `${en ? "Learned" : "学習済み"} (${learnedCount})`}
+            {f === 'unlearned' && `${en ? "New" : "未学習"} (${totalCount - learnedCount})`}
           </button>
         ))}
       </div>
@@ -239,7 +246,7 @@ export function VocabList({ onBack }: { onBack?: () => void } = {}) {
               : 'bg-gray-100 dark:bg-gray-800 text-gray-500'
           }`}
         >
-          全カテゴリ
+          {en ? 'All' : '全カテゴリ'}
         </button>
         {categories.map(cat => (
           <button
@@ -251,7 +258,7 @@ export function VocabList({ onBack }: { onBack?: () => void } = {}) {
                 : 'bg-gray-100 dark:bg-gray-800 text-gray-500'
             }`}
           >
-            {CATEGORY_LABELS[cat] || cat}
+            {en ? (CATEGORY_LABELS_EN[cat] || cat) : (CATEGORY_LABELS[cat] || cat)}
           </button>
         ))}
       </div>
@@ -259,7 +266,7 @@ export function VocabList({ onBack }: { onBack?: () => void } = {}) {
       {/* Word list */}
       <div className="space-y-1">
         {filtered.length === 0 && (
-          <p className="text-sm text-gray-500 text-center py-8">該当する単語がありません</p>
+          <p className="text-sm text-gray-500 text-center py-8">{en ? 'No matching words' : '該当する単語がありません'}</p>
         )}
         {filtered.map((seed, i) => {
           const card = learnedMap.get(seed.word);
@@ -303,14 +310,14 @@ export function VocabList({ onBack }: { onBack?: () => void } = {}) {
                     <SpeakButton text={seed.example} className="shrink-0" />
                   </div>
                   <div className="flex gap-3 text-gray-500">
-                    <span>カテゴリ: {CATEGORY_LABELS[seed.category] || seed.category}</span>
-                    <span>難易度: {'★'.repeat(seed.difficulty)}{'☆'.repeat(Math.max(0, 6 - seed.difficulty))}</span>
+                    <span>{en ? 'Category' : 'カテゴリ'}: {en ? (CATEGORY_LABELS_EN[seed.category] || seed.category) : (CATEGORY_LABELS[seed.category] || seed.category)}</span>
+                    <span>{en ? 'Difficulty' : '難易度'}: {'★'.repeat(seed.difficulty)}{'☆'.repeat(Math.max(0, 6 - seed.difficulty))}</span>
                   </div>
                   {isLearned && card && (
                     <div className="pt-1 border-t border-gray-100 dark:border-gray-800 flex gap-4 text-gray-500">
-                      <span>正答: {card.correctCount}回</span>
-                      <span>誤答: {card.incorrectCount}回</span>
-                      <span>復習: {card.repetitions}回</span>
+                      <span>{en ? 'Correct' : '正答'}: {card.correctCount}{en ? '' : '回'}</span>
+                      <span>{en ? 'Wrong' : '誤答'}: {card.incorrectCount}{en ? '' : '回'}</span>
+                      <span>{en ? 'Reviews' : '復習'}: {card.repetitions}{en ? '' : '回'}</span>
                       {card.lastReview && (
                         <span>最終: {new Date(card.lastReview).toLocaleDateString('ja-JP')}</span>
                       )}
@@ -325,7 +332,7 @@ export function VocabList({ onBack }: { onBack?: () => void } = {}) {
 
       {/* Count */}
       <p className="text-xs text-gray-400 text-center pb-4">
-        {filtered.length}語を表示中
+        {en ? `Showing ${filtered.length} words` : `${filtered.length}語を表示中`}
       </p>
     </div>
   );

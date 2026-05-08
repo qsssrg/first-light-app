@@ -10,6 +10,7 @@ import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { BookOpen, Trophy } from 'lucide-react';
 import Link from 'next/link';
+import { useProfile } from '@/lib/hooks';
 import type { Stage } from '@/types';
 
 interface Props {
@@ -19,8 +20,10 @@ interface Props {
 export function ChapterDetail({ chapterId }: Props) {
   const chapter = getChapter(chapterId);
   const progressData = useLiveQuery(() => db.stageProgress.toArray()) ?? [];
+  const profile = useProfile();
+  const en = profile?.settings?.englishSpeakerMode ?? false;
 
-  if (!chapter) return <p className="text-center text-gray-500 p-8">チャプターが見つかりません</p>;
+  if (!chapter) return <p className="text-center text-gray-500 p-8">{en ? 'Chapter not found' : 'チャプターが見つかりません'}</p>;
 
   const member = MEMBERS.find(m => m.id === chapter.memberId);
 
@@ -29,7 +32,7 @@ export function ChapterDetail({ chapterId }: Props) {
       {/* Chapter header */}
       <div className="text-center py-4">
         {member && <MemberAvatar member={member} size="xl" showName />}
-        <h2 className="text-lg font-bold mt-3">Ch.{chapter.number} {chapter.titleJa}</h2>
+        <h2 className="text-lg font-bold mt-3">Ch.{chapter.number} {en ? chapter.title : chapter.titleJa}</h2>
         <p className="text-xs text-gray-500 mt-1">{chapter.description}</p>
       </div>
 
@@ -59,8 +62,8 @@ export function ChapterDetail({ chapterId }: Props) {
             <Trophy className="w-5 h-5 text-yellow-600 dark:text-yellow-400" />
           </div>
           <div>
-            <p className="text-sm font-medium">チャレンジテスト</p>
-            <p className="text-xs text-gray-500">各ステージの実力を確認しよう</p>
+            <p className="text-sm font-medium">{en ? 'Challenge Test' : 'チャレンジテスト'}</p>
+            <p className="text-xs text-gray-500">{en ? 'Test your skills' : '各ステージの実力を確認しよう'}</p>
           </div>
         </Link>
       </Card>

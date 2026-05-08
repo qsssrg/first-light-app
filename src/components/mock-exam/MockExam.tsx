@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { Trophy, Clock, Check, X } from 'lucide-react';
+import { useProfile } from '@/lib/hooks';
 
 type ExamType = 'eiken_pre1' | 'toefl';
 
@@ -43,6 +44,8 @@ const TOEFL_MOCK: MockQuestion[] = [
 ];
 
 export function MockExam() {
+  const profile = useProfile();
+  const en = profile?.settings?.englishSpeakerMode ?? false;
   const [examType, setExamType] = useState<ExamType | null>(null);
   const [current, setCurrent] = useState(0);
   const [answers, setAnswers] = useState<(number | null)[]>([]);
@@ -78,7 +81,7 @@ export function MockExam() {
         <div className="relative rounded-2xl overflow-hidden bg-gradient-to-br from-red-600 via-rose-500 to-orange-400 p-5 text-white shadow-lg mb-2">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_40%,rgba(255,255,255,0.08)_0%,transparent_50%)]" />
         <div className="relative">
-          <h2 className="text-xl font-black tracking-wide">模擬試験</h2>
+          <h2 className="text-xl font-black tracking-wide">{en ? 'Mock Exam' : '模擬試験'}</h2>
           <p className="text-xs opacity-60 mt-0.5">Mock Exam</p>
         </div>
       </div>
@@ -116,17 +119,17 @@ export function MockExam() {
       <div className="text-center py-8 px-4 space-y-4">
         <Trophy className={`w-16 h-16 mx-auto ${percent >= 80 ? 'text-yellow-500' : 'text-gray-400'}`} />
         <h2 className="text-xl font-bold">
-          {examType === 'eiken_pre1' ? '英検準1級' : 'TOEFL'} 模擬試験結果
+          {examType === 'eiken_pre1' ? (en ? 'Eiken Pre-1' : '英検準1級') : 'TOEFL'} {en ? 'Results' : '模擬試験結果'}
         </h2>
         <p className="text-3xl font-bold">{score} / {questions.length}</p>
-        <p className="text-sm text-gray-500">正答率 {percent}%</p>
+        <p className="text-sm text-gray-500">{en ? `Accuracy: ${percent}%` : `正答率 ${percent}%`}</p>
         <p className="text-xs text-gray-400 flex items-center justify-center gap-1">
           <Clock className="w-3 h-3" /> {Math.floor(elapsed / 60)}分{elapsed % 60}秒
         </p>
 
         {/* Section breakdown */}
         <Card className="p-4 text-left">
-          <h3 className="text-sm font-medium mb-2">セクション別</h3>
+          <h3 className="text-sm font-medium mb-2">{en ? 'By Section' : 'セクション別'}</h3>
           {Object.entries(
             questions.reduce((acc, q, i) => {
               if (!acc[q.section]) acc[q.section] = { correct: 0, total: 0 };
