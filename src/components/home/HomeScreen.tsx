@@ -359,18 +359,18 @@ export function HomeScreen({ onVNPlaying }: { onVNPlaying?: (playing: boolean) =
       <div className="space-y-2">
       {/* Chapter progress card */}
       <Link href="/chapters/">
-        <div className="rounded-xl bg-gradient-to-r from-teal-600/80 via-cyan-600/80 to-sky-600/80 p-4 shadow-lg shadow-teal-500/10 hover:shadow-xl hover:shadow-teal-500/20 active:scale-[0.98] transition-all cursor-pointer">
+        <Card className="p-4 hover:shadow-md transition-shadow cursor-pointer border-teal-300 dark:border-teal-700 bg-gradient-to-r from-teal-50 to-cyan-50 dark:from-teal-950/30 dark:to-cyan-950/30">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-white/15 flex items-center justify-center shrink-0">
-              <BookOpen className="w-5 h-5 text-white" />
+            <div className="p-2.5 bg-teal-100 dark:bg-teal-900 rounded-full">
+              <BookOpen className="w-5 h-5 text-teal-600 dark:text-teal-400" />
             </div>
             <div className="flex-1">
-              <p className="text-sm font-bold text-white">チャプターを進める</p>
-              <p className="text-[10px] text-white/60">ストーリーと一緒に英語力を伸ばそう</p>
+              <p className="text-sm font-bold text-teal-900 dark:text-teal-100">チャプターを進める</p>
+              <p className="text-xs text-teal-600 dark:text-teal-400">カイとチャプターを進めよう</p>
             </div>
-            <ArrowRight className="w-4 h-4 text-white/60" />
+            <ArrowRight className="w-4 h-4 text-teal-400" />
           </div>
-        </div>
+        </Card>
       </Link>
 
       {/* Psychology badge moved to top greeting area */}
