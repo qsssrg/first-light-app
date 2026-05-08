@@ -499,17 +499,22 @@ const MEMBER_REACTIONS: Record<string, { members: string[]; reactions: string[] 
   debate: { members: ['kai', 'haruto'], reactions: ['みんな仲良くしてくれ…頼むから。', '推しへの愛は素敵ですけど…穏やかにいきましょう。'] },
 };
 
+function pickFanPosts() {
+  const rumors = FAN_POSTS.filter(p => p.cat === 'rumor');
+  const others = FAN_POSTS.filter(p => p.cat !== 'rumor');
+  const pickedRumor = rumors[Math.floor(Math.random() * rumors.length)];
+  const shuffledOthers = [...others].sort(() => Math.random() - 0.5).slice(0, 3);
+  const result = [pickedRumor, ...shuffledOthers].sort(() => Math.random() - 0.5);
+  return result;
+}
+
 function FanBoard() {
-  const [posts, setPosts] = useState(() => {
-    const shuffled = [...FAN_POSTS].sort(() => Math.random() - 0.5);
-    return shuffled.slice(0, 4);
-  });
+  const [posts, setPosts] = useState(pickFanPosts);
   const [expanded, setExpanded] = useState<number | null>(null);
   const name = getPlayerName() || 'マネージャー';
 
   const refresh = () => {
-    const shuffled = [...FAN_POSTS].sort(() => Math.random() - 0.5);
-    setPosts(shuffled.slice(0, 4));
+    setPosts(pickFanPosts());
     setExpanded(null);
   };
 
