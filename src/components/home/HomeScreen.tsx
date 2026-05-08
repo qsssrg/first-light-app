@@ -200,7 +200,17 @@ function useGreeting(dueCardCount: number, totalXp: number): { member: ReturnTyp
   return greeting;
 }
 
-export function HomeScreen() {
+const LEVELUP_ROTATION = ['kai', 'haruto', 'sora', 'ren', 'yuuki'] as const;
+
+const LEVELUP_MESSAGES: Record<string, (lv: number) => string> = {
+  kai: (lv) => `Lv.${lv}の新しいストーリーが解放されたぞ。見てみろ`,
+  haruto: (lv) => `Lv.${lv}のストーリーが解放されました…一緒に見ませんか？`,
+  sora: (lv) => `Lv.${lv}のストーリーが解放されたみたいです。読んでみてください`,
+  ren: (lv) => `…Lv.${lv}、新しいストーリーだ。見とけ`,
+  yuuki: (lv) => `Lv.${lv}の新しいストーリー来たよ！ 見よ見よ！`,
+};
+
+export function HomeScreen({ onVNPlaying }: { onVNPlaying?: (playing: boolean) => void }) {
   const profile = useProfile();
   const dueCards = useDueCards();
   const greeting = useGreeting(dueCards.length, profile?.totalXp ?? 0);
@@ -238,6 +248,7 @@ export function HomeScreen() {
           onComplete={() => {
             markLevelupWatched(unwatchedLevel);
             setPlayingLevelup(false);
+            onVNPlaying?.(false);
             setUnwatchedLevel(getNextUnwatchedLevel(profile.level));
           }}
           skippable
@@ -272,26 +283,31 @@ export function HomeScreen() {
             </div>
           </Card>
         </Link>
-      ) : unwatchedLevel ? (
+      ) : unwatchedLevel ? (() => {
+        const memberId = LEVELUP_ROTATION[(unwatchedLevel - 1) % LEVELUP_ROTATION.length];
+        const notifyMember = getMember(memberId)!;
+        const msg = LEVELUP_MESSAGES[memberId](unwatchedLevel);
+        return (
         <Card
           className="p-4 cursor-pointer border-amber-300 dark:border-amber-700 hover:shadow-md transition-shadow"
-          onClick={() => setPlayingLevelup(true)}
+          onClick={() => { setPlayingLevelup(true); onVNPlaying?.(true); }}
         >
           <div className="flex items-start gap-4">
             <div className="shrink-0 relative">
-              <MemberAvatar member={getMember('kai')!} size="lg" />
+              <MemberAvatar member={notifyMember} size="lg" />
               <span className="absolute -top-1 -right-1 w-3 h-3 bg-amber-400 rounded-full animate-pulse" />
             </div>
             <div className="flex-1 min-w-0 pt-1">
-              <p className="text-xs text-gray-500 mb-1">カイ</p>
-              <TypewriterText text={`レベルアップおめでとう！ Lv.${unwatchedLevel}の新しいストーリーが解放されたぞ。`} className="text-sm font-bold text-amber-700 dark:text-amber-300 flex-1" />
+              <p className="text-xs text-gray-500 mb-1">{notifyMember.nameJa}</p>
+              <TypewriterText text={`レベルアップおめでとう！ ${msg}`} className="text-sm font-bold text-amber-700 dark:text-amber-300 flex-1" />
               <div className="mt-2">
                 <span className="inline-block px-4 py-1.5 rounded-full bg-amber-500 text-white text-xs font-bold tracking-wider shadow-md">ストーリーを見る →</span>
               </div>
             </div>
           </div>
         </Card>
-      ) : greeting.member && greeting.message ? (
+        );
+      })() : greeting.member && greeting.message ? (
         <Card className="p-4">
           <div className="flex items-start gap-4">
             <div className="shrink-0">
@@ -504,14 +520,16 @@ function FanBoard() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-3">
-        <h3 className="text-sm font-bold flex items-center gap-2">
-          <MessageSquare className="w-4 h-4" /> ファン掲示板
-        </h3>
-        <button onClick={refresh} className="p-1.5 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800">
+      <h3 className="text-sm font-bold mb-3 flex items-center gap-2">
+        <MessageSquare className="w-4 h-4" /> ファン掲示板
+        <button
+          onClick={refresh}
+          className="ml-1 p-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors active:scale-90"
+          title="投稿を更新"
+        >
           <RefreshCw className="w-3.5 h-3.5 text-gray-400" />
         </button>
-      </div>
+      </h3>
       <div className="space-y-2">
         {posts.map((p, i) => {
           // 1. Detect member name in text → that member reacts

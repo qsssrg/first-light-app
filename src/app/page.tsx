@@ -11,6 +11,7 @@ export default function Page() {
   const [ready, setReady] = useState(false);
   const [profile, setProfile] = useState<UserProfile | null | undefined>(undefined);
   const [dbError, setDbError] = useState(false);
+  const [vnPlaying, setVnPlaying] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -87,11 +88,11 @@ export default function Page() {
   }
 
   return (
-    <div className="pb-20">
-      <div className="max-w-lg md:max-w-2xl lg:max-w-3xl mx-auto px-4 py-6">
-        <HomeScreen />
+    <div className={vnPlaying ? '' : 'pb-20'}>
+      <div className={vnPlaying ? '' : 'max-w-lg md:max-w-2xl lg:max-w-3xl mx-auto px-4 py-6'}>
+        <HomeScreen onVNPlaying={setVnPlaying} />
       </div>
-      <BottomNav />
+      {!vnPlaying && <BottomNav />}
     </div>
   );
 }

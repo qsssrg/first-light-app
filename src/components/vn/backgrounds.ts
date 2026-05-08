@@ -93,6 +93,24 @@ export const VN_BACKGROUNDS: Record<string, VNBackground> = {
     mobileImagePath: `${basePath}/backgrounds/mobile/practice-studio.jpg`,
     desktopImagePath: `${basePath}/backgrounds/desktop/practice-studio.jpg`,
   },
+  'limousine-interior': {
+    id: 'limousine-interior',
+    label: 'リムジン車内',
+    gradient: 'linear-gradient(180deg, #0d0d14 0%, #151520 20%, #1a1825 50%, #12101a 100%)',
+    overlay: 'radial-gradient(ellipse at 50% 60%, rgba(180,160,120,0.08) 0%, transparent 50%), radial-gradient(circle at 30% 30%, rgba(200,180,140,0.06) 0%, transparent 30%), radial-gradient(circle at 70% 40%, rgba(255,220,150,0.04) 0%, transparent 25%)',
+  },
+  'live-venue-backstage': {
+    id: 'live-venue-backstage',
+    label: '配信会場・袖裏',
+    gradient: 'linear-gradient(180deg, #0a0a12 0%, #121225 30%, #0d0d20 60%, #08081a 100%)',
+    overlay: 'radial-gradient(ellipse at 60% 40%, rgba(100,120,255,0.12) 0%, transparent 40%), radial-gradient(circle at 30% 70%, rgba(255,100,150,0.06) 0%, transparent 30%), radial-gradient(circle at 80% 20%, rgba(255,255,255,0.03) 0%, transparent 20%)',
+  },
+  'reception-room': {
+    id: 'reception-room',
+    label: '応接室',
+    gradient: 'linear-gradient(180deg, #1a1510 0%, #2a2015 20%, #352a1e 50%, #2a2015 80%, #1a1510 100%)',
+    overlay: 'radial-gradient(ellipse at 40% 30%, rgba(255,210,140,0.12) 0%, transparent 40%), radial-gradient(circle at 70% 50%, rgba(220,180,120,0.08) 0%, transparent 30%), radial-gradient(ellipse at 50% 80%, rgba(180,140,80,0.06) 0%, transparent 40%)',
+  },
   'stylish-office': {
     id: 'stylish-office',
     label: '芸能オフィス',

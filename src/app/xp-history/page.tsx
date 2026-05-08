@@ -89,16 +89,16 @@ export default function XpHistoryPage() {
         </div>
 
         {/* Bar chart */}
-        <Card className="p-4 backdrop-blur-sm bg-white/80 dark:bg-gray-900/80">
+        <Card className="p-4 backdrop-blur-sm bg-white/80 dark:bg-gray-900/80 overflow-visible">
           <div className="flex items-end gap-1 h-64">
             {dailyData.map((day, i) => {
               const total = Object.values(day.slots).reduce((a, b) => a + b, 0);
-              const height = (total / maxXp) * 100;
+              const height = (total / maxXp) * 95;
 
               return (
                 <div key={day.date} className="flex-1 flex flex-col items-center gap-0.5">
                   {/* Stacked bar */}
-                  <div className="w-full flex flex-col-reverse" style={{ height: `${Math.max(height, total > 0 ? 8 : 0)}%`, minHeight: total > 0 ? '12px' : '0' }}>
+                  <div className="w-full flex flex-col-reverse" style={{ height: `${Math.max(height, total > 0 ? 12 : 0)}%`, minHeight: total > 0 ? '16px' : '0' }}>
                     {TIME_SLOTS.map(slot => {
                       const slotXp = day.slots[slot.key];
                       if (slotXp === 0 || total === 0) return null;

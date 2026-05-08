@@ -18,6 +18,7 @@ import { EIKEN_PRE1_VOCAB } from '@/lib/eiken-pre1-vocab';
 import { EIKEN1_VOCAB } from '@/lib/eiken1-vocab';
 import { TOEFL_ACADEMIC_VOCAB } from '@/lib/toefl-academic-vocab';
 import { getStudyGoal, isEikenGrade, isToeflScore, EIKEN_GRADES, type EikenGrade } from '@/lib/study-goals';
+import { getVocabLevelLabel } from '@/lib/vocab-source';
 import type { VocabCard, ContentCategory } from '@/types';
 
 interface VocabSeed {
@@ -260,7 +261,7 @@ export function VocabList({ onBack }: { onBack?: () => void } = {}) {
         {filtered.length === 0 && (
           <p className="text-sm text-gray-500 text-center py-8">該当する単語がありません</p>
         )}
-        {filtered.map(seed => {
+        {filtered.map((seed, i) => {
           const card = learnedMap.get(seed.word);
           const isLearned = !!card;
           const expanded = expandedWord === seed.word;
@@ -269,7 +270,9 @@ export function VocabList({ onBack }: { onBack?: () => void } = {}) {
             <div key={seed.word}>
               <button
                 onClick={() => setExpandedWord(expanded ? null : seed.word)}
-                className="w-full flex items-center gap-2 px-3 py-2.5 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors text-left"
+                className={`w-full flex items-center gap-2 px-3 py-2.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800/50 transition-colors text-left ${
+                  i % 2 === 0 ? 'bg-gray-50 dark:bg-gray-900/40' : ''
+                }`}
               >
                 {isLearned ? (
                   <BookOpen className="w-3.5 h-3.5 text-green-500 shrink-0" />
@@ -287,10 +290,13 @@ export function VocabList({ onBack }: { onBack?: () => void } = {}) {
 
               {expanded && (
                 <Card className="mx-2 mb-2 p-3 text-xs space-y-2">
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 flex-wrap">
                     <span className="font-bold text-sm">{seed.word}</span>
                     <SpeakButton text={seed.word} />
                     <span className="text-gray-500">— {seed.meaning}</span>
+                    <span className="px-1.5 py-0.5 rounded text-[10px] font-medium bg-indigo-100 text-indigo-700 dark:bg-indigo-900 dark:text-indigo-300">
+                      {getVocabLevelLabel(seed.word, seed.difficulty)}
+                    </span>
                   </div>
                   <div className="flex items-start gap-2">
                     <p className="text-gray-600 dark:text-gray-400 italic flex-1">{seed.example}</p>

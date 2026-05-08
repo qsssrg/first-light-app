@@ -6,6 +6,7 @@ import { useProfile, useStudySessions, useVocabCards } from '@/lib/hooks';
 import { Card } from '@/components/ui/card';
 import { MEMBERS, getMember } from '@/lib/members';
 import { MemberAvatar } from '@/components/common/MemberAvatar';
+import { TypewriterText } from '@/components/common/TypewriterText';
 import { getPlayerName } from '@/lib/player-name';
 import { getStudyGoal, getGradeRequirement, getToeflTier, isEikenGrade, isToeflScore } from '@/lib/study-goals';
 import { Progress } from '@/components/ui/progress';
@@ -22,19 +23,19 @@ const AXIS_LABELS: Record<SkillAxis, string> = {
 function SM2HelpLabel() {
   const [open, setOpen] = useState(false);
   return (
-    <div className="relative">
+    <>
       <button
-        onClick={() => setOpen(!open)}
-        className="text-xs text-gray-500 flex items-center justify-center gap-1 cursor-pointer p-1 -m-1 rounded hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+        onClick={() => setOpen(true)}
+        className="text-xs text-gray-500 flex items-center justify-center gap-1 cursor-pointer px-2 py-1.5 rounded hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors active:bg-gray-200 dark:active:bg-gray-700"
       >
         習得済み
-        <span className="w-3.5 h-3.5 rounded-full bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400 text-[9px] font-bold inline-flex items-center justify-center">?</span>
+        <span className="w-4 h-4 rounded-full bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400 text-[10px] font-bold inline-flex items-center justify-center">?</span>
       </button>
       {open && (
-        <>
-          <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
-          <div className="absolute left-1/2 -translate-x-1/2 top-6 z-50 w-64 p-3 rounded-lg bg-white dark:bg-gray-800 shadow-xl border border-gray-200 dark:border-gray-700 text-xs text-gray-600 dark:text-gray-300 space-y-1.5">
-            <p className="font-bold text-gray-800 dark:text-gray-100">間隔反復（SM-2）</p>
+        <div className="fixed inset-0 z-50 flex items-center justify-center" onClick={() => setOpen(false)}>
+          <div className="absolute inset-0 bg-black/20" />
+          <div className="relative w-72 p-4 rounded-xl bg-white dark:bg-gray-800 shadow-2xl border border-gray-200 dark:border-gray-700 text-xs text-gray-600 dark:text-gray-300 space-y-2" onClick={e => e.stopPropagation()}>
+            <p className="font-bold text-sm text-gray-800 dark:text-gray-100">間隔反復（SM-2）</p>
             <p>5回以上連続正解で「習得済み」になります。</p>
             <div className="space-y-0.5 text-[10px]">
               <p>1回正解 → 1日後に復習</p>
@@ -44,10 +45,11 @@ function SM2HelpLabel() {
               <p>5回正解 → 約2ヶ月後（習得済み）</p>
             </div>
             <p className="text-[10px] text-amber-500">途中で間違えるとリセットされます</p>
+            <button onClick={() => setOpen(false)} className="w-full mt-1 py-1.5 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 text-xs font-medium">閉じる</button>
           </div>
-        </>
+        </div>
       )}
-    </div>
+    </>
   );
 }
 
@@ -353,12 +355,60 @@ export function Dashboard() {
         const strongest = sorted[sorted.length - 1];
         if (!weakest || weakest[1] >= 80) return null;
         const weakMember = MEMBERS.find(m => m.axis === weakest[0]);
+        const strongMember = MEMBERS.find(m => m.axis === strongest[0]);
+
+        const SKILL_BENEFITS: Record<SkillAxis, string> = {
+          vocabulary: '語彙力が上がると、読む・聴く・書く全ての土台が強くなる。映画のセリフや本の一文が、辞書なしでスッと入ってくるようになるぞ。',
+          reading: '読解力が上がると、ニュースや小説を原文で楽しめるようになります。翻訳では消えてしまうニュアンスが、直接感じられるようになりますよ。',
+          listening: '…リスニングが伸びると、洋楽の歌詞が聴き取れるようになる。字幕なしで映画を観る感覚、最高だぞ。',
+          writing: '書く力が上がると、SNSでもメールでも自分の言葉で想いを届けられるようになるよ！ 翻訳アプリ卒業だね！',
+          grammar: '文法が分かると、なんとなくの理解が確信に変わる。英語の構造が見えてくると、読むのも書くのも格段に速くなるんだ。',
+        };
+
+        const SKILL_TIPS: Record<SkillAxis, string> = {
+          vocabulary: '単語は毎日10個ずつでOK。一気に覚えようとせず、繰り返し出会うことが大切だ。寝る前の5分が一番記憶に残りやすい。',
+          reading: '最初は短い記事や絵本からで大丈夫です。分からない単語があっても止まらず、文脈から推測する練習をしてみてください。',
+          listening: '…最初は歌詞付きで洋楽を聴くのがおすすめだ。慣れたら歌詞を見ずに挑戦してみろ。毎日15分でいい。',
+          writing: '最初は3行日記から始めよう！ 「今日食べたもの」「今の気持ち」、なんでもOK！ 完璧じゃなくていいんだよ！',
+          grammar: '一つのルールを覚えたら、それを使った例文を3つ作ってみろ。理解と定着は全然違うからな。焦らず一つずつだ。',
+        };
+
+        const CROSS_ADVICE: Record<string, string> = {
+          'vocabulary-reading': '語彙が課題だけど、読解が得意なのは武器だ。英語の記事を読みながら、知らない単語をメモしていけば一石二鳥だぞ。',
+          'vocabulary-listening': '…語彙を増やしたいなら、洋楽の歌詞を見ながら聴くのが効く。耳で覚えた単語は忘れにくいんだ。',
+          'vocabulary-writing': '語彙を増やすなら、覚えた単語を使って文を書いてみて！ 使った単語は絶対忘れないから！',
+          'vocabulary-grammar': '語彙と文法は表裏一体だ。新しい単語を覚えるとき、その単語がどう使われるか文型ごと覚えると効率がいい。',
+          'reading-vocabulary': '読解が伸びしろか…でも語彙は強いんだな。知ってる単語を活かして、まずは短めの英文記事を速読してみろ。',
+          'reading-listening': '…読解を伸ばすなら、洋楽の歌詞を読みながら聴くのがいい。耳と目を同時に使うと理解が深まる。',
+          'reading-writing': '読解力を上げたいなら、読んだ英文を要約してみて！ 読む力と書く力、両方鍛えられるよ！',
+          'reading-grammar': '読解は文法の力で一気に伸びる。文の構造が見えると、長文でも迷子にならなくなるんだ。',
+          'listening-vocabulary': 'リスニングが課題だけど語彙は強いんだな。知ってる単語を「聴いて」分かるようにする練習をしてみろ。シャドーイングがおすすめだ。',
+          'listening-reading': 'リスニングが伸びしろか…読解が得意なら、英語の記事を音読してみてください。自分で発音すると、聴き取りやすくなりますよ。',
+          'listening-writing': '…リスニングを鍛えたいなら、聴いた英語をそのまま書き取るディクテーションが効くぞ。書く力も同時に鍛えられる。',
+          'listening-grammar': 'リスニングと文法は意外と繋がってる。文の構造が分かると、聴こえてくる英語の予測ができるようになるんだ。',
+          'writing-vocabulary': 'ライティングを伸ばしたいなら、覚えた単語を使って毎日一文書いてみて！ 語彙力を活かせるよ！',
+          'writing-reading': 'ライティングが伸びしろか…読解が得意なら、好きな英文のフレーズを真似して書くところから始めてみてください。',
+          'writing-listening': '…書く力を鍛えたいなら、聴いた英語をそのまま書き起こしてみろ。リスニング力も活かせて一石二鳥だ。',
+          'writing-grammar': '書く力は文法の知識で一気に伸びる。正しい文型を使えると、伝わる英語が書けるようになるんだ。',
+          'grammar-vocabulary': '文法が課題だけど語彙は強いんだな。覚えた単語を文の中で使う練習をすれば、文法感覚も自然に身につく。',
+          'grammar-reading': '文法を鍛えたいなら、英文を読むときに主語・動詞・目的語を意識してみてください。読解力を活かせます。',
+          'grammar-listening': '…文法は、聴いた英語の構造を分析することでも鍛えられる。リスニング力を活かして、文型を意識しながら聴いてみろ。',
+          'grammar-writing': '文法を伸ばすなら、書いた英文を見直す習慣をつけて！ 自分で間違いに気づけるようになるよ！',
+        };
+
+        const weakAxis = weakest[0];
+        const strongAxis = strongest[0];
+        const crossKey = `${weakAxis}-${strongAxis}`;
+        const crossAdvice = CROSS_ADVICE[crossKey] ?? `${AXIS_LABELS[strongAxis]}が得意なら、それを活かして${AXIS_LABELS[weakAxis]}も伸ばせるはずだ。`;
+
         return (
-          <Card className="p-4 border-amber-800/30 bg-amber-950/10">
-            <h3 className="text-sm font-medium mb-2 flex items-center gap-1.5">
+          <Card className="p-4 border-amber-800/30 bg-amber-950/10 space-y-4">
+            <h3 className="text-sm font-medium flex items-center gap-1.5">
               <span className="text-amber-400">🎯</span> 弱点分析
             </h3>
-            <div className="space-y-2">
+
+            {/* 基本情報 */}
+            <div className="space-y-1">
               <p className="text-sm">
                 <span className="font-medium" style={{ color: weakMember?.color }}>
                   {AXIS_LABELS[weakest[0]]}
@@ -368,12 +418,46 @@ export function Dashboard() {
               <p className="text-xs text-gray-500">
                 最も得意な{AXIS_LABELS[strongest[0]]}（{strongest[1]}点）との差: {strongest[1] - weakest[1]}ポイント
               </p>
-              <div className="bg-gray-800/50 rounded-lg p-2.5 mt-2">
-                <p className="text-xs text-amber-300">
-                  {AXIS_LABELS[weakest[0]]}の問題をあと{Math.ceil((weakest[1] + 10 - weakest[1]) / 2)}問解くとスキルが上がります
-                </p>
-              </div>
             </div>
+
+            {/* 1. 弱点を強みに変えるメリット */}
+            {weakMember && (
+              <div className="rounded-lg p-3" style={{ backgroundColor: `${weakMember.color}15` }}>
+                <div className="flex items-start gap-2.5">
+                  <MemberAvatar member={weakMember} size="sm" />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-[10px] text-gray-500 mb-1">{weakMember.nameJa}より — {AXIS_LABELS[weakAxis]}を伸ばすと？</p>
+                    <TypewriterText text={`「${SKILL_BENEFITS[weakAxis]}」`} speed={20} className="text-xs text-gray-700 dark:text-gray-300 italic leading-relaxed" />
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* 2. 弱点対策に心掛けるべきこと */}
+            {weakMember && (
+              <div className="rounded-lg p-3 bg-gray-800/30">
+                <div className="flex items-start gap-2.5">
+                  <MemberAvatar member={weakMember} size="sm" />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-[10px] text-amber-400 mb-1">練習のコツ</p>
+                    <TypewriterText text={`「${SKILL_TIPS[weakAxis]}」`} speed={20} className="text-xs text-gray-700 dark:text-gray-300 italic leading-relaxed" />
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* 3. 得意分野を活かした弱点解消法 */}
+            {strongMember && strongest[1] > weakest[1] && (
+              <div className="rounded-lg p-3" style={{ backgroundColor: `${strongMember.color}15` }}>
+                <div className="flex items-start gap-2.5">
+                  <MemberAvatar member={strongMember} size="sm" />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-[10px] text-gray-500 mb-1">{strongMember.nameJa}より — {AXIS_LABELS[strongAxis]}を活かして</p>
+                    <TypewriterText text={`「${crossAdvice}」`} speed={20} className="text-xs text-gray-700 dark:text-gray-300 italic leading-relaxed" />
+                  </div>
+                </div>
+              </div>
+            )}
           </Card>
         );
       })()}

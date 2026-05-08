@@ -8,7 +8,7 @@ import { useProfile, useMemberAffinities } from '@/lib/hooks';
 import { MemberAvatar } from '@/components/common/MemberAvatar';
 import { TypewriterText } from '@/components/common/TypewriterText';
 import { Card } from '@/components/ui/card';
-import { Lock, Play, MessageCircle, Image, User, Heart } from 'lucide-react';
+import { Lock, Play, MessageCircle, Image, User, Heart, Users } from 'lucide-react';
 import { getPlayerName } from '@/lib/player-name';
 import { getAffinityLevel, AFFINITY_LABELS, AFFINITY_THRESHOLDS } from '@/lib/db';
 import Link from 'next/link';
@@ -17,6 +17,7 @@ import { getAvailableStories, getScenarioById } from '@/lib/scenarios/special-st
 import { VNEngine } from '@/components/vn/VNEngine';
 import type { Member } from '@/types';
 import type { Scenario } from '@/lib/scenarios/types';
+import { MEMBER_COMMENTS } from '@/data/member-comments';
 
 const basePath = process.env.NEXT_PUBLIC_BASE_PATH || '';
 
@@ -159,6 +160,7 @@ export function MemberDetail({ memberId }: { memberId: string }) {
               </Card>
             )}
             <AffinityCard memberId={memberId} />
+            <MemberCommentsSection memberId={memberId} memberNameJa={member.nameJa} />
           </>
         )}
 
@@ -322,6 +324,39 @@ function AffinityCard({ memberId }: { memberId: string }) {
         <p className="text-[10px] text-gray-400 mt-1">次のレベルまで {nextThreshold - points}pt</p>
       )}
     </Card>
+  );
+}
+
+function MemberCommentsSection({ memberId, memberNameJa }: { memberId: string; memberNameJa: string }) {
+  const [comments] = useState(() => {
+    const aboutMe = MEMBER_COMMENTS.filter(c => c.about === memberId);
+    const otherMembers = MEMBERS.filter(m => m.id !== memberId);
+    return otherMembers.map(m => {
+      const pool = aboutMe.filter(c => c.from === m.id);
+      const pick = pool[Math.floor(Math.random() * pool.length)];
+      return { member: m, comment: pick?.text ?? '' };
+    }).filter(c => c.comment);
+  });
+
+  if (comments.length === 0) return null;
+
+  return (
+    <div className="space-y-3">
+      <h3 className="text-xs font-bold text-gray-500 uppercase tracking-wider flex items-center gap-1">
+        <Users className="w-3 h-3" /> メンバーから見た{memberNameJa}
+      </h3>
+      {comments.map(({ member, comment }) => (
+        <Card key={member.id} className="p-4 backdrop-blur-sm" style={{ backgroundColor: `${member.color}12` }}>
+          <div className="flex items-start gap-3">
+            <MemberAvatar member={member} size="sm" />
+            <div className="flex-1 min-w-0">
+              <p className="text-[10px] text-gray-500 mb-1">{member.nameJa}</p>
+              <TypewriterText text={`「${comment}」`} speed={25} className="text-xs text-gray-700 dark:text-gray-300 italic leading-relaxed" />
+            </div>
+          </div>
+        </Card>
+      ))}
+    </div>
   );
 }
 
