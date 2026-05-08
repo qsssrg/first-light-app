@@ -5,17 +5,20 @@ export const EXAMPLE_VARIANTS: VariantMap = {
     { example: 'She abandoned her old car by the roadside.', correct: '彼女は路肩に古い車を放棄した。', wrong: ['彼女は路肩で古い車を修理した。', '彼は路肩に古い車を放棄した。', '彼女は路肩に新しい車を放棄した。'] },
     { example: 'The soldiers abandoned their posts during the night.', correct: '兵士たちは夜間に持ち場を放棄した。', wrong: ['兵士たちは夜間に持ち場を守った。', '兵士たちは昼間に持ち場を放棄した。', '兵士たちは夜間に基地を放棄した。'] },
     { example: 'He could not abandon his hope of becoming a musician.', correct: '彼は音楽家になるという希望を放棄することができなかった。', wrong: ['彼は音楽家になるという希望を実現することができなかった。', '彼女は音楽家になるという希望を放棄することができなかった。', '彼は音楽家になるという夢を達成することができなかった。'] },
+    { example: 'She did not abandon her old car by the roadside.', correct: '彼女は路肩に古い車を放棄しなかった。', wrong: ['彼女は路肩に古い車を放棄した。', '彼女は路肩で古い車を修理しなかった。', '彼は路肩に古い車を放棄しなかった。'] },
   ],
   'absolute': [
     { example: 'There is no absolute answer to this question.', correct: 'この質問に対して絶対的な答えはない。', wrong: ['この質問に対して相対的な答えはない。', 'この質問に対して複数の答えはない。', 'この質問に対して明確な答えはある。'] },
     { example: 'She has absolute authority over the department.', correct: '彼女はその部門に対して絶対的な権限を持っている。', wrong: ['彼女はその部門に対して限定的な権限を持っている。', '彼女はその部門に対して共有された権限を持っている。', '彼はその部門に対して絶対的な権限を持っている。'] },
     { example: 'The absolute temperature of water is measured in Kelvin.', correct: '水の絶対温度はケルビンで測定される。', wrong: ['水の相対温度はケルビンで測定される。', '水の絶対温度は摂氏で測定される。', '水の絶対圧力はケルビンで測定される。'] },
-  ],
+  
+    { example: 'There is no absolute proof of his innocence.', correct: 'この質問に対して絶対的な証拠はない。', wrong: ['この質問に対して相対的な証拠はない。', 'この質問に対して部分的な証拠はない。', 'この事件に対して絶対的な証拠はある。'] },],
   'absorb': [
     { example: 'The sponge absorbed all the water from the sink.', correct: 'スポンジはシンクの水をすべて吸収した。', wrong: ['スポンジはシンクの水をすべて放出した。', 'タオルはシンクの水をすべて吸収した。', 'スポンジはバスタブの水をすべて吸収した。'] },
     { example: 'Students need to absorb the important information from the textbook.', correct: '学生は教科書から重要な情報を吸収する必要がある。', wrong: ['学生は教科書から重要な情報を忘れる必要がある。', '先生は教科書から重要な情報を吸収する必要がある。', '学生は教科書から不要な情報を吸収する必要がある。'] },
     { example: 'The company absorbed the smaller business into its operations.', correct: 'その会社は小さな企業を事業に吸収した。', wrong: ['その会社は大きな企業を事業に吸収した。', 'その組織は小さな企業を事業から除外した。', 'その会社は小さな企業を事業から分離した。'] },
-  ],
+  
+    { example: 'The material does not absorb moisture easily.', correct: 'その素材は簡単に湿気を吸収しない。', wrong: ['その素材は簡単に湿気を吸収する。', 'その素材は簡単に熱を吸収しない。', 'その製品は簡単に湿気を吸収しない。'] },],
   'abstract': [
     { example: 'The painting was very abstract.', correct: 'その絵画は非常に抽象的だった。', wrong: ['その絵画は非常に具象的だった。', 'その絵画は非常に現実的だった。', 'その彫刻は非常に抽象的だった。'] },
     { example: 'He presented an abstract concept that was difficult to understand.', correct: '彼は理解するのが難しい抽象的な概念を提示した。', wrong: ['彼は理解するのが簡単な抽象的な概念を提示した。', '彼は理解するのが難しい具体的な概念を提示した。', '彼女は理解するのが難しい抽象的な概念を提示した。'] },
@@ -45,7 +48,8 @@ export const EXAMPLE_VARIANTS: VariantMap = {
     { example: 'The report provides accurate information.', correct: 'そのレポートは正確な情報を提供している。', wrong: ['そのレポートは誤った情報を提供している。', 'そのレポートは曖昧な情報を提供している。', 'そのレポートは不完全な情報を提供している。'] },
     { example: 'His predictions were accurate.', correct: '彼の予測は正確だった。', wrong: ['彼の予測は不正確だった。', '彼の予測は推測だった。', '彼女の予測は正確だった。'] },
     { example: 'We need accurate measurements for this experiment.', correct: 'この実験には正確な測定が必要だ。', wrong: ['この実験には大まかな測定が必要だ。', 'この実験には推定された測定が必要だ。', 'この実験には概算の測定が必要だ。'] },
-  ],
+  
+    { example: 'The report was not accurate enough for publication.', correct: 'その報告書は出版するには正確さが十分ではなかった。', wrong: ['その報告書は出版するには正確さが十分だった。', 'その報告書は出版するには詳細さが十分ではなかった。', 'その記事は出版するには正確さが十分ではなかった。'] },],
   'acquisition': [
     { example: 'The company announced the acquisition of a smaller competitor.', correct: 'その会社は小さなライバル企業の取得を発表した。', wrong: ['その会社は小さなライバル企業の売却を発表した。', 'その個人は小さなライバル企業の取得を発表した。', 'その会社は大きなライバル企業の取得を発表した。'] },
     { example: 'Skill acquisition requires consistent practice and dedication.', correct: 'スキルの習得には継続的な練習と献身が必要である。', wrong: ['スキルの忘却には継続的な練習と献身が必要である。', '知識の習得には継続的な練習と献身が必要である。', 'スキルの習得には短期的な練習と献身が必要である。'] },
@@ -55,12 +59,14 @@ export const EXAMPLE_VARIANTS: VariantMap = {
     { example: 'Fish adapt to different water temperatures to survive.', correct: '魚は生き残るために異なる水温に適応する。', wrong: ['魚は生き残るために異なる水温を避ける。', '鳥は生き残るために異なる水温に適応する。', '魚は死ぬために異なる水温に適応する。'] },
     { example: 'The refugees had to adapt to their new country\'s culture.', correct: '難民は新しい国の文化に適応しなければならなかった。', wrong: ['難民は新しい国の文化を拒否しなければならなかった。', '移民は新しい国の文化に適応しなければならなかった。', '難民は古い国の文化に適応しなければならなかった。'] },
     { example: 'The company adapted its business strategy to compete in the market.', correct: 'その会社は市場で競争するために事業戦略を適応させた。', wrong: ['その会社は市場で競争するために事業戦略を放棄した。', 'その組織は市場で競争するために事業戦略を適応させた。', 'その会社は市場から撤退するために事業戦略を適応させた。'] },
-  ],
+  
+    { example: 'He could not adapt to the new environment quickly.', correct: '彼は新しい環境にすぐに適応できなかった。', wrong: ['彼は新しい環境にすぐに適応できた。', '彼女は新しい環境にすぐに適応できなかった。', '彼は古い環境にすぐに適応できなかった。'] },],
   'adequate': [
     { example: 'We need adequate funding for the project.', correct: 'このプロジェクトには十分な資金が必要だ。', wrong: ['このプロジェクトには不十分な資金が必要だ。', 'このプロジェクトには最大限の資金が必要だ。', 'このプロジェクトには最小限の資金が必要だ。'] },
     { example: 'The hotel provides adequate accommodations for guests.', correct: 'そのホテルは客のために十分な宿泊施設を提供している。', wrong: ['そのホテルは客のために不十分な宿泊施設を提供している。', 'そのホテルは客のために豪華な宿泊施設を提供している。', 'そのホテルは従業員のために十分な宿泊施設を提供している。'] },
     { example: 'His salary is adequate for his needs.', correct: '彼の給料は彼のニーズに十分だ。', wrong: ['彼の給料は彼のニーズに不十分だ。', '彼の給料は彼の欲望に十分だ。', '彼女の給料は彼のニーズに十分だ。'] },
-  ],
+  
+    { example: 'The funding was not adequate for the research project.', correct: 'その資金は研究プロジェクトには十分ではなかった。', wrong: ['その資金は研究プロジェクトには十分だった。', 'その資金は開発プロジェクトには十分ではなかった。', 'その時間は研究プロジェクトには十分ではなかった。'] },],
   'adjust': [
     { example: 'Please adjust the mirror so you can see better.', correct: 'よく見えるようにミラーを調整してください。', wrong: ['よく見えないようにミラーを調整してください。', 'よく聞こえるようにミラーを調整してください。', 'よく見えるようにライトを調整してください。'] },
     { example: 'The tailor adjusted the length of my pants.', correct: '仕立屋は私のズボンの長さを調整した。', wrong: ['仕立屋は私のズボンの長さを短くした。', '仕立屋は私のシャツの長さを調整した。', '裁断師は私のズボンの長さを調整した。'] },
@@ -75,7 +81,8 @@ export const EXAMPLE_VARIANTS: VariantMap = {
     { example: 'Environmental groups advocate for stricter pollution regulations.', correct: '環境団体は厳しい汚染規制を提唱している。', wrong: ['環境団体は緩い汚染規制を提唱している。', '産業団体は厳しい汚染規制を提唱している。', '環境団体は汚染規制の廃止を提唱している。'] },
     { example: 'The lawyer advocated for his client in court.', correct: '弁護士は法廷で依頼人のために主張した。', wrong: ['弁護士は法廷で反対者のために主張した。', '裁判官は法廷で依頼人のために主張した。', '弁護士は法廷で依頼人に対抗した。'] },
     { example: 'She advocates for better education policies in schools.', correct: '彼女は学校でより良い教育政策を提唱している。', wrong: ['彼女は学校でより悪い教育政策を提唱している。', '彼は学校でより良い教育政策を提唱している。', '彼女は企業でより良い教育政策を提唱している。'] },
-  ],
+  
+    { example: 'She does not advocate for violent protests.', correct: '彼女は暴力的な抗議活動を支持しない。', wrong: ['彼女は暴力的な抗議活動を支持する。', '彼は暴力的な抗議活動を支持しない。', '彼女は平和的な抗議活動を支持しない。'] },],
   'affect': [
     { example: 'The weather affects our mood.', correct: '天気は私たちの気分に影響を与える。', wrong: ['天気は私たちの気分を変える。', '天気は私たちの気分に関係がない。', '天気は私たちの気分を作る。'] },
     { example: 'His emotional speech affected the audience deeply.', correct: '彼の感動的なスピーチは聴衆に深く影響を与えた。', wrong: ['彼の感動的なスピーチは聴衆を感動させた。', '彼の感動的なスピーチは聴衆に深く関係した。', '彼の感動的なスピーチは聴衆に深く影響した。'] },
@@ -85,12 +92,14 @@ export const EXAMPLE_VARIANTS: VariantMap = {
     { example: 'The dog became aggressive.', correct: 'その犬は攻撃的になった。', wrong: ['その犬は友好的になった。', 'その犬は怖がるようになった。', 'その猫は攻撃的になった。'] },
     { example: 'The company used aggressive marketing tactics.', correct: 'その企業は攻撃的なマーケティング戦略を使用した。', wrong: ['その企業は穏やかなマーケティング戦略を使用した。', 'その企業は控えめなマーケティング戦略を使用した。', 'その企業は受動的なマーケティング戦略を使用した。'] },
     { example: 'His aggressive tone made everyone uncomfortable.', correct: '彼の攻撃的な口調は誰もが不快に感じた。', wrong: ['彼の親切な口調は誰もが不快に感じた。', '彼の攻撃的な口調は誰もが快適に感じた。', '彼女の攻撃的な口調は誰もが不快に感じた。'] },
-  ],
+  
+    { example: 'The company was not aggressive in its marketing strategy.', correct: 'その会社はマーケティング戦略において積極的ではなかった。', wrong: ['その会社はマーケティング戦略において積極的だった。', 'その会社は販売戦略において積極的ではなかった。', 'その組織はマーケティング戦略において積極的ではなかった。'] },],
   'alter': [
     { example: 'The accident altered the course of his life.', correct: 'その事故は彼の人生の進路を変えた。', wrong: ['その事故は彼の人生の進路に影響を与えた。', 'その事故は彼の人生を台無しにした。', 'その事故は彼の人生の進路を中断した。'] },
     { example: 'She altered her dress to fit better.', correct: '彼女はドレスをもっとよく合うように変えた。', wrong: ['彼女はドレスをもっとよく合うように修理した。', '彼女はドレスをもっとよく合うように調整した。', '彼女はドレスをもっとよく合うように改造した。'] },
     { example: 'Don\'t alter the document without permission.', correct: '許可なしに文書を変えてはいけない。', wrong: ['許可なしに文書を編集してはいけない。', '許可なしに文書を改ざんしてはいけない。', '許可なしに文書を修正してはいけない。'] },
-  ],
+  
+    { example: 'The new evidence did not alter the judge\'s decision.', correct: '新しい証拠は裁判官の判断を変えなかった。', wrong: ['新しい証拠は裁判官の判断を変えた。', '新しい証拠は弁護士の判断を変えなかった。', '古い証拠は裁判官の判断を変えなかった。'] },],
   'ambassador': [
     { example: 'The US ambassador to Japan attended the diplomatic conference.', correct: '駐日米国大使はその外交会議に出席した。', wrong: ['駐日米国大使はその外交会議に欠席した。', '駐日日本大使はその外交会議に出席した。', '駐日米国領事はその外交会議に出席した。'] },
     { example: 'She serves as an ambassador for environmental conservation.', correct: '彼女は環境保全の大使として活動している。', wrong: ['彼女は環境破壊の大使として活動している。', '彼は環境保全の大使として活動している。', '彼女は文化保全の大使として活動している。'] },
@@ -100,7 +109,8 @@ export const EXAMPLE_VARIANTS: VariantMap = {
     { example: 'The law is ambiguous on this point.', correct: 'その法律はこの点で曖昧だ。', wrong: ['その法律はこの点で明確だ。', 'その法律はこの点で厳しい。', 'その規則はこの点で曖昧だ。'] },
     { example: 'Her response was ambiguous and difficult to interpret.', correct: '彼女の応答は曖昧で解釈が難しかった。', wrong: ['彼女の応答は明白で解釈が難しかった。', '彼女の応答は曖昧で解釈が簡単だった。', '彼の応答は曖昧で解釈が難しかった。'] },
     { example: 'The statement is ambiguous and could mean multiple things.', correct: 'その声明は曖昧であり、複数の意味を持つ可能性がある。', wrong: ['その声明は明確であり、複数の意味を持つ可能性がある。', 'その声明は曖昧であり、一つの意味だけを持つ可能性がある。', 'その発言は曖昧であり、複数の意味を持つ可能性がある。'] },
-  ],
+  
+    { example: 'The instructions were not ambiguous at all.', correct: 'その指示は全く曖昧ではなかった。', wrong: ['その指示は全く曖昧だった。', 'その説明は全く曖昧ではなかった。', 'その指示はほとんど曖昧ではなかった。'] },],
   'analyze': [
     { example: 'Scientists analyzed the data carefully.', correct: '科学者たちは慎重にデータを分析した。', wrong: ['科学者たちは慎重にデータを調べた。', '科学者たちは慎重にデータを研究した。', '科学者たちは慎重にデータを検討した。'] },
     { example: 'The teacher will analyze your essay for grammar mistakes.', correct: '先生はあなたのエッセイの文法の誤りを分析する。', wrong: ['先生はあなたのエッセイの文法の誤りを修正する。', '先生はあなたのエッセイの文法の誤りを見つける。', '先生はあなたのエッセイの文法の誤りをチェックする。'] },
@@ -110,12 +120,14 @@ export const EXAMPLE_VARIANTS: VariantMap = {
     { example: 'It was apparent that he was lying.', correct: '彼が嘘をついていることは明白だった。', wrong: ['彼が嘘をついていることは隠されていた。', '彼が本当のことを言っていることは明白だった。', '彼が嘘をついているかもしれないことは明白だった。'] },
     { example: 'The apparent reason for her absence was illness.', correct: '彼女の欠席の見かけの理由は病気だった。', wrong: ['彼女の欠席の明らかな理由は健康だった。', '彼の欠席の見かけの理由は病気だった。', '彼女の出席の見かけの理由は病気だった。'] },
     { example: 'There is no apparent solution to this problem.', correct: 'この問題には明白な解決策がない。', wrong: ['この問題には明白な原因がない。', 'その問題には明白な解決策がない。', 'この問題には明白な解決策が多くある。'] },
-  ],
+  
+    { example: 'The cause of the problem was not apparent to anyone.', correct: '問題の原因は誰にも明らかではなかった。', wrong: ['問題の原因は誰にも明らかだった。', '問題の解決策は誰にも明らかではなかった。', '事故の原因は誰にも明らかではなかった。'] },],
   'artificial': [
     { example: 'This lake is artificial.', correct: 'この湖は人工的なものだ。', wrong: ['この湖は天然のものだ。', 'この川は人工的なものだ。', 'その湖は人工的なものだ。'] },
     { example: 'The flowers in the vase are artificial.', correct: '花瓶の花は造花だ。', wrong: ['花瓶の花は本物だ。', 'バケツの花は造花だ。', '花瓶の植物は造花だ。'] },
     { example: 'Artificial intelligence is changing the world.', correct: '人工知能は世界を変えている。', wrong: ['天然知能は世界を変えている。', '人工知能は世界を保護している。', '人工的な愚かさは世界を変えている。'] },
-  ],
+  
+    { example: 'The flowers were not artificial; they were real.', correct: 'その花は人工的ではなく、本物だった。', wrong: ['その花は人工的で、偽物だった。', 'その植物は人工的ではなく、本物だった。', 'その花は天然ではなく、人工的だった。'] },],
   'assemble': [
     { example: 'Workers assembled the parts in the factory.', correct: '労働者は工場で部品を組み立てた。', wrong: ['労働者は工場で部品を製造した。', '労働者は工場で部品を組織した。', '労働者は工場で部品を集めた。'] },
     { example: 'The audience assembled in the auditorium.', correct: '聴衆は講堂に集まった。', wrong: ['聴衆は講堂に組み立てられた。', '聴衆は講堂に配置された。', '聴衆は講堂に座った。'] },
@@ -130,7 +142,8 @@ export const EXAMPLE_VARIANTS: VariantMap = {
     { example: 'I assumed he was coming to the party.', correct: '私は彼がパーティーに来ると仮定した。', wrong: ['私は彼がパーティーに来ると思った。', '私は彼がパーティーに来ると信じた。', '私は彼がパーティーに来ると推測した。'] },
     { example: 'Don\'t assume all people think the same way.', correct: 'すべての人が同じ方法で考えると仮定しないでください。', wrong: ['すべての人が同じ方法で考えると信じないでください。', 'すべての人が同じ方法で考えると思わないでください。', 'すべての人が同じ方法で考えると推測しないでください。'] },
     { example: 'She will assume the role of manager next month.', correct: '彼女は来月マネージャーの役割を引き受ける。', wrong: ['彼女は来月マネージャーの役割を取る。', '彼女は来月マネージャーの役割を仮定する。', '彼女は来月マネージャーの役割を担当する。'] },
-  ],
+  
+    { example: 'You should not assume that everyone agrees with you.', correct: '全員があなたに同意していると仮定すべきではない。', wrong: ['全員があなたに同意していると仮定すべきだ。', '全員があなたを支持していると仮定すべきではない。', '誰もあなたに同意していないと仮定すべきではない。'] },],
   'assumption': [
     { example: 'We should not make assumptions based on someone\'s appearance.', correct: '誰かの外見に基づいて仮定をするべきではない。', wrong: ['誰かの外見に基づいて事実をするべきではない。', '誰かの名前に基づいて仮定をするべきではない。', '誰かの外見に基づいて確認をするべきではない。'] },
     { example: 'The study was based on the assumption that all participants were honest.', correct: 'その研究は全ての参加者が正直であるという仮定に基づいていた。', wrong: ['その研究は全ての参加者が不正直であるという仮定に基づいていた。', 'その調査は全ての参加者が正直であるという仮定に基づいていた。', 'その研究は一部の参加者が正直であるという仮定に基づいていた。'] },
@@ -150,12 +163,14 @@ export const EXAMPLE_VARIANTS: VariantMap = {
     { example: 'Smoking is banned in public places.', correct: '公共の場所での喫煙は禁止されている。', wrong: ['公共の場所での喫煙は許可されていない。', '公共の場所での喫煙は制限されている。', '公共の場所での喫煙は禁じられている。'] },
     { example: 'The government banned the use of plastic bags.', correct: '政府はプラスチック袋の使用を禁止した。', wrong: ['政府はプラスチック袋の使用を制限した。', '政府はプラスチック袋の使用を廃止した。', '政府はプラスチック袋の使用を禁じた。'] },
     { example: 'He was banned from the stadium for violent behavior.', correct: '彼は暴力的な行為のためにスタジアムへの出入りを禁止された。', wrong: ['彼は暴力的な行為のためにスタジアムから追放された。', '彼は暴力的な行為のためにスタジアムへの立ち入りを禁じられた。', '彼は暴力的な行為のためにスタジアムから除外された。'] },
-  ],
+  
+    { example: 'The government did not ban the use of plastic bags.', correct: '政府はビニール袋の使用を禁止しなかった。', wrong: ['政府はビニール袋の使用を禁止した。', '政府は紙袋の使用を禁止しなかった。', '自治体はビニール袋の使用を禁止しなかった。'] },],
   'barrier': [
     { example: 'Language is a significant barrier to international business.', correct: '言語は国際ビジネスへの大きな障壁である。', wrong: ['言語は国際ビジネスへの大きな助けである。', '文化は国際ビジネスへの大きな障壁である。', '言語は国内ビジネスへの大きな障壁である。'] },
     { example: 'The security barrier prevents unauthorized access to the building.', correct: 'セキュリティ障壁は建物への無許可アクセスを防止する。', wrong: ['セキュリティ障壁は建物への無許可アクセスを許可する。', 'セキュリティドアは建物への無許可アクセスを防止する。', 'セキュリティ障壁は建物への許可されたアクセスを防止する。'] },
     { example: 'Economic barriers make it difficult for small businesses to enter the market.', correct: '経済的な障壁は小規模企業の市場参入を困難にする。', wrong: ['経済的な支援は小規模企業の市場参入を困難にする。', '経済的な障壁は大規模企業の市場参入を困難にする。', '法的な障壁は小規模企業の市場参入を困難にする。'] },
-  ],
+  
+    { example: 'Language was not a barrier to their friendship.', correct: '言語は彼らの友情の障壁ではなかった。', wrong: ['言語は彼らの友情の障壁だった。', '文化は彼らの友情の障壁ではなかった。', '言語は彼らの協力の障壁ではなかった。'] },],
   'biological': [
     { example: 'Biological research has made great progress.', correct: '生物学的研究は大きな進歩を遂げた。', wrong: ['生物学的研究は大きな後退をした。', '物理学的研究は大きな進歩を遂げた。', '生物学的実験は大きな進歩を遂げた。'] },
     { example: 'He has no biological connection to the family.', correct: '彼は家族と生物学的な繋がりはない。', wrong: ['彼は家族と遺伝的な繋がりがある。', '彼は家族と社会的な繋がりはない。', '彼女は家族と生物学的な繋がりはない。'] },
@@ -175,7 +190,8 @@ export const EXAMPLE_VARIANTS: VariantMap = {
     { example: 'She calculated the total cost.', correct: '彼女は総費用を計算した。', wrong: ['彼女は総収入を計算した。', '彼は総費用を計算した。', '彼女は総費用を推定した。'] },
     { example: 'The engineer calculated the bridge\'s strength.', correct: 'エンジニアは橋の強度を計算した。', wrong: ['エンジニアは橋の高さを計算した。', '建築家は橋の強度を計算した。', 'エンジニアは橋の強度を測定した。'] },
     { example: 'We need to calculate how many days until the deadline.', correct: '締め切りまで何日あるかを計算する必要がある。', wrong: ['締め切りまで何時間あるかを計算する必要がある。', '締め切り後何日経ったかを計算する必要がある。', '締め切りまでの日数を推測する必要がある。'] },
-  ],
+  
+    { example: 'The students could not calculate the answer without a calculator.', correct: '学生たちは電卓なしでは答えを計算できなかった。', wrong: ['学生たちは電卓なしでも答えを計算できた。', '教師たちは電卓なしでは答えを計算できなかった。', '学生たちは電卓なしでは問題を解けなかった。'] },],
   'candidate': [
     { example: 'There are three qualified candidates for the CEO position.', correct: 'CEO職には3人の適格な候補者がいる。', wrong: ['CEO職には3人の不適格な候補者がいる。', 'CEO職には3人の適格な申請者がいる。', 'COO職には3人の適格な候補者がいる。'] },
     { example: 'The presidential candidate visited several cities during the campaign.', correct: 'その大統領候補者はキャンペーン中に数都市を訪問した。', wrong: ['その大統領当選者はキャンペーン中に数都市を訪問した。', 'その知事候補者はキャンペーン中に数都市を訪問した。', 'その大統領候補者はキャンペーン後に数都市を訪問した。'] },
@@ -185,12 +201,14 @@ export const EXAMPLE_VARIANTS: VariantMap = {
     { example: 'The stadium has a capacity of 50,000.', correct: 'スタジアムの収容能力は50,000人です。', wrong: ['スタジアムの収容能力は50,000台です。', 'スタジアムの容積は50,000人です。', 'スタジアムの最大速度は50,000人です。'] },
     { example: 'She has the capacity to become a great leader.', correct: '彼女は偉大なリーダーになる能力を持っています。', wrong: ['彼女は偉大なリーダーになる容量を持っています。', '彼は偉大なリーダーになる能力を持っています。', '彼女は優れたリーダーになる能力を持っています。'] },
     { example: 'The factory is operating at full capacity.', correct: 'その工場は最大能力で稼働しています。', wrong: ['その工場は最大容積で稼働しています。', 'その工場は完全な容量で稼働しています。', 'その工場は最大速度で稼働しています。'] },
-  ],
+  
+    { example: 'The stadium did not reach its full capacity.', correct: 'そのスタジアムは満員にはならなかった。', wrong: ['そのスタジアムは満員になった。', 'その劇場は満員にはならなかった。', 'そのスタジアムは半分にもならなかった。'] },],
   'capture': [
     { example: 'The photo captured a beautiful sunset.', correct: 'その写真は美しい夕焼けをとらえた。', wrong: ['その写真は美しい日の出をとらえた。', 'その動画は美しい夕焼けをとらえた。', 'その写真は醜い夕焼けをとらえた。'] },
     { example: 'The soldiers captured the enemy fortress.', correct: '兵士たちは敵の要塞を占領した。', wrong: ['兵士たちは味方の要塞を占領した。', '兵士たちは敵の要塞を守った。', '警察は敵の要塞を占領した。'] },
     { example: 'The filmmaker captured the essence of the story.', correct: 'その映画製作者はその物語の本質をとらえた。', wrong: ['その映画製作者はその物語のプロットをとらえた。', 'その脚本家はその物語の本質をとらえた。', 'その映画製作者はその物語の詳細を説明した。'] },
-  ],
+  
+    { example: 'The police did not capture the suspect that night.', correct: '警察はその夜容疑者を捕まえなかった。', wrong: ['警察はその夜容疑者を捕まえた。', '警察はその朝容疑者を捕まえなかった。', '軍隊はその夜容疑者を捕まえなかった。'] },],
   'category': [
     { example: 'The products are divided into categories.', correct: '製品は部門に分けられています。', wrong: ['製品は分類に分けられています。', '商品は部門に分けられています。', '製品は種類に分けられています。'] },
     { example: 'This book falls into the fiction category.', correct: 'この本は小説の部門に入ります。', wrong: ['この本は小説の分野に入ります。', 'この雑誌は小説の部門に入ります。', 'この本は非小説の部門に入ります。'] },
@@ -200,12 +218,14 @@ export const EXAMPLE_VARIANTS: VariantMap = {
     { example: 'She suffers from chronic back pain.', correct: '彼女は慢性的な腰痛に苦しんでいる。', wrong: ['彼女は急性的な腰痛に苦しんでいる。', '彼は慢性的な腰痛に苦しんでいる。', '彼女は慢性的な頭痛に苦しんでいる。'] },
     { example: 'The city faces chronic traffic problems.', correct: 'その都市は慢性的な交通問題に直面している。', wrong: ['その都市は一時的な交通問題に直面している。', 'その町は慢性的な交通問題に直面している。', 'その都市は慢性的な住宅問題に直面している。'] },
     { example: 'He has a chronic smoking habit.', correct: '彼は慢性的な喫煙習慣がある。', wrong: ['彼は一時的な喫煙習慣がある。', '彼女は慢性的な喫煙習慣がある。', '彼は慢性的な飲酒習慣がある。'] },
-  ],
+  
+    { example: 'The pain was not chronic; it went away after treatment.', correct: 'その痛みは慢性的ではなく、治療後に消えた。', wrong: ['その痛みは慢性的で、治療後も消えなかった。', 'その症状は慢性的ではなく、治療後に消えた。', 'その痛みは急性的ではなく、治療後に消えた。'] },],
   'circulate': [
     { example: 'Blood circulates through the body.', correct: '血液は体全体を循環する。', wrong: ['リンパ液は体全体を循環する。', '血液は心臓を循環する。', '血液は体全体に流れ込む。'] },
     { example: 'The rumor circulated throughout the office.', correct: 'そのうわさはオフィス全体に広がった。', wrong: ['そのニュースはオフィス全体に広がった。', 'そのうわさは部門全体に広がった。', 'そのうわさはオフィス全体に隠された。'] },
     { example: 'The librarian will circulate the new books to all branches.', correct: '図書館員は新しい本をすべての支店に配布するだろう。', wrong: ['図書館員は古い本をすべての支店に配布するだろう。', '司書は新しい本をすべての支店に返却するだろう。', '図書館員は新しい本を本部に配布するだろう。'] },
-  ],
+  
+    { example: 'The rumor did not circulate beyond the office.', correct: 'その噂はオフィスの外には広まらなかった。', wrong: ['その噂はオフィスの外にも広まった。', 'その情報はオフィスの外には広まらなかった。', 'その噂は学校の外には広まらなかった。'] },],
   'circumstance': [
     { example: 'Under the circumstances, we had no choice.', correct: 'その状況下では、我々に選択肢はありませんでした。', wrong: ['その状況下では、我々に機会がありませんでした。', 'その環境下では、我々に選択肢はありませんでした。', 'この状況下では、彼らに選択肢はありませんでした。'] },
     { example: 'His financial circumstances improved greatly.', correct: '彼の経済状況は大いに改善しました。', wrong: ['彼の経済状態は大いに改善しました。', '彼女の経済状況は大いに改善しました。', '彼の財政環境は大いに改善しました。'] },
@@ -235,7 +255,8 @@ export const EXAMPLE_VARIANTS: VariantMap = {
     { example: 'I discussed the plan with my colleagues.', correct: '私は同僚とその計画について議論しました。', wrong: ['私は友人とその計画について議論しました。', '彼は同僚とその計画について議論しました。', '私は同僚とその提案について議論しました。'] },
     { example: 'My colleague received a promotion yesterday.', correct: '私の同僚は昨日昇進しました。', wrong: ['私の友人は昨日昇進しました。', '私の同僚は今日昇進しました。', '彼女の同僚は昨日昇進しました。'] },
     { example: 'We have lunch with our colleagues every Friday.', correct: '私たちは毎週金曜日に同僚と一緒に昼食をとります。', wrong: ['私たちは毎週月曜日に同僚と一緒に昼食をとります。', '私たちは毎週金曜日に友人と一緒に昼食をとります。', '彼らは毎週金曜日に同僚と一緒に昼食をとります。'] },
-  ],
+  
+    { example: 'He did not consider her a close colleague.', correct: '彼は彼女を親しい同僚とは見なさなかった。', wrong: ['彼は彼女を親しい同僚と見なした。', '彼女は彼を親しい同僚とは見なさなかった。', '彼は彼女を親しい友人とは見なさなかった。'] },],
   'colony': [
     { example: 'The country was once a British colony.', correct: 'その国はかつてイギリスの植民地でした。', wrong: ['その国はかつてイギリスの領土でした。', 'その州はかつてイギリスの植民地でした。', 'その地域はかつてフランスの植民地でした。'] },
     { example: 'The ant colony has thousands of workers.', correct: 'そのアリの群落には数千の働きアリがいます。', wrong: ['そのアリの巣には数千の働きアリがいます。', 'そのハチの群落には数千の働きアリがいます。', 'そのアリの群落には数百の働きアリがいます。'] },
@@ -270,7 +291,8 @@ export const EXAMPLE_VARIANTS: VariantMap = {
     { example: 'The company compensated workers for the accident.', correct: 'その会社は労働者に事故の補償金を支払った。', wrong: ['その会社は労働者に昇給を支払った。', 'その企業は労働者に事故の補償金を支払った。', 'その会社は管理者に事故の補償金を支払った。'] },
     { example: 'She works hard to compensate for her lack of experience.', correct: '彼女は経験不足を補うために懸命に働く。', wrong: ['彼女は経験不足を認めるために懸命に働く。', '彼女は経験不足を補うために怠け者である。', '彼女は経験豊富さを補うために懸命に働く。'] },
     { example: 'The insurance will compensate you for your losses.', correct: 'その保険はあなたの損失を補償するだろう。', wrong: ['その保険はあなたの損失を無視するだろう。', 'その保険会社はあなたの損失を補償するだろう。', 'その保険はあなたの利益を補償するだろう。'] },
-  ],
+  
+    { example: 'The insurance did not compensate for the full damage.', correct: '保険は被害の全額を補償しなかった。', wrong: ['保険は被害の全額を補償した。', '保険は被害の一部を補償しなかった。', '政府は被害の全額を補償しなかった。'] },],
   'compensation': [
     { example: 'She received compensation for the damage to her property.', correct: '彼女は彼女の財産への損害に対して補償を受けた。', wrong: ['彼女は彼女の財産への損害に対して賠償を受けた。', '彼女は彼女の財産への損害に対して補償を支払った。', '彼は彼の財産への損害に対して補償を受けた。'] },
     { example: 'The company offered compensation packages to laid-off employees.', correct: '会社は解雇された従業員に補償パッケージを提供した。', wrong: ['会社は解雇された従業員に給与パッケージを提供した。', '会社は雇用された従業員に補償パッケージを提供した。', '会社は解雇された従業員に補償金を支払った。'] },
@@ -280,7 +302,8 @@ export const EXAMPLE_VARIANTS: VariantMap = {
     { example: 'This is a complex problem.', correct: 'これは複雑な問題だ。', wrong: ['これは単純な問題だ。', 'あれは複雑な問題だ。', 'これは複雑な解決策だ。'] },
     { example: 'The new shopping complex opens next month.', correct: '新しい商業複合施設は来月オープンする。', wrong: ['新しい商業複合施設は先月オープンした。', '古い商業複合施設は来月オープンする。', '新しい学習複合施設は来月オープンする。'] },
     { example: 'She has a complex about her appearance.', correct: '彼女は自分の外見についてコンプレックスを持っている。', wrong: ['彼女は自分の外見について自信を持っている。', '彼は自分の外見についてコンプレックスを持っている。', '彼女は自分の性格についてコンプレックスを持っている。'] },
-  ],
+  
+    { example: 'The problem was not as complex as we initially thought.', correct: 'その問題は当初考えていたほど複雑ではなかった。', wrong: ['その問題は当初考えていたほど複雑だった。', 'その課題は当初考えていたほど複雑ではなかった。', 'その問題は最終的に考えていたほど複雑ではなかった。'] },],
   'component': [
     { example: 'The CPU is a critical component of any computer.', correct: 'CPUはすべてのコンピュータの重要な構成要素である。', wrong: ['CPUはすべてのコンピュータの重要な部品である。', 'CPUはいくつかのコンピュータの重要な構成要素である。', 'GPUはすべてのコンピュータの重要な構成要素である。'] },
     { example: 'Each component of the engine must be properly assembled.', correct: 'エンジンの各構成要素は適切に組み立てられなければならない。', wrong: ['エンジンのすべての部品は適切に組み立てられなければならない。', 'エンジンの各構成要素は適切に分解されなければならない。', 'エンジンの各構成要素は慎重に組み立てられなければならない。'] },
@@ -290,7 +313,8 @@ export const EXAMPLE_VARIANTS: VariantMap = {
     { example: 'The report provides a comprehensive overview of the market trends.', correct: 'そのレポートは市場動向の包括的な概観を提供している。', wrong: ['そのレポートは市場動向の部分的な概観を提供している。', 'その報告書は市場動向の詳細な分析を提供している。', 'そのレポートは市場動向の限定的な概観を提供している。'] },
     { example: 'She received a comprehensive physical examination from her doctor.', correct: '彼女は医者から包括的な身体検査を受けた。', wrong: ['彼女は医者から簡単な身体検査を受けた。', '彼女は看護師から包括的な身体検査を受けた。', '彼女は医者から部分的な身体検査を受けた。'] },
     { example: 'The training program offers comprehensive instruction in all software modules.', correct: 'そのトレーニングプログラムはすべてのソフトウェアモジュールの包括的な指導を提供している。', wrong: ['そのトレーニングプログラムは主要なソフトウェアモジュールの包括的な指導を提供している。', 'そのトレーニングプログラムはすべてのソフトウェアモジュールの基本的な指導を提供している。', 'そのトレーニングプログラムはすべてのハードウェアモジュールの包括的な指導を提供している。'] },
-  ],
+  
+    { example: 'The report was not comprehensive enough.', correct: 'その報告書は十分に包括的ではなかった。', wrong: ['その報告書は十分に包括的だった。', 'その分析は十分に包括的ではなかった。', 'その報告書は十分に詳細ではなかった。'] },],
   'compromise': [
     { example: 'Both political parties reached a compromise on the legislation.', correct: '両政党は立法について妥協に達した。', wrong: ['両政党は立法について合意に達した。', '両政党は立法についての妥協を拒否した。', '単一政党は立法について妥協に達した。'] },
     { example: 'She was unwilling to compromise on her principles.', correct: '彼女は彼女の原則について妥協することを望まなかった。', wrong: ['彼女は彼女の原則を放棄することを望まなかった。', '彼は彼の原則について妥協することを望まなかった。', '彼女は彼女の原則について譲歩することを望まなかった。'] },
@@ -375,7 +399,8 @@ export const EXAMPLE_VARIANTS: VariantMap = {
     { example: 'Conventional methods are still effective in solving many common problems.', correct: '従来の方法は多くの一般的な問題を解決するのにまだ効果的である。', wrong: ['革新的な方法は多くの一般的な問題を解決するのにまだ効果的である。', '従来の方法は多くの複雑な問題を解決するのにまだ効果的である。', '従来の手段は多くの一般的な問題を解決するのにまだ効果的である。'] },
     { example: 'The company decided to abandon conventional wisdom and try a new approach.', correct: 'その企業は従来の慣習を放棄し、新しいアプローチを試すことにした。', wrong: ['その企業は先進的な知識を放棄し、新しいアプローチを試すことにした。', 'その組織は従来の慣習を受け入れ、新しいアプローチを試すことにした。', 'その企業は従来の慣習を放棄し、古いアプローチを試すことにした。'] },
     { example: 'She chose a conventional dress design rather than something more modern.', correct: '彼女はより現代的なものではなく従来のドレスデザインを選んだ。', wrong: ['彼女はより古典的なものではなく従来のドレスデザインを選んだ。', '彼女はより現代的なものではなく斬新なドレスデザインを選んだ。', '彼は母親のためにより現代的なものではなく従来のドレスデザインを選んだ。'] },
-  ],
+  
+    { example: 'Her approach was not conventional by any means.', correct: '彼女のアプローチは決して従来的ではなかった。', wrong: ['彼女のアプローチは非常に従来的だった。', '彼のアプローチは決して従来的ではなかった。', '彼女の方法は決して革新的ではなかった。'] },],
   'convert': [
     { example: 'Solar panels convert sunlight into electricity.', correct: '太陽光パネルは日光を電力に変換する。', wrong: ['太陽光パネルは日光を熱に変換する。', '太陽光パネルは日光を消費する。', '太陽光パネルは日光を吸収する。'] },
     { example: 'She converted the garage into a workshop.', correct: '彼女はガレージをワークショップに改造した。', wrong: ['彼女はガレージをワークショップから改造した。', '彼女はガレージを部屋に改造した。', '彼女はガレージをワークショップとして壊した。'] },
@@ -450,7 +475,8 @@ export const EXAMPLE_VARIANTS: VariantMap = {
     { example: 'The pain gradually diminished.', correct: '痛みは徐々に減少した。', wrong: ['痛みは徐々に増加した。', '痛みは急激に減少した。', '痛みは徐々に消えた。'] },
     { example: 'His interest in the project began to diminish.', correct: 'プロジェクトへの彼の関心は減少し始めた。', wrong: ['プロジェクトへの彼の興奮は減少し始めた。', 'プロジェクトへの彼の関心は増加し始めた。', 'プロジェクトへの彼女の関心は減少し始めた。'] },
     { example: 'The sound of the music diminished as we walked away.', correct: '私たちが歩き去るにつれて、音楽の音は減少した。', wrong: ['私たちが歩き去るにつれて、音楽の音は大きくなった。', '私たちが走り去るにつれて、音楽の音は減少した。', '彼らが歩き去るにつれて、音楽の音は減少した。'] },
-  ],
+  
+    { example: 'The storm did not diminish in strength overnight.', correct: '嵐は一夜で勢力が弱まらなかった。', wrong: ['嵐は一夜で勢力が弱まった。', '風は一夜で勢力が弱まらなかった。', '嵐は数日で勢力が弱まらなかった。'] },],
   'discharge': [
     { example: 'The factory discharged waste into the river.', correct: '工場は廃棄物を川に放出した。', wrong: ['工場は廃棄物を川から吸収した。', '工場は廃棄物を川に保管した。', '工場は廃棄物を陸地に放出した。'] },
     { example: 'The patient was discharged from the hospital yesterday.', correct: '患者は昨日病院から退院した。', wrong: ['患者は昨日病院に入院した。', '患者は明日病院から退院した。', '患者は昨日診療所から退院した。'] },
@@ -480,7 +506,8 @@ export const EXAMPLE_VARIANTS: VariantMap = {
     { example: 'Can you distinguish the two sounds?', correct: 'あなたは2つの音を区別できますか？', wrong: ['あなたは2つの光を区別できますか？', 'あなたは3つの音を区別できますか？', 'あなたは2つの音を識別できますか？'] },
     { example: 'It\'s hard to distinguish between the twin sisters.', correct: 'その双子の姉妹を区別するのは難しい。', wrong: ['その双子の兄弟を区別するのは難しい。', 'その双子の姉妹を見分けるのは簡単だ。', 'その三つ子の姉妹を区別するのは難しい。'] },
     { example: 'This achievement will distinguish her from her peers.', correct: 'この業績は彼女を同僚から際立たせるだろう。', wrong: ['この失敗は彼女を同僚から際立たせるだろう。', 'この業績は彼を同僚から際立たせるだろう。', 'この業績は彼女を同僚と同等にするだろう。'] },
-  ],
+  
+    { example: 'She could not distinguish between the two similar paintings.', correct: '彼女は2つの似た絵画を区別できなかった。', wrong: ['彼女は2つの似た絵画を区別できた。', '彼は2つの似た絵画を区別できなかった。', '彼女は2つの異なる絵画を区別できなかった。'] },],
   'distribute': [
     { example: 'Volunteers distributed food to the victims.', correct: 'ボランティアは被害者に食料を配布した。', wrong: ['ボランティアは被害者から食料を集めた。', 'ボランティアは被害者に服を配布した。', '職員は被害者に食料を配布した。'] },
     { example: 'The company will distribute dividends to shareholders next month.', correct: 'その会社は来月株主に配当金を配布するだろう。', wrong: ['その会社は来月株主から配当金を回収するだろう。', 'その会社は今月株主に配当金を配布するだろう。', 'その企業は来月株主に配当金を配布するだろう。'] },
