@@ -39,7 +39,7 @@ export function Settings() {
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_30%,rgba(255,255,255,0.05)_0%,transparent_50%)]" />
         <div className="relative">
           <h2 className="text-xl font-black tracking-wide">設定</h2>
-          <p className="text-xs opacity-60 mt-0.5">FIRST LIGHT Settings</p>
+          <p className="text-xs opacity-60 mt-0.5">Settings</p>
         </div>
       </div>
 
