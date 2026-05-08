@@ -514,8 +514,15 @@ function FanBoard() {
       </div>
       <div className="space-y-2">
         {posts.map((p, i) => {
+          // 1. Detect member name in text → that member reacts
+          const MEMBER_NAMES: Record<string, string> = { カイ: 'kai', ハルト: 'haruto', レン: 'ren', ソラ: 'sora', ユウキ: 'yuuki' };
+          let detectedMemberId: string | null = null;
+          for (const [nameJa, id] of Object.entries(MEMBER_NAMES)) {
+            if (p.text.includes(nameJa)) { detectedMemberId = id; break; }
+          }
+
           const reaction = MEMBER_REACTIONS[p.cat] ?? MEMBER_REACTIONS.message;
-          const rMemberId = reaction.members[i % reaction.members.length];
+          const rMemberId = detectedMemberId ?? reaction.members[i % reaction.members.length];
           const rText = reaction.reactions[i % reaction.reactions.length];
           const rMember = getMember(rMemberId);
           const isOpen = expanded === i;
@@ -536,11 +543,11 @@ function FanBoard() {
                 </div>
               </div>
               {isOpen && rMember && (
-                <div className="mt-2 pt-2 border-t border-gray-100 dark:border-gray-800 flex items-start gap-2">
+                <div className="mt-2 pt-2 border-t border-gray-100 dark:border-gray-800 flex items-start gap-2 animate-[fadeSlideIn_0.3s_ease-out]">
                   <MemberAvatar member={rMember} size="sm" />
                   <div className="flex-1">
                     <p className="text-[10px] text-gray-500">{rMember.nameJa}</p>
-                    <p className="text-xs text-gray-600 dark:text-gray-300 italic">「{rText}」</p>
+                    <TypewriterText text={`「${rText}」`} speed={30} className="text-xs text-gray-600 dark:text-gray-300 italic" />
                   </div>
                 </div>
               )}
