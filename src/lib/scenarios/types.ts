@@ -1,4 +1,4 @@
-export type CharacterId = 'haruto' | 'sora' | 'ren' | 'yuuki' | 'kai' | 'narrator' | 'player' | 'mob';
+export type CharacterId = 'haruto' | 'sora' | 'ren' | 'yuuki' | 'kai' | 'narrator' | 'player' | 'mob' | 'boss';
 
 export interface DialogLine {
   type: 'dialog';

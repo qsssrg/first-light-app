@@ -110,7 +110,7 @@ export function VNEngine({ scenario, onComplete, skippable = false }: VNEnginePr
         <CharacterSprite
           character={currentCharacter}
           expression={currentExpression}
-          active={line.type === 'dialog' && line.character !== 'narrator' && line.character !== 'player' && line.character !== 'mob'}
+          active={line.type === 'dialog' && line.character !== 'narrator' && line.character !== 'player' && line.character !== 'mob' && line.character !== 'boss'}
         />
       )}
 

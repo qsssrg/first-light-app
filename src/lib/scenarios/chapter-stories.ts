@@ -89,14 +89,15 @@ export const ch3Outro: Scenario = {
 // ===== Ch4: 事務所の試練 =====
 export const ch4Intro: Scenario = {
   id: 'ch4-intro',
-  background: 'president-office',
+  background: 'stylish-office',
   lines: [
-    { type: 'dialog', character: 'narrator', text: '――事務所のミーティングルーム。メンバーの顔が硬い。' },
+    { type: 'dialog', character: 'narrator', text: '――事務所のオフィス。メンバーの顔が硬い。' },
     { type: 'dialog', character: 'kai', text: '{playerName}…悪い知らせだ。', expression: 'serious' },
     { type: 'dialog', character: 'player', text: '…何かあったんですか？' },
-    { type: 'dialog', character: 'kai', text: '事務所のマネジメントから呼び出しを受けた。', expression: 'serious' },
-    { type: 'dialog', character: 'mob', text: 'お前たち、何勝手にやってるんだ？ 外部の人間を独断で引き入れたらしいな。', expression: 'serious' },
-    { type: 'dialog', character: 'mob', text: '英語力を高められるって根拠を見せろ。見せられなきゃ、この人には出てってもらう。', expression: 'serious' },
+    { type: 'dialog', character: 'kai', text: '社長から呼び出しを受けた。', expression: 'serious' },
+    { type: 'dialog', character: 'narrator', text: '――社長室。', background: 'president-office' },
+    { type: 'dialog', character: 'boss', text: 'お前たち、何勝手にやってるんだ？ 外部の人間を独断で引き入れたらしいな。' },
+    { type: 'dialog', character: 'boss', text: '英語力を高められるって根拠を見せろ。見せられなきゃ、この人には出てってもらう。' },
     { type: 'dialog', character: 'player', text: '（退場…！？ クビってこと…！？）', isInner: true },
     { type: 'dialog', character: 'yuuki', text: '{playerName}のおかげで俺たちめちゃくちゃ成長してるのに…！', expression: 'surprised' },
     { type: 'dialog', character: 'kai', text: '…分かった。証拠を見せよう。{playerName}、俺たちの実力を見てもらうぞ。', expression: 'serious' },
@@ -111,8 +112,8 @@ export const ch4Outro: Scenario = {
   id: 'ch4-outro',
   background: 'president-office',
   lines: [
-    { type: 'dialog', character: 'mob', text: '…なるほど。確かに、以前とは比較にならん上達だな。', expression: 'default' },
-    { type: 'dialog', character: 'mob', text: '{playerName}の指導は認めてやる。引き続き頼むぞ。', expression: 'default' },
+    { type: 'dialog', character: 'boss', text: '…なるほど。確かに、以前とは比較にならん上達だな。' },
+    { type: 'dialog', character: 'boss', text: '{playerName}の指導は認めてやる。引き続き頼むぞ。' },
     { type: 'dialog', character: 'yuuki', text: 'やったーーー！ {playerName}、残れるよ！！', expression: 'smile' },
     { type: 'dialog', character: 'player', text: '（よかった…本当によかった…！）', isInner: true },
     { type: 'dialog', character: 'kai', text: '{playerName}…ありがとう。お前がいなかったらこうはならなかった。', expression: 'smile' },

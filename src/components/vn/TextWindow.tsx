@@ -18,9 +18,10 @@ export function TextWindow({ character, text, onComplete, isActive, isInner }: T
 
   const isPlayer = character === 'player';
   const isMob = character === 'mob';
-  const member = !isPlayer && !isMob && character !== 'narrator' ? getMember(character) : null;
-  const name = isPlayer ? 'あなた' : isMob ? '周囲の声' : (member?.nameJa ?? '');
-  const color = isPlayer ? '#6366f1' : isMob ? '#6b7280' : (member?.color ?? '#888');
+  const isBoss = character === 'boss';
+  const member = !isPlayer && !isMob && !isBoss && character !== 'narrator' ? getMember(character) : null;
+  const name = isPlayer ? 'あなた' : isBoss ? '社長' : isMob ? '周囲の声' : (member?.nameJa ?? '');
+  const color = isPlayer ? '#6366f1' : isBoss ? '#8b5e3c' : isMob ? '#6b7280' : (member?.color ?? '#888');
 
   useEffect(() => {
     setDisplayed('');
