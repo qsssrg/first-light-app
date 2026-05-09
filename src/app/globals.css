@@ -232,3 +232,16 @@ button[data-slot="button"]:active {
 .animate-birthday-flash {
   animation: birthday-flash 3s ease-out forwards;
 }
+
+/* Card slide-in from right */
+@keyframes slideInRight {
+  0% { opacity: 0; transform: translateX(40px); }
+  100% { opacity: 1; transform: translateX(0); }
+}
+.animate-slide-in-right {
+  animation: slideInRight 0.4s ease-out forwards;
+}
+.slide-in-hidden {
+  opacity: 0;
+  transform: translateX(40px);
+}

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useProfile, useDueCards } from '@/lib/hooks';
 import { getLevelProgress, xpToNextLevel, getLevelFromXp } from '@/lib/xp';
 import { LEVEL_THRESHOLDS } from '@/types';
@@ -694,11 +694,24 @@ function pickFanPosts() {
 function FanBoard() {
   const [posts, setPosts] = useState(pickFanPosts);
   const [expanded, setExpanded] = useState<number | null>(null);
+  const [visible, setVisible] = useState(false);
+  const sectionRef = useRef<HTMLDivElement>(null);
   const name = getPlayerName() || 'マネージャー';
+
+  useEffect(() => {
+    const el = sectionRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) { setVisible(true); observer.disconnect(); }
+    }, { threshold: 0.1 });
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
 
   const refresh = () => {
     setPosts(pickFanPosts());
     setExpanded(null);
+    setVisible(true);
   };
 
   const CAT_COLORS: Record<string, string> = {
@@ -707,7 +720,7 @@ function FanBoard() {
   };
 
   return (
-    <div>
+    <div ref={sectionRef}>
       <h3 className="text-sm font-bold mb-3 flex items-center gap-2">
         <MessageSquare className="w-4 h-4" /> ファン掲示板
         <button
@@ -735,7 +748,7 @@ function FanBoard() {
           const rMember = getMember(rMemberId);
           const isOpen = expanded === i;
           return (
-            <Card key={i} className="p-3 cursor-pointer transition-shadow hover:shadow-sm" onClick={() => setExpanded(isOpen ? null : i)}>
+            <Card key={i} className={`p-3 cursor-pointer transition-shadow hover:shadow-sm ${visible ? 'animate-slide-in-right' : 'slide-in-hidden'}`} style={visible ? { animationDelay: `${i * 0.15}s`, animationFillMode: 'both' } : undefined} onClick={() => setExpanded(isOpen ? null : i)}>
               <div className="flex items-start gap-2.5">
                 <UserCircle className={`w-7 h-7 shrink-0 ${CAT_COLORS[p.cat] || 'text-gray-400'}`} />
                 <div className="flex-1 min-w-0">
