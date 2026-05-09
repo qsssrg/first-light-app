@@ -510,26 +510,45 @@ export function Dashboard() {
         const weeks = [...weekMap.entries()].sort((a, b) => a[0].localeCompare(b[0]));
         const maxXp = Math.max(1, ...weeks.map(w => w[1].xp));
 
+        const svgW = 300;
+        const svgH = 120;
+        const padX = 10;
+        const padY = 10;
+        const chartW = svgW - padX * 2;
+        const chartH = svgH - padY * 2;
+
+        const points = weeks.map(([week, data], i) => {
+          const x = padX + (weeks.length > 1 ? (i / (weeks.length - 1)) * chartW : chartW / 2);
+          const y = padY + chartH - (data.xp / maxXp) * chartH * 0.8;
+          return { x, y, week, xp: data.xp, correct: data.correct, total: data.total };
+        });
+
+        const linePath = points.map((p, i) => `${i === 0 ? 'M' : 'L'}${p.x},${p.y}`).join(' ');
+        const areaPath = linePath + ` L${points[points.length - 1].x},${padY + chartH} L${points[0].x},${padY + chartH} Z`;
+
         return (
           <Card className="p-4 backdrop-blur-sm bg-white/80 dark:bg-gray-900/80">
             <h3 className="text-sm font-medium mb-3">{en ? 'Growth Curve (Weekly XP)' : '成長曲線（週次XP）'}</h3>
-            <div className="flex gap-1" style={{ height: '120px' }}>
-              {weeks.map(([week, data]) => {
-                const heightPct = (data.xp / maxXp) * 80;
-                const barHeight = Math.round(120 * Math.max(heightPct, data.xp > 0 ? 3 : 0) / 100);
-                const accuracy = data.total > 0 ? Math.round((data.correct / data.total) * 100) : 0;
-                return (
-                  <div key={week} className="flex-1 flex flex-col justify-end items-center">
-                    <span className="text-[9px] text-gray-500">{data.xp}</span>
-                    <div
-                      className="w-full bg-blue-500 rounded-t transition-all"
-                      style={{ height: `${barHeight}px` }}
-                      title={`${week}: ${data.xp}XP, ${en ? `Accuracy: ${accuracy}%` : `正答率${accuracy}%`}`}
-                    />
-                  </div>
-                );
-              })}
-            </div>
+            <svg viewBox={`0 0 ${svgW} ${svgH}`} className="w-full" style={{ height: '120px' }}>
+              <defs>
+                <linearGradient id="xpGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#3b82f6" stopOpacity="0.3" />
+                  <stop offset="100%" stopColor="#3b82f6" stopOpacity="0.02" />
+                </linearGradient>
+              </defs>
+              {/* Area fill */}
+              {points.length > 1 && <path d={areaPath} fill="url(#xpGrad)" />}
+              {/* Line */}
+              {points.length > 1 && <path d={linePath} fill="none" stroke="#3b82f6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />}
+              {/* Dots + labels */}
+              {points.map((p, i) => (
+                <g key={i}>
+                  <circle cx={p.x} cy={p.y} r="4" fill="#3b82f6" stroke="white" strokeWidth="1.5" />
+                  <text x={p.x} y={p.y - 8} textAnchor="middle" fill="#6b7280" fontSize="8" fontWeight="500">{p.xp}</text>
+                  <title>{`${p.week}: ${p.xp}XP${p.total > 0 ? `, ${en ? 'Accuracy' : '正答率'}: ${Math.round((p.correct / p.total) * 100)}%` : ''}`}</title>
+                </g>
+              ))}
+            </svg>
             <div className="flex justify-between text-[9px] text-gray-600 mt-1">
               {weeks.length > 0 && <span>{weeks[0][0].slice(5)}</span>}
               {weeks.length > 1 && <span>{weeks[weeks.length - 1][0].slice(5)}</span>}
@@ -537,7 +556,7 @@ export function Dashboard() {
             {/* Growth message */}
             <div className="mt-3 bg-gray-100 dark:bg-gray-800 rounded-lg p-2.5">
               <p className="text-xs text-gray-700 dark:text-gray-200 font-medium">
-                学習セッション: {sessions.length}回 / 習得単語: {masteredCards}語 / 累計XP: {profile.totalXp.toLocaleString()}
+                {en ? `Sessions: ${sessions.length} / Mastered: ${masteredCards} / Total XP: ${profile.totalXp.toLocaleString()}` : `学習セッション: ${sessions.length}回 / 習得単語: ${masteredCards}語 / 累計XP: ${profile.totalXp.toLocaleString()}`}
               </p>
             </div>
           </Card>
