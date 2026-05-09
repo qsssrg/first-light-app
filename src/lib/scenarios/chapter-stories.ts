@@ -89,7 +89,7 @@ export const ch3Outro: Scenario = {
 // ===== Ch4: 事務所の試練 =====
 export const ch4Intro: Scenario = {
   id: 'ch4-intro',
-  background: 'stylish-office',
+  background: 'president-office',
   lines: [
     { type: 'dialog', character: 'narrator', text: '――事務所のミーティングルーム。メンバーの顔が硬い。' },
     { type: 'dialog', character: 'kai', text: '{playerName}…悪い知らせだ。', expression: 'serious' },
@@ -109,7 +109,7 @@ export const ch4Intro: Scenario = {
 
 export const ch4Outro: Scenario = {
   id: 'ch4-outro',
-  background: 'stylish-office',
+  background: 'president-office',
   lines: [
     { type: 'dialog', character: 'mob', text: '…なるほど。確かに、以前とは比較にならん上達だな。', expression: 'default' },
     { type: 'dialog', character: 'mob', text: '{playerName}の指導は認めてやる。引き続き頼むぞ。', expression: 'default' },
@@ -145,7 +145,7 @@ export const ch5Intro: Scenario = {
 
 export const ch5Outro: Scenario = {
   id: 'ch5-outro',
-  background: 'stage',
+  background: 'tv-studio-jp',
   lines: [
     { type: 'dialog', character: 'narrator', text: '――対談番組の収録後。舞台袖。' },
     { type: 'dialog', character: 'kai', text: '…やったな、みんな。英語のコーナー、完璧だった。', expression: 'smile' },
