@@ -513,17 +513,18 @@ export function Dashboard() {
         return (
           <Card className="p-4 backdrop-blur-sm bg-white/80 dark:bg-gray-900/80">
             <h3 className="text-sm font-medium mb-3">{en ? 'Growth Curve (Weekly XP)' : '成長曲線（週次XP）'}</h3>
-            <div className="flex items-end gap-1 h-24">
+            <div className="flex gap-1" style={{ height: '120px' }}>
               {weeks.map(([week, data]) => {
-                const height = (data.xp / maxXp) * 100;
+                const heightPct = (data.xp / maxXp) * 80;
+                const barHeight = Math.round(120 * Math.max(heightPct, data.xp > 0 ? 3 : 0) / 100);
                 const accuracy = data.total > 0 ? Math.round((data.correct / data.total) * 100) : 0;
                 return (
-                  <div key={week} className="flex-1 flex flex-col items-center gap-0.5">
+                  <div key={week} className="flex-1 flex flex-col justify-end items-center">
                     <span className="text-[9px] text-gray-500">{data.xp}</span>
                     <div
-                      className="w-full bg-blue-500 rounded-t transition-all min-h-[2px]"
-                      style={{ height: `${height}%` }}
-                      title={`${week}: ${data.xp}XP, 正答率${accuracy}%`}
+                      className="w-full bg-blue-500 rounded-t transition-all"
+                      style={{ height: `${barHeight}px` }}
+                      title={`${week}: ${data.xp}XP, ${en ? `Accuracy: ${accuracy}%` : `正答率${accuracy}%`}`}
                     />
                   </div>
                 );
