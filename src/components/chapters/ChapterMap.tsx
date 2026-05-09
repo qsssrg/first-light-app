@@ -74,7 +74,6 @@ export function ChapterMap() {
                     <div className="flex items-center gap-2">
                       <h3 className="font-bold text-sm">Ch.{chapter.number} {chapter.titleJa}</h3>
                     </div>
-                    <p className="text-xs text-gray-500">{chapter.title}</p>
                     <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">{chapter.description}</p>
                     <p className="text-[10px] text-gray-400 mt-1">{chapter.stages.length}ステージ</p>
                   </div>

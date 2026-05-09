@@ -32,7 +32,7 @@ export default function StoryPreviewPage() {
         return (
           <Card key={chapter.id} className="p-4">
             <h3 className="text-sm font-bold mb-2">Ch.{chapter.number} {chapter.titleJa}</h3>
-            <p className="text-xs text-gray-500 mb-3">{chapter.title} — {chapter.description}</p>
+            <p className="text-xs text-gray-500 mb-3">{chapter.description}</p>
             {stories ? (
               <div className="flex gap-2">
                 <button
