@@ -390,21 +390,24 @@ function BirthdayInput() {
 }
 
 function OshiMemberSection({ currentOshi }: { currentOshi?: string }) {
+  const [selected, setSelected] = useState<string | undefined>(currentOshi);
   const [saved, setSaved] = useState(false);
+  const hasChanged = selected !== currentOshi;
 
-  const handleSelect = async (memberId: string) => {
+  const handleSave = async () => {
     const profile = await import('@/lib/db').then(m => m.db.userProfile.toCollection().first());
-    if (profile?.id) {
-      const newOshi = currentOshi === memberId ? undefined : memberId;
-      await updateProfile({
-        settings: { ...profile.settings, oshiMemberId: newOshi },
-      });
-      setSaved(true);
-      setTimeout(() => setSaved(false), 1500);
+    if (!profile?.id) return;
+    // Penalty for changing oshi
+    if (currentOshi && currentOshi !== selected && currentOshi !== 'hakoshi') {
+      const { penaltyOshiChange } = await import('@/lib/affinity-penalty');
+      await penaltyOshiChange(currentOshi);
     }
+    await updateProfile({
+      settings: { ...profile.settings, oshiMemberId: selected },
+    });
+    setSaved(true);
+    setTimeout(() => setSaved(false), 1500);
   };
-
-  const isHakoshi = currentOshi === 'hakoshi';
 
   return (
     <Card className="p-4 overflow-hidden">
@@ -419,35 +422,43 @@ function OshiMemberSection({ currentOshi }: { currentOshi?: string }) {
         {MEMBERS.map(m => (
           <button
             key={m.id}
-            onClick={() => handleSelect(m.id)}
+            onClick={() => setSelected(selected === m.id ? undefined : m.id)}
             className={`relative flex flex-col items-center gap-1 p-2 rounded-xl transition-all ${
-              currentOshi === m.id
+              selected === m.id
                 ? 'bg-yellow-500/10 border-2 border-yellow-400'
                 : 'hover:bg-white/5 border-2 border-transparent'
             }`}
           >
             <MemberAvatar member={m} size="md" />
             <span className="text-[10px] text-gray-500">{m.nameJa}</span>
-            {currentOshi === m.id && (
+            {selected === m.id && (
               <span className="absolute -top-1 -right-1 text-sm">⭐</span>
             )}
           </button>
         ))}
         <button
-          onClick={() => handleSelect('hakoshi')}
+          onClick={() => setSelected(selected === 'hakoshi' ? undefined : 'hakoshi')}
           className={`relative flex flex-col items-center gap-1 p-2 rounded-xl transition-all ${
-            isHakoshi
+            selected === 'hakoshi'
               ? 'bg-yellow-500/10 border-2 border-yellow-400'
               : 'hover:bg-white/5 border-2 border-transparent'
           }`}
         >
           <div className="w-12 h-12 rounded-full bg-gradient-to-br from-pink-400 to-rose-500 flex items-center justify-center text-white text-lg">♥</div>
           <span className="text-[10px] text-gray-500">箱推し</span>
-          {isHakoshi && (
+          {selected === 'hakoshi' && (
             <span className="absolute -top-1 -right-1 text-sm">⭐</span>
           )}
         </button>
       </div>
+      {hasChanged && (
+        <div className="mt-3 space-y-2">
+          {currentOshi && currentOshi !== 'hakoshi' && (
+            <p className="text-[10px] text-amber-500">推し変更で元の推しメンバーの親密度が下がります</p>
+          )}
+          <Button onClick={handleSave} size="sm" className="w-full">保存する</Button>
+        </div>
+      )}
       {saved && (
         <p className="text-xs text-green-500 mt-2 text-center flex items-center justify-center gap-1">
           <CheckCircle className="w-3 h-3" /> 推しメンバーを更新しました
@@ -612,6 +623,7 @@ function DataResetSection() {
       await db.stageProgress.clear();
       await db.challengeResults.clear();
       await db.writingSubmissions.clear();
+      await db.memberAffinity.clear();
       window.location.href = '/';
     } catch {
       setResetting(false);

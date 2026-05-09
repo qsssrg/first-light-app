@@ -23,6 +23,7 @@ import { isBirthdayToday, markBirthdayCelebrated } from '@/lib/birthday';
 import { birthdayScenario } from '@/lib/scenarios/birthday';
 import { getMemberBirthdayToday, markMemberBirthdayCelebrated } from '@/lib/member-birthday';
 import { getMemberBirthdayScenario } from '@/lib/scenarios/member-birthday';
+import { checkInactivityPenalty } from '@/lib/affinity-penalty';
 import { FAKE_NEWS } from '@/data/fake-news';
 import { FAN_POSTS } from '@/data/fan-posts';
 import { STAGE_NEWS } from '@/data/stage-news';
@@ -237,6 +238,12 @@ export function HomeScreen({ onVNPlaying }: { onVNPlaying?: (playing: boolean) =
     sessionStorage.setItem(key, 'done');
   }, [greeting.member]);
 
+  // Inactivity penalty check
+  const [penaltyMsg, setPenaltyMsg] = useState<string | null>(null);
+  useEffect(() => {
+    checkInactivityPenalty().then(msg => { if (msg) setPenaltyMsg(msg); });
+  }, []);
+
   const [playingLevelup, setPlayingLevelup] = useState(false);
   const [unwatchedLevel, setUnwatchedLevel] = useState<number | null>(null);
   const [birthdayPhase, setBirthdayPhase] = useState<'none' | 'confetti' | 'vn'>('none');
@@ -379,6 +386,14 @@ export function HomeScreen({ onVNPlaying }: { onVNPlaying?: (playing: boolean) =
 
   return (
     <div className="space-y-5 pb-4">
+      {/* Inactivity penalty notice */}
+      {penaltyMsg && (
+        <Card className="p-3 border-amber-300 dark:border-amber-700 bg-amber-50 dark:bg-amber-950/50">
+          <p className="text-xs text-amber-700 dark:text-amber-300">{penaltyMsg}</p>
+          <button onClick={() => setPenaltyMsg(null)} className="text-[10px] text-amber-500 mt-1">OK</button>
+        </Card>
+      )}
+
       {/* Group 1: Member greeting + recommended action (tight) */}
       <div className="space-y-2">
       {/* Member greeting — priority: psychology > level-up > normal */}
