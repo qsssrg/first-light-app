@@ -748,7 +748,7 @@ function FanBoard() {
           const rMember = getMember(rMemberId);
           const isOpen = expanded === i;
           return (
-            <Card key={i} className={`p-3 cursor-pointer transition-shadow hover:shadow-sm ${visible ? 'animate-slide-in-right' : 'slide-in-hidden'}`} style={visible ? { animationDelay: `${i * 0.15}s`, animationFillMode: 'both' } : undefined} onClick={() => setExpanded(isOpen ? null : i)}>
+            <Card key={i} className={`p-3 cursor-pointer transition-shadow hover:shadow-sm ${visible ? 'animate-slide-in-right' : 'slide-in-hidden'}`} style={visible ? { animationDelay: `${i * 0.5}s`, animationFillMode: 'both' } : undefined} onClick={() => setExpanded(isOpen ? null : i)}>
               <div className="flex items-start gap-2.5">
                 <UserCircle className={`w-7 h-7 shrink-0 ${CAT_COLORS[p.cat] || 'text-gray-400'}`} />
                 <div className="flex-1 min-w-0">
