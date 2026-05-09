@@ -739,7 +739,7 @@ export function VocabStudy() {
             onClick={() => setPhase('tokoton-end')}
             className="text-xs text-gray-400 hover:text-gray-600 underline decoration-dotted"
           >
-            isEnglishMode ? 'End session' : '今日はここまで'
+            {isEnglishMode ? 'End session' : '今日はここまで'}
           </button>
         </div>
       </div>
