@@ -83,5 +83,70 @@
         "background": "stage"
       }
     ]
+  },
+  {
+    "id": "chapter-06",
+    "scenes": [
+      { "character": "kai", "expression": "serious", "text": "Chapter 6 — 海外番組から出演依頼が来た。", "background": "stylish-office" },
+      { "character": "yuuki", "expression": "surprised", "text": "えっ！？ 海外の音楽番組！？ マジで！？" },
+      { "character": "kai", "expression": "smile", "text": "しかも共演アーティストとの対談コーナーもある。英語でな。" },
+      { "character": "ren", "expression": "default", "text": "…英語でインタビューか。聴き取れるかが勝負だな。" },
+      { "character": "sora", "expression": "default", "text": "事前に質問リストを英語で準備しておけば…少しは安心できますね。" },
+      { "character": "haruto", "expression": "smile", "text": "{playerName}さん、一緒に準備しましょう。リスニングとライティング、両方鍛えられます。" },
+      { "character": "kai", "expression": "smile", "text": "{playerName}、ここからが本番だ。俺たちの力を見せよう。" }
+    ]
+  },
+  {
+    "id": "chapter-07",
+    "scenes": [
+      { "character": "narrator", "expression": "default", "text": "Chapter 7 — ある朝、海外メディアの記事が拡散された。" },
+      { "character": "yuuki", "expression": "surprised", "text": "{playerName}！ 大変！ 海外の記者が「{playerName}はメンバーの恋人」って書いてる！！" },
+      { "character": "kai", "expression": "serious", "text": "…完全な誤報だ。すぐに訂正しないと。" },
+      { "character": "ren", "expression": "default", "text": "英語で訂正文を出すしかないだろ。日本語じゃ向こうには伝わらない。" },
+      { "character": "haruto", "expression": "default", "text": "{playerName}さん、一緒に訂正文を書きましょう。正確な英語で、誠実に。" },
+      { "character": "sora", "expression": "smile", "text": "記者とも英語で直接話せたら…誤解が解けるかもしれません。" },
+      { "character": "kai", "expression": "smile", "text": "{playerName}の英語力が、今こそ必要だ。頼むぞ。" },
+      { "character": "narrator", "expression": "default", "text": "――{playerName}の誠実な英語が、記者の心を動かした。訂正記事が掲載された。" }
+    ]
+  },
+  {
+    "id": "chapter-08",
+    "scenes": [
+      { "character": "kai", "expression": "serious", "text": "Chapter 8 — フェスまであと1週間。準備を始めよう。", "background": "practice-room" },
+      { "character": "sora", "expression": "default", "text": "共演アーティストのプロフィール…英語で読み込んでおきますね。" },
+      { "character": "ren", "expression": "default", "text": "現地スタッフとの打ち合わせメール、もう来てるぞ。英語だ。" },
+      { "character": "yuuki", "expression": "smile", "text": "ステージのMC台本、俺が書く！ …英語で！ {playerName}、チェックして！" },
+      { "character": "haruto", "expression": "smile", "text": "歌の合間のMC…お客さんに届く言葉を選びたいですね。" },
+      { "character": "kai", "expression": "smile", "text": "全員で準備する。{playerName}、司令塔は任せたぞ。" }
+    ]
+  },
+  {
+    "id": "chapter-09",
+    "scenes": [
+      { "character": "narrator", "expression": "default", "text": "Chapter 9 — フェス当日。会場には世界中のファンが集まっていた。", "background": "stage" },
+      { "character": "yuuki", "expression": "surprised", "text": "うわ…人多すぎ…！ でもワクワクする！！" },
+      { "character": "ren", "expression": "default", "text": "…{playerName}、現地スタッフがステージ裏にいる。英語で段取り確認してくれ。" },
+      { "character": "kai", "expression": "serious", "text": "MC行くぞ。{playerName}が練習に付き合ってくれたから、大丈夫だ。" },
+      { "character": "kai", "expression": "smile", "text": "Hello everyone! We are FIRST LIGHT! Thank you for having us!", "background": "stage" },
+      { "character": "narrator", "expression": "default", "text": "――会場が歓声に包まれた。メンバーの英語が、世界に届いた瞬間だった。" },
+      { "character": "haruto", "expression": "smile", "text": "{playerName}さん…やりました。全部、あなたのおかげです。" },
+      { "character": "yuuki", "expression": "smile", "text": "{playerName}！！ 最高だった！！ ありがとう！！！" }
+    ]
+  },
+  {
+    "id": "chapter-10",
+    "scenes": [
+      { "character": "narrator", "expression": "default", "text": "Final Chapter — フェスから数日後。事務所に呼び出された。", "background": "stylish-office" },
+      { "character": "kai", "expression": "serious", "text": "社長から話がある。{playerName}のことだ。" },
+      { "character": "narrator", "expression": "default", "text": "社長が微笑んだ。「FIRST LIGHTの裏には、優秀なブレインがいる。そろそろ世間に紹介しよう」" },
+      { "character": "yuuki", "expression": "surprised", "text": "え！？ {playerName}がテレビに！？" },
+      { "character": "ren", "expression": "smile", "text": "…まぁ、隠してる方が不自然だったけどな。" },
+      { "character": "narrator", "expression": "default", "text": "――国内外のメディアが{playerName}に注目した。英語でのインタビューが始まる。" },
+      { "character": "kai", "expression": "smile", "text": "{playerName}。俺たちが出会った夜のことを覚えてるか。" },
+      { "character": "kai", "expression": "smile", "text": "あの時から…全部、{playerName}が一緒だった。これからもよろしくな。" },
+      { "character": "haruto", "expression": "smile", "text": "一つの出会いが、僕たちの世界を変えました。ありがとう、{playerName}さん。" },
+      { "character": "yuuki", "expression": "smile", "text": "{playerName}がいなかったら、今の俺たちはいない。…ずっと、一緒にいてね。" },
+      { "character": "narrator", "expression": "default", "text": "――こうして、{playerName}とFIRST LIGHTの物語は、新たなステージへと続いていく。" }
+    ]
   }
 ]
