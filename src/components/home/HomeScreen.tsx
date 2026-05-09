@@ -806,6 +806,7 @@ function FanBoard() {
         >
           <RefreshCw className="w-3.5 h-3.5 text-gray-400" />
         </button>
+        <span className="text-[10px] text-gray-400 font-normal ml-auto">タップでコメント表示</span>
       </h3>
       <div className="space-y-2">
         {posts.map((p, i) => {
