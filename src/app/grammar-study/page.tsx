@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { BottomNav } from '@/components/common/BottomNav';
-import { ChapterMap } from '@/components/chapters/ChapterMap';
+import { GrammarPractice } from '@/components/grammar-practice/GrammarPractice';
 import { VNModal } from '@/components/vn/VNModal';
 import { getRandomGrammarIntro } from '@/lib/scenarios/grammar-intro';
 import type { Scenario } from '@/lib/scenarios/types';
@@ -48,7 +48,7 @@ export default function GrammarStudyPage() {
   return (
     <div className="pb-20">
       <div className="max-w-lg md:max-w-2xl lg:max-w-3xl mx-auto py-6">
-        <ChapterMap />
+        <GrammarPractice />
       </div>
       <BottomNav />
     </div>
