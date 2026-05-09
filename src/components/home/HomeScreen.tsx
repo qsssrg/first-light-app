@@ -8,7 +8,7 @@ import { MEMBERS, getMember } from '@/lib/members';
 import { MemberAvatar } from '@/components/common/MemberAvatar';
 import { Progress } from '@/components/ui/progress';
 import { Card } from '@/components/ui/card';
-import { BookOpen, Flame, Target, Sparkles, ArrowRight, Lightbulb } from 'lucide-react';
+import { BookOpen, Flame, Target, Sparkles, ArrowRight, Lightbulb, Headphones, FileText, GraduationCap } from 'lucide-react';
 import Link from 'next/link';
 import { getPlayerName } from '@/lib/player-name';
 import { AvatarSilhouette } from '@/components/common/AvatarSilhouette';
@@ -467,9 +467,9 @@ export function HomeScreen({ onVNPlaying }: { onVNPlaying?: (playing: boolean) =
         ))}
       </div>
 
-      {/* Group 2: Chapter + Vocab study (tight) */}
+      {/* Group 2: Chapters + 5 Courses */}
       <div className="space-y-2">
-      {/* Chapter progress card */}
+      {/* Chapter — mixed skills + story */}
       <Link href="/chapters/">
         <Card className="p-4 hover:shadow-md transition-shadow cursor-pointer border-teal-300 dark:border-teal-700 bg-gradient-to-r from-teal-50 to-cyan-50 dark:from-teal-950/30 dark:to-cyan-950/30">
           <div className="flex items-center gap-3">
@@ -478,14 +478,85 @@ export function HomeScreen({ onVNPlaying }: { onVNPlaying?: (playing: boolean) =
             </div>
             <div className="flex-1">
               <p className="text-sm font-bold text-teal-900 dark:text-teal-100">{en ? 'Continue Chapters' : 'チャプターを進める'}</p>
-              <p className="text-xs text-teal-600 dark:text-teal-400">{en ? 'Learn with Kai' : 'カイとチャプターを進めよう'}</p>
+              <p className="text-xs text-teal-600 dark:text-teal-400">{en ? 'Mixed skills + story' : 'ストーリーと一緒に総合学習'}</p>
             </div>
             <ArrowRight className="w-4 h-4 text-teal-400" />
           </div>
         </Card>
       </Link>
 
-      {/* Psychology badge moved to top greeting area */}
+      {/* 5 Member Courses */}
+      <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest pt-1">{en ? 'Member Courses' : 'メンバー別コース'}</p>
+
+      {/* ハルト × 語彙 */}
+      <Link href="/vocab-study">
+        <Card className="p-4 hover:shadow-md transition-shadow cursor-pointer border-blue-300 dark:border-blue-700 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/30">
+          <div className="flex items-center gap-3">
+            <MemberAvatar member={getMember('haruto')!} size="sm" />
+            <div className="flex-1">
+              <p className="text-sm font-bold text-blue-900 dark:text-blue-100">{en ? 'Vocabulary with Haruto' : 'ハルトと単語学習'}</p>
+              <p className="text-xs text-blue-600 dark:text-blue-400">{en ? 'Build your word power' : '単語を覚えて語彙力を伸ばそう'}</p>
+            </div>
+            <ArrowRight className="w-4 h-4 text-blue-400" />
+          </div>
+        </Card>
+      </Link>
+
+      {/* ユウキ × ライティング */}
+      <Link href="/writing-study">
+        <Card className="p-4 hover:shadow-md transition-shadow cursor-pointer border-pink-300 dark:border-pink-700 bg-gradient-to-r from-pink-50 to-rose-50 dark:from-pink-950/30 dark:to-rose-950/30">
+          <div className="flex items-center gap-3">
+            <MemberAvatar member={getMember('yuuki')!} size="sm" />
+            <div className="flex-1">
+              <p className="text-sm font-bold text-pink-900 dark:text-pink-100">{en ? 'Writing with Yuuki' : 'ユウキとライティング'}</p>
+              <p className="text-xs text-pink-600 dark:text-pink-400">{en ? 'Express yourself in English' : '英文を書いて表現力を磨こう'}</p>
+            </div>
+            <ArrowRight className="w-4 h-4 text-pink-400" />
+          </div>
+        </Card>
+      </Link>
+
+      {/* レン × リスニング */}
+      <Link href="/listening">
+        <Card className="p-4 hover:shadow-md transition-shadow cursor-pointer border-red-300 dark:border-red-700 bg-gradient-to-r from-red-50 to-orange-50 dark:from-red-950/30 dark:to-orange-950/30">
+          <div className="flex items-center gap-3">
+            <MemberAvatar member={getMember('ren')!} size="sm" />
+            <div className="flex-1">
+              <p className="text-sm font-bold text-red-900 dark:text-red-100">{en ? 'Listening with Ren' : 'レンとリスニング'}</p>
+              <p className="text-xs text-red-600 dark:text-red-400">{en ? 'Train your ear' : '耳を鍛えて聴き取り力UP'}</p>
+            </div>
+            <ArrowRight className="w-4 h-4 text-red-400" />
+          </div>
+        </Card>
+      </Link>
+
+      {/* ソラ × リーディング */}
+      <Link href="/chapters/">
+        <Card className="p-4 hover:shadow-md transition-shadow cursor-pointer border-green-300 dark:border-green-700 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-950/30 dark:to-emerald-950/30">
+          <div className="flex items-center gap-3">
+            <MemberAvatar member={getMember('sora')!} size="sm" />
+            <div className="flex-1">
+              <p className="text-sm font-bold text-green-900 dark:text-green-100">{en ? 'Reading with Sora' : 'ソラとリーディング'}</p>
+              <p className="text-xs text-green-600 dark:text-green-400">{en ? 'Read and comprehend' : '英文を読んで読解力を伸ばそう'}</p>
+            </div>
+            <ArrowRight className="w-4 h-4 text-green-400" />
+          </div>
+        </Card>
+      </Link>
+
+      {/* カイ × 文法 */}
+      <Link href="/chapters/">
+        <Card className="p-4 hover:shadow-md transition-shadow cursor-pointer border-gray-300 dark:border-gray-600 bg-gradient-to-r from-gray-50 to-slate-50 dark:from-gray-900/30 dark:to-slate-950/30">
+          <div className="flex items-center gap-3">
+            <MemberAvatar member={getMember('kai')!} size="sm" />
+            <div className="flex-1">
+              <p className="text-sm font-bold text-gray-900 dark:text-gray-100">{en ? 'Grammar with Kai' : 'カイと文法'}</p>
+              <p className="text-xs text-gray-600 dark:text-gray-400">{en ? 'Master the structure' : '構造を理解して英語力の土台を作ろう'}</p>
+            </div>
+            <ArrowRight className="w-4 h-4 text-gray-400" />
+          </div>
+        </Card>
+      </Link>
 
       {/* Psychology course card (if unlocked) */}
       {isPsychologyUnlocked() && (
@@ -504,38 +575,6 @@ export function HomeScreen({ onVNPlaying }: { onVNPlaying?: (playing: boolean) =
           </Card>
         </Link>
       )}
-
-      {/* 単語学習 — full-width card */}
-      <Link href="/vocab-study">
-        <Card className="p-4 hover:shadow-md transition-shadow cursor-pointer border-purple-300 dark:border-purple-700 bg-gradient-to-r from-purple-50 to-fuchsia-50 dark:from-purple-950/30 dark:to-fuchsia-950/30">
-          <div className="flex items-center gap-3">
-            <div className="p-2.5 bg-purple-100 dark:bg-purple-900 rounded-full">
-              <Sparkles className="w-5 h-5 text-purple-600 dark:text-purple-400" />
-            </div>
-            <div className="flex-1">
-              <p className="text-sm font-bold text-purple-900 dark:text-purple-100">{en ? 'Study Vocabulary' : '単語学習を進める'}</p>
-              <p className="text-xs text-purple-600 dark:text-purple-400">{en ? 'Learn words with Haruto' : 'ハルトと単語を覚えよう'}</p>
-            </div>
-            <ArrowRight className="w-4 h-4 text-purple-400" />
-          </div>
-        </Card>
-      </Link>
-
-      {/* ライティング学習 — full-width card */}
-      <Link href="/writing-study">
-        <Card className="p-4 hover:shadow-md transition-shadow cursor-pointer border-pink-300 dark:border-pink-700 bg-gradient-to-r from-pink-50 to-rose-50 dark:from-pink-950/30 dark:to-rose-950/30">
-          <div className="flex items-center gap-3">
-            <div className="p-2.5 bg-pink-100 dark:bg-pink-900 rounded-full">
-              <Flame className="w-5 h-5 text-pink-600 dark:text-pink-400" />
-            </div>
-            <div className="flex-1">
-              <p className="text-sm font-bold text-pink-900 dark:text-pink-100">{en ? 'Writing Practice' : 'ライティング学習を進める'}</p>
-              <p className="text-xs text-pink-600 dark:text-pink-400">{en ? 'Write with Yuuki' : 'ユウキと一緒に英文を書こう'}</p>
-            </div>
-            <ArrowRight className="w-4 h-4 text-pink-400" />
-          </div>
-        </Card>
-      </Link>
 
       </div>
 
