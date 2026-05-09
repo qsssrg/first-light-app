@@ -60,12 +60,12 @@ export const openingScenario: Scenario = {
     { type: 'dialog', character: 'mob', text: '誰なのあの人…新メンバー…？' },
 
     // ===== シーン6: 車内（limousine-interior）=====
-    { type: 'dialog', character: 'narrator', text: '――リムジンの中。革張りのシートにずらりとメンバーが座っている。', background: 'limousine-interior' },
+    { type: 'dialog', character: 'narrator', text: '――リムジンの中。洗練されたインテリアの車内にメンバーが座っている。', background: 'limousine-interior' },
     { type: 'dialog', character: 'player', text: '（嘘でしょ…FIRST LIGHTに囲まれてリムジンに乗ってる…夢…？）', isInner: true },
     { type: 'dialog', character: 'kai', text: '驚かせてすまない、{playerName}さん。…急なのは分かってる。', expression: 'serious' },
     { type: 'dialog', character: 'kai', text: '{playerName}さんに、協力してほしいことがあるんだ。', expression: 'serious' },
     { type: 'dialog', character: 'player', text: '協力…？' },
-    { type: 'dialog', character: 'kai', text: '来週、海外のフェスに出ることが決まった。でも…英語が全然ダメなんだ。MCも挨拶も何も準備できてない。', expression: 'serious' },
+    { type: 'dialog', character: 'kai', text: '3ヶ月後、海外のフェスに出ることが決まった。でも…英語が全然ダメなんだ。MCも挨拶も何も準備できてない。', expression: 'serious' },
     { type: 'dialog', character: 'yuuki', text: '通訳さんが急に来れなくなっちゃって…マジでやばいの！', expression: 'surprised' },
     { type: 'dialog', character: 'ren', text: '…俺は洋楽聴いてるから多少はいけると思ってたけど、喋るのは別だった。', expression: 'default' },
     { type: 'dialog', character: 'haruto', text: '歌詞は書けても、会話となると…。{playerName}さんの力を借りたいんです。', expression: 'default' },
@@ -125,8 +125,8 @@ export const preAssessmentScenario: Scenario = {
 
     // ===== 応接室に案内される =====
     { type: 'dialog', character: 'narrator', text: 'ガラス張りのエントランスを抜け、スタッフに案内されたのは――' },
-    { type: 'dialog', character: 'narrator', text: '広い応接室だった。革張りのソファ、高い天井、壁にはアート。', background: 'reception-room' },
-    { type: 'dialog', character: 'player', text: '（なにここ…ホテルのスイートみたい…）', isInner: true },
+    { type: 'dialog', character: 'narrator', text: '広いオフィスだった。モダンなデザインソファ、ガラス張りの壁、洗練されたインテリア。', background: 'stylish-office' },
+    { type: 'dialog', character: 'player', text: '（なにここ…近未来の映画に出てきそう…）', isInner: true },
     { type: 'dialog', character: 'player', text: '（こんなところに座っていいの…？ 服装間違えた気がする…）', isInner: true },
 
     // ===== メンバー登場 — 距離が近い =====
