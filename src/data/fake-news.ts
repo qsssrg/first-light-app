@@ -107,4 +107,7 @@ export const FAKE_NEWS: FakeNews[] = [
   { title: 'レン、楽器メーカーのアンバサダー', body: '大手楽器企業と年間契約。ギター文化の発展に貢献する役割。', tag: 'コラボ', titleEn: 'Ren Becomes Ambassador for Musical Instrument Maker', bodyEn: 'Year-long contract with major instrument company. Contributes to development of guitar culture.' },
   { title: 'ユウキ、日本ダンス選手権で審査員', body: 'ダンスコンテストの審査委員就任。若手育成を支援。', tag: 'イベント', titleEn: 'Yuuki Appointed Judge for Japan Dance Championship', bodyEn: 'Assumes judging role for dance competition. Supports development of young talent.' },
   { title: 'FIRST LIGHT、タイのバンコクでLIVE', body: 'アジア第2の都市で大型コンサート開催。現地ファン3000人動員。', tag: 'LIVE', titleEn: 'FIRST LIGHT Holds Concert in Bangkok, Thailand', bodyEn: 'Large-scale concert held in Asia\'s second major city. Draws 3,000 local fans.' },
+  { title: '繁華街にリムジンで乗りつけ、謎の美女を乗せて立ち去る', body: 'FIRST LIGHTメンバーが繁華街で目撃。リアリティショーの撮影との噂も浮上。', tag: 'SNS', titleEn: 'FIRST LIGHT Arrives in Limousine, Leaves with Mystery Woman', bodyEn: 'Members spotted downtown. Rumors suggest reality show filming.' },
+  { title: 'リムジン事件についてユウキが笑って誤魔化す', body: 'ラジオで質問されたユウキは「秘密のプロジェクトです！」と回答。真相は不明。', tag: 'SNS', titleEn: 'Yuuki Laughs Off Limousine Incident Question', bodyEn: 'When asked on radio, Yuuki replied "It\'s a secret project!" Truth remains unknown.' },
+  { title: 'リムジンの謎の美女、生配信には登場せず', body: '直後の生配信には出演しなかったが、会場にいたとの目撃情報も。正体はいまだ不明。', tag: 'SNS', titleEn: 'Mystery Woman from Limousine Absent from Live Stream', bodyEn: 'Did not appear on the subsequent live stream, but reportedly seen at the venue. Identity still unknown.' },
 ];
