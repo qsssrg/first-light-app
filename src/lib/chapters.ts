@@ -5,9 +5,9 @@ export const CHAPTERS: Chapter[] = [
   {
     id: 'ch1',
     number: 1,
-    title: 'Vocabulary Continent',
-    titleJa: '語彙の大陸',
-    description: 'ハルトと一緒に、単語の海を渡ろう。',
+    title: 'The Beginning',
+    titleJa: '始まりの日々',
+    description: 'メンバーとの英語学習が始まる。それぞれの目標と想い。',
     axis: 'vocabulary',
     memberId: 'haruto',
     stages: [
@@ -21,9 +21,9 @@ export const CHAPTERS: Chapter[] = [
   {
     id: 'ch2',
     number: 2,
-    title: 'Reading Forest',
-    titleJa: '読解の森',
-    description: 'ソラと一緒に、英文の森を探検しよう。',
+    title: 'First Progress',
+    titleJa: '初めての手応え',
+    description: 'カフェでソラとハルトが成長を実感。学習の成果が見え始める。',
     axis: 'reading',
     memberId: 'sora',
     stages: [
@@ -35,9 +35,9 @@ export const CHAPTERS: Chapter[] = [
   {
     id: 'ch3',
     number: 3,
-    title: 'Listening Ocean',
-    titleJa: 'リスニングの海',
-    description: 'レンと一緒に、英語の音を聴き取ろう。',
+    title: 'Teamwork',
+    titleJa: 'チームワーク',
+    description: '全員でリスニング特訓。メンバーとの絆が深まる。',
     axis: 'listening',
     memberId: 'ren',
     stages: [
@@ -49,9 +49,9 @@ export const CHAPTERS: Chapter[] = [
   {
     id: 'ch4',
     number: 4,
-    title: 'Writing Sky',
-    titleJa: 'ライティングの空',
-    description: 'ユウキと一緒に、英語で想いを伝えよう。',
+    title: 'The Trial',
+    titleJa: '事務所の試練',
+    description: '事務所社長に英語力を問われる。実力を証明し、正式な仲間へ。',
     axis: 'writing',
     memberId: 'yuuki',
     stages: [
@@ -63,9 +63,9 @@ export const CHAPTERS: Chapter[] = [
   {
     id: 'ch5',
     number: 5,
-    title: 'Grammar Tower',
-    titleJa: '文法の塔',
-    description: 'カイと一緒に、英語の構造を見抜こう。',
+    title: 'The TV Show',
+    titleJa: '対談番組',
+    description: '来日俳優との対談で英語サプライズ。特訓の成果を全国に見せる。',
     axis: 'grammar',
     memberId: 'kai',
     stages: [
