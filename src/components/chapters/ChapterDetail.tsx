@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '@/lib/db';
 import { getChapter } from '@/lib/chapters';
@@ -8,10 +9,13 @@ import { MemberAvatar } from '@/components/common/MemberAvatar';
 import { Card } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
-import { BookOpen, Trophy } from 'lucide-react';
+import { BookOpen, Trophy, Play } from 'lucide-react';
 import Link from 'next/link';
 import { useProfile } from '@/lib/hooks';
+import { VNEngine } from '@/components/vn/VNEngine';
+import { CHAPTER_STORIES } from '@/lib/scenarios/chapter-stories';
 import type { Stage } from '@/types';
+import type { Scenario } from '@/lib/scenarios/types';
 
 interface Props {
   chapterId: string;
@@ -22,6 +26,11 @@ export function ChapterDetail({ chapterId }: Props) {
   const progressData = useLiveQuery(() => db.stageProgress.toArray()) ?? [];
   const profile = useProfile();
   const en = profile?.settings?.englishSpeakerMode ?? false;
+  const [playingStory, setPlayingStory] = useState<Scenario | null>(null);
+
+  if (playingStory) {
+    return <VNEngine scenario={playingStory} onComplete={() => setPlayingStory(null)} skippable />;
+  }
 
   if (!chapter) return <p className="text-center text-gray-500 p-8">{en ? 'Chapter not found' : 'チャプターが見つかりません'}</p>;
 
@@ -35,6 +44,30 @@ export function ChapterDetail({ chapterId }: Props) {
         <h2 className="text-lg font-bold mt-3">Ch.{chapter.number} {en ? chapter.title : chapter.titleJa}</h2>
         <p className="text-xs text-gray-500 mt-1">{chapter.description}</p>
       </div>
+
+      {/* Chapter story cards */}
+      {CHAPTER_STORIES[chapterId] && (
+        <div className="flex gap-2">
+          <Card
+            className="flex-1 p-3 cursor-pointer hover:shadow-md transition-shadow border-indigo-200 dark:border-indigo-800"
+            onClick={() => setPlayingStory(CHAPTER_STORIES[chapterId].intro)}
+          >
+            <div className="flex items-center gap-2">
+              <Play className="w-4 h-4 text-indigo-500" />
+              <span className="text-xs font-medium">{en ? 'Intro Story' : '導入ストーリー'}</span>
+            </div>
+          </Card>
+          <Card
+            className="flex-1 p-3 cursor-pointer hover:shadow-md transition-shadow border-amber-200 dark:border-amber-800"
+            onClick={() => setPlayingStory(CHAPTER_STORIES[chapterId].outro)}
+          >
+            <div className="flex items-center gap-2">
+              <Play className="w-4 h-4 text-amber-500" />
+              <span className="text-xs font-medium">{en ? 'Ending Story' : '完了ストーリー'}</span>
+            </div>
+          </Card>
+        </div>
+      )}
 
       {/* Stages */}
       <div className="space-y-3">
