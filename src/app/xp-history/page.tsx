@@ -91,7 +91,7 @@ export default function XpHistoryPage() {
         {/* Bar chart */}
         <Card className="p-4 backdrop-blur-sm bg-white/80 dark:bg-gray-900/80">
           <div className="overflow-x-auto">
-          <div className="flex gap-1" style={{ height: '256px', minWidth: range > 14 ? `${range * 34}px` : undefined }}>
+          <div className="flex gap-1" style={{ height: '256px', minWidth: range > 14 ? `${Math.round((range / 14) * 100)}%` : undefined }}>
             {dailyData.map((day, i) => {
               const total = Object.values(day.slots).reduce((a, b) => a + b, 0);
               // 最大日を80%高さにし、他の日は比例計算
