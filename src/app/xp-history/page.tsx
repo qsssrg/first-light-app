@@ -147,7 +147,7 @@ export default function XpHistoryPage() {
                     {TIME_SLOTS.map(slot => {
                       const xp = day.slots[slot.key];
                       return xp > 0 ? (
-                        <span key={slot.key} className="text-gray-500">{slot.label.slice(0, -1)}: {xp}</span>
+                        <span key={slot.key} className="text-gray-500">{slot.label}: {xp}</span>
                       ) : null;
                     })}
                     <span className="font-bold text-amber-600">{total} XP</span>
