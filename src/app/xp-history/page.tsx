@@ -93,12 +93,13 @@ export default function XpHistoryPage() {
           <div className="flex items-end gap-1 h-64">
             {dailyData.map((day, i) => {
               const total = Object.values(day.slots).reduce((a, b) => a + b, 0);
-              const height = (total / 1000) * 100;
+              // 最大日を80%高さにし、他の日は比例計算
+              const heightPct = (total / maxXp) * 80;
 
               return (
                 <div key={day.date} className="flex-1 flex flex-col items-center gap-0.5">
                   {/* Stacked bar */}
-                  <div className="w-full flex flex-col-reverse" style={{ height: `${Math.max(height, total > 0 ? 12 : 0)}%`, minHeight: total > 0 ? '16px' : '0' }}>
+                  <div className="w-full flex flex-col-reverse" style={{ height: `${Math.max(heightPct, total > 0 ? 4 : 0)}%`, minHeight: total > 0 ? '8px' : '0' }}>
                     {TIME_SLOTS.map(slot => {
                       const slotXp = day.slots[slot.key];
                       if (slotXp === 0 || total === 0) return null;
