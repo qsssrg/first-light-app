@@ -517,7 +517,7 @@ export function HomeScreen({ onVNPlaying }: { onVNPlaying?: (playing: boolean) =
       </Link>
 
       {/* レン × リスニング */}
-      <Link href="/listening">
+      <Link href="/listening-study">
         <Card className="p-4 hover:shadow-md transition-shadow cursor-pointer border-red-300 dark:border-red-700 bg-gradient-to-r from-red-50 to-orange-50 dark:from-red-950/30 dark:to-orange-950/30">
           <div className="flex items-center gap-3">
             <MemberAvatar member={getMember('ren')!} size="sm" />
@@ -531,7 +531,7 @@ export function HomeScreen({ onVNPlaying }: { onVNPlaying?: (playing: boolean) =
       </Link>
 
       {/* ソラ × リーディング */}
-      <Link href="/chapters/">
+      <Link href="/reading-study">
         <Card className="p-4 hover:shadow-md transition-shadow cursor-pointer border-green-300 dark:border-green-700 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-950/30 dark:to-emerald-950/30">
           <div className="flex items-center gap-3">
             <MemberAvatar member={getMember('sora')!} size="sm" />
@@ -545,7 +545,7 @@ export function HomeScreen({ onVNPlaying }: { onVNPlaying?: (playing: boolean) =
       </Link>
 
       {/* カイ × 文法 */}
-      <Link href="/chapters/">
+      <Link href="/grammar-study">
         <Card className="p-4 hover:shadow-md transition-shadow cursor-pointer border-gray-300 dark:border-gray-600 bg-gradient-to-r from-gray-50 to-slate-50 dark:from-gray-900/30 dark:to-slate-950/30">
           <div className="flex items-center gap-3">
             <MemberAvatar member={getMember('kai')!} size="sm" />
