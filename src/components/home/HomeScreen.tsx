@@ -25,6 +25,9 @@ import { getMemberBirthdayToday, markMemberBirthdayCelebrated } from '@/lib/memb
 import { getMemberBirthdayScenario } from '@/lib/scenarios/member-birthday';
 import { FAKE_NEWS } from '@/data/fake-news';
 import { FAN_POSTS } from '@/data/fan-posts';
+import { STAGE_NEWS } from '@/data/stage-news';
+import { STAGE_FAN_POSTS } from '@/data/stage-fan-posts';
+import { getStoryStage } from '@/lib/chapter-progress';
 import { Newspaper, RefreshCw, MessageSquare, Heart, UserCircle } from 'lucide-react';
 
 function NextActionGuide({ profile, dueCardCount, en }: { profile: any; dueCardCount: number; en: boolean }) {
@@ -722,8 +725,11 @@ const MEMBER_REACTIONS: Record<string, { members: string[]; reactions: string[] 
 };
 
 function pickFanPosts() {
-  const rumors = FAN_POSTS.filter(p => p.cat === 'rumor');
-  const others = FAN_POSTS.filter(p => p.cat !== 'rumor');
+  const stage = getStoryStage();
+  const stageExtras = STAGE_FAN_POSTS.filter(p => p.stage <= stage);
+  const allPosts = [...FAN_POSTS, ...stageExtras];
+  const rumors = allPosts.filter(p => p.cat === 'rumor');
+  const others = allPosts.filter(p => p.cat !== 'rumor');
   const pickedRumor = rumors[Math.floor(Math.random() * rumors.length)];
   const shuffledOthers = [...others].sort(() => Math.random() - 0.5).slice(0, 3);
   const result = [pickedRumor, ...shuffledOthers].sort(() => Math.random() - 0.5);
@@ -895,15 +901,21 @@ function NewsItem({ news, index }: { news: typeof FAKE_NEWS[0]; index: number })
 }
 
 function NewsSection() {
+  const getAllNews = () => {
+    const stage = getStoryStage();
+    const stageExtras = STAGE_NEWS.filter(n => n.stage <= stage);
+    return [...FAKE_NEWS, ...stageExtras];
+  };
+
   const [news, setNews] = useState(() => {
-    const shuffled = [...FAKE_NEWS].sort(() => Math.random() - 0.5);
+    const shuffled = getAllNews().sort(() => Math.random() - 0.5);
     return shuffled.slice(0, 3);
   });
   const [spinning, setSpinning] = useState(false);
 
   const refresh = () => {
     setSpinning(true);
-    const shuffled = [...FAKE_NEWS].sort(() => Math.random() - 0.5);
+    const shuffled = getAllNews().sort(() => Math.random() - 0.5);
     setNews(shuffled.slice(0, 3));
     setTimeout(() => setSpinning(false), 600);
   };
