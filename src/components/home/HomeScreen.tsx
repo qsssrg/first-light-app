@@ -681,6 +681,22 @@ const RUMOR_FIXED_COMMENTS: { match: string; player: string; member: { id: strin
   { match: '親戚が芸能関係なんだけど、レン', player: '女教師…', member: { id: 'ren', text: '芸能関係者なら余計なこと言うなよ、ったく！' }, order: 'pf' },
   { match: 'ラジオとかでのユウキの話が最近', player: 'いや、あの…それもダメです', member: { id: 'yuuki', text: 'ファンは想像力豊かだよねー。恋人じゃないよー、{playerName}だよー' }, order: 'mf' },
   { match: '最近FIRST LIGHTに敏腕女子マネ', player: '出しませんって！ 敏腕マネージャーじゃないし！', member: { id: 'sora', text: 'リムジン女も定着してきましたね笑' }, order: 'pf' },
+  // ── Stage 2: 事務所の試練 ──
+  { match: '最近メンバーが英語勉強してるっぽい', player: 'え、教材写ってた…？ 気をつけてよハルトくん！', member: { id: 'haruto', text: 'すみません…つい写真撮るとき片付けるの忘れて…' }, order: 'pf' },
+  { match: '事務所に通ってる人まだいるらしいよ', player: 'まだって何！？ ずっと通ってますけど！', member: { id: 'kai', text: '大事なスタッフだからな。毎日来てもらわないと困る' }, order: 'pf' },
+  { match: 'レンがSpotifyで洋楽ばっかり', player: 'レンくんの勉強法、音楽から入るのかっこいい', member: { id: 'ren', text: '…別に勉強じゃねぇよ。好きで聴いてるだけだ' }, order: 'mf' },
+  { match: 'FIRST LIGHTの英語、本気っぽいな', player: 'バレてる…企画段階なのに…', member: { id: 'kai', text: 'ファンは鋭いな…まぁ、楽しみにしてもらえれば' }, order: 'mf' },
+  // ── Stage 3: 対談番組 ──
+  { match: '誰が教えてるの？独学？', player: 'ちょっと！ 私のことは秘密でしょ！？', member: { id: 'yuuki', text: 'え〜と…企業秘密です！ あはは！' }, order: 'pf' },
+  { match: 'あの英語力…絶対誰かすごい先生', player: 'すごい先生って…私そんなすごくないですけど！', member: { id: 'sora', text: '…すごい人ですよ。僕たちにとっては最高の先生です' }, order: 'mf' },
+  // ── Stage 5: 恋人誤報 ──
+  { match: '恋人って本当？でもまだ信じない', player: '恋人じゃないです！！！ スタッフです！！！', member: { id: 'kai', text: '…大事なスタッフだ。それ以上でも以下でもない。…今のところは' }, order: 'pf' },
+  { match: '違うらしいよ。事務所のスタッフだって', player: 'そうです。スタッフです。ありがとうさくらさん', member: { id: 'haruto', text: '冷静なファンがいてくれて助かります…' }, order: 'mf' },
+  { match: '噂の「謎の人物」って英語の先生', player: 'あー！ バレる！ バレちゃう！', member: { id: 'yuuki', text: '鋭い！ でもまだ内緒だよ〜！' }, order: 'pf' },
+  // ── Stage 7: 暴露+最終章 ──
+  { match: 'あのリムジンの人がブレインだったの', player: '…ついに全部バレちゃったね', member: { id: 'kai', text: '隠すつもりはなかった。ただ…{playerName}が望むタイミングで伝えたかった' }, order: 'mf' },
+  { match: 'すごい人じゃん…英語教えてくれた人', player: 'すごくないです…みんなが頑張っただけです', member: { id: 'haruto', text: '{playerName}さんがすごいんです。僕たちは{playerName}さんに引き上げてもらっただけ' }, order: 'mf' },
+  { match: '恋人誤報の時の「謎の人物」、これだったんだ', player: '全部伏線って…私の人生が伏線みたいに言わないで！', member: { id: 'ren', text: '…まぁ、全部繋がってたのは事実だな。{playerName}が最初から導いてくれてた' }, order: 'pf' },
 ];
 
 function getRumorComments(text: string): { player: string; member: { id: string; text: string }; order: 'pf' | 'mf' } | null {
