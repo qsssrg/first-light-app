@@ -44,14 +44,45 @@ export function ListeningPractice() {
   const speak = useCallback((text: string) => {
     if (typeof window === 'undefined' || !window.speechSynthesis) return;
     window.speechSynthesis.cancel();
-    const utt = new SpeechSynthesisUtterance(text);
-    utt.lang = 'en-US';
-    utt.rate = speed;
-    utt.onstart = () => setIsPlaying(true);
-    utt.onend = () => setIsPlaying(false);
-    utt.onerror = () => setIsPlaying(false);
-    utteranceRef.current = utt;
-    window.speechSynthesis.speak(utt);
+
+    // Split by speaker labels (Man:/Woman:) for multi-voice
+    const parts = text.split(/((?:Man|Woman|Speaker \d):\s*)/i).filter(Boolean);
+    const voices = window.speechSynthesis.getVoices().filter(v => v.lang.startsWith('en'));
+    const femaleVoice = voices.find(v => v.name.toLowerCase().includes('female') || v.name.includes('Samantha') || v.name.includes('Karen') || v.name.includes('Victoria'));
+    const maleVoice = voices.find(v => v.name.toLowerCase().includes('male') || v.name.includes('Daniel') || v.name.includes('Alex') || v.name.includes('Fred'));
+
+    let currentGender: 'male' | 'female' = 'male';
+    const utterances: SpeechSynthesisUtterance[] = [];
+
+    for (const part of parts) {
+      if (/^woman:/i.test(part) || /^speaker 2:/i.test(part)) { currentGender = 'female'; continue; }
+      if (/^man:/i.test(part) || /^speaker 1:/i.test(part)) { currentGender = 'male'; continue; }
+      if (!part.trim()) continue;
+
+      const utt = new SpeechSynthesisUtterance(part.trim());
+      utt.lang = 'en-US';
+      utt.rate = speed;
+      if (currentGender === 'female' && femaleVoice) utt.voice = femaleVoice;
+      else if (currentGender === 'male' && maleVoice) utt.voice = maleVoice;
+      utterances.push(utt);
+    }
+
+    if (utterances.length === 0) {
+      const utt = new SpeechSynthesisUtterance(text);
+      utt.lang = 'en-US';
+      utt.rate = speed;
+      utterances.push(utt);
+    }
+
+    setIsPlaying(true);
+    utterances.forEach((utt, i) => {
+      if (i === utterances.length - 1) {
+        utt.onend = () => setIsPlaying(false);
+        utt.onerror = () => setIsPlaying(false);
+      }
+      window.speechSynthesis.speak(utt);
+    });
+    utteranceRef.current = utterances[utterances.length - 1];
   }, [speed]);
 
   const stopSpeech = () => {
@@ -119,13 +150,29 @@ export function ListeningPractice() {
           </div>
         </Card>
 
-        <Button onClick={startQuiz} className="w-full">
-          <Headphones className="w-4 h-4 mr-2" /> リスニング問題を始める
-        </Button>
-
-        <Button variant="outline" onClick={() => { setMode('dictation'); setDictIndex(0); setDictInput(''); setDictRevealed(false); }} className="w-full">
-          ディクテーションに挑戦
-        </Button>
+        <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">{en ? 'Choose Mode' : '学習モードを選択'}</p>
+        <Card className="p-4 cursor-pointer hover:shadow-md transition-shadow border-blue-200 dark:border-blue-800" onClick={startQuiz}>
+          <div className="flex items-center gap-3">
+            <div className="p-2.5 bg-blue-100 dark:bg-blue-900 rounded-full">
+              <Headphones className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+            </div>
+            <div className="flex-1">
+              <p className="text-sm font-bold">{en ? '4-Choice Quiz' : '4択クイズ'}</p>
+              <p className="text-xs text-gray-500">{en ? 'Listen and choose the correct answer' : '聞いて正しい答えを選ぶ'}</p>
+            </div>
+          </div>
+        </Card>
+        <Card className="p-4 cursor-pointer hover:shadow-md transition-shadow border-indigo-200 dark:border-indigo-800" onClick={() => { setMode('dictation'); setDictIndex(0); setDictInput(''); setDictRevealed(false); }}>
+          <div className="flex items-center gap-3">
+            <div className="p-2.5 bg-indigo-100 dark:bg-indigo-900 rounded-full">
+              <Volume2 className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
+            </div>
+            <div className="flex-1">
+              <p className="text-sm font-bold">{en ? 'Dictation' : 'ディクテーション'}</p>
+              <p className="text-xs text-gray-500">{en ? 'Listen and write what you hear' : '聞いて書き取る'}</p>
+            </div>
+          </div>
+        </Card>
       </div>
     );
   }
@@ -268,8 +315,17 @@ export function ListeningPractice() {
         </div>
 
         {answered !== null && (
-          <div className="mt-3 p-2 rounded bg-gray-50 dark:bg-gray-900 text-xs text-gray-600 dark:text-gray-400">
-            {q.explanation}
+          <div className="mt-3 space-y-2">
+            <div className={`p-3 rounded-lg text-sm font-medium ${answered === q.correctIndex ? 'bg-green-50 dark:bg-green-950 text-green-700 dark:text-green-300' : 'bg-red-50 dark:bg-red-950 text-red-700 dark:text-red-300'}`}>
+              {answered === q.correctIndex ? (en ? '✓ Correct!' : '✓ 正解！') : (en ? '✗ Incorrect' : '✗ 不正解')}
+            </div>
+            <div className="p-2 rounded bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800">
+              <p className="text-[10px] text-blue-500 font-medium mb-1">{en ? 'Script' : '読み上げ文'}</p>
+              <p className="text-xs text-gray-700 dark:text-gray-300 leading-relaxed">{q.audioText}</p>
+            </div>
+            <div className="p-2 rounded bg-gray-50 dark:bg-gray-900 text-xs text-gray-600 dark:text-gray-400">
+              {q.explanation}
+            </div>
           </div>
         )}
       </Card>
