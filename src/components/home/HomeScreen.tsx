@@ -652,7 +652,7 @@ const RUMOR_FIXED_COMMENTS: { match: string; player: string; member: { id: strin
   // 既存修正6件
   { match: 'リムジンでスカウトしてた人', player: '登場が派手すぎなのよ…', member: { id: 'kai', text: 'ごめん、見つけちゃったから思わず…' }, order: 'pf' },
   { match: '事務所に出入りしてた美人', player: '嬉しいけど嬉しくない！ バレてるじゃん！！', member: { id: 'haruto', text: '美人だそうです。良かったですね' }, order: 'mf' },
-  { match: 'カイくん、女優さんと一緒', player: '私のこと？', member: { id: 'kai', text: '女優デビューおめでとう笑' }, order: 'pf' },
+  { match: 'カイくん、女優さんと一緒', player: 'え？この女優って私のことなの！？', member: { id: 'kai', text: '女優デビューおめでとう笑' }, order: 'mf' },
   { match: 'レンくんのストーリー、同じカフェ', player: '私もあそこ行くのやめとこ', member: { id: 'ren', text: 'やべ、あのカフェ特定されてる' }, order: 'mf' },
   { match: 'ユウキくん、最近誰かと一緒', player: 'な、何を呑気な…', member: { id: 'yuuki', text: 'あれー？ これ、{playerName}のことかもー' }, order: 'mf' },
   { match: '新メンバー加入説', player: 'なんで男性アイドルグループに私が加入するんですかー！', member: { id: 'sora', text: '誰のことだろう…もしかして{playerName}さん？' }, order: 'mf' },
