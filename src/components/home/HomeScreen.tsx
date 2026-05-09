@@ -467,24 +467,8 @@ export function HomeScreen({ onVNPlaying }: { onVNPlaying?: (playing: boolean) =
         ))}
       </div>
 
-      {/* Group 2: Chapters + 5 Courses */}
+      {/* Group 2: 5 Courses + Chapter */}
       <div className="space-y-2">
-      {/* Chapter — mixed skills + story */}
-      <Link href="/chapters/">
-        <Card className="p-4 hover:shadow-md transition-shadow cursor-pointer border-teal-300 dark:border-teal-700 bg-gradient-to-r from-teal-50 to-cyan-50 dark:from-teal-950/30 dark:to-cyan-950/30">
-          <div className="flex items-center gap-3">
-            <div className="p-2.5 bg-teal-100 dark:bg-teal-900 rounded-full">
-              <BookOpen className="w-5 h-5 text-teal-600 dark:text-teal-400" />
-            </div>
-            <div className="flex-1">
-              <p className="text-sm font-bold text-teal-900 dark:text-teal-100">{en ? 'Continue Chapters' : 'チャプターを進める'}</p>
-              <p className="text-xs text-teal-600 dark:text-teal-400">{en ? 'Mixed skills + story' : 'ストーリーと一緒に総合学習'}</p>
-            </div>
-            <ArrowRight className="w-4 h-4 text-teal-400" />
-          </div>
-        </Card>
-      </Link>
-
       {/* 5 Member Courses */}
       <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest pt-1">{en ? 'Member Courses' : 'メンバー別コース'}</p>
 
@@ -575,6 +559,22 @@ export function HomeScreen({ onVNPlaying }: { onVNPlaying?: (playing: boolean) =
           </Card>
         </Link>
       )}
+
+      {/* Chapter — mixed skills + story (below member courses) */}
+      <Link href="/chapters/">
+        <Card className="p-4 hover:shadow-md transition-shadow cursor-pointer border-gray-600 dark:border-gray-500 bg-gradient-to-r from-gray-800 to-gray-900 dark:from-gray-800 dark:to-gray-950 shadow-lg">
+          <div className="flex items-center gap-3">
+            <div className="p-2.5 bg-white/10 rounded-full">
+              <BookOpen className="w-5 h-5 text-white" />
+            </div>
+            <div className="flex-1">
+              <p className="text-sm font-bold text-white">{en ? 'Continue Chapters' : 'チャプターを進める'}</p>
+              <p className="text-xs text-gray-400">{en ? 'Mixed skills + story' : 'ストーリーと一緒に総合学習'}</p>
+            </div>
+            <ArrowRight className="w-4 h-4 text-gray-400" />
+          </div>
+        </Card>
+      </Link>
 
       </div>
 
