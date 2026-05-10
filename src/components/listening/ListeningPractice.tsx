@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Play, Pause, Volume2, Check, X, Headphones } from 'lucide-react';
+import { SpeakButton } from '@/components/common/SpeakButton';
 import { calculateXp, getLevelFromXp } from '@/lib/xp';
 import { db } from '@/lib/db';
 import { ComboFlash, XpFloat } from '@/components/common/GameEffects';
@@ -382,7 +383,10 @@ export function ListeningPractice() {
           </div>
           <div className="space-y-2">
             {scriptParagraphs.map((para, i) => (
-              <p key={i} className="text-sm text-gray-800 dark:text-gray-200 leading-relaxed">{para.trim()}</p>
+              <div key={i} className="flex items-start gap-2">
+                <p className="text-sm text-gray-800 dark:text-gray-200 leading-relaxed flex-1">{para.trim()}</p>
+                <SpeakButton text={para.replace(/^(Woman|Man|Professor|Speaker \d+):\s*/i, '').trim()} className="shrink-0 mt-0.5" />
+              </div>
             ))}
           </div>
         </Card>
@@ -398,6 +402,32 @@ export function ListeningPractice() {
             </div>
           </Card>
         )}
+
+        {/* Question & Choices */}
+        <Card className="p-4 border-gray-200 dark:border-gray-700">
+          <p className="text-xs text-gray-500 font-bold mb-2">{en ? 'Question' : '質問'}</p>
+          <p className="text-sm font-medium text-gray-800 dark:text-gray-200 mb-3">{q.question}</p>
+          <div className="space-y-1.5">
+            {q.options.map((opt, i) => {
+              const isUserAnswer = i === answered;
+              const isCorrectAnswer = i === q.correctIndex;
+              let optClass = 'text-gray-500 dark:text-gray-400';
+              if (isCorrectAnswer) optClass = 'text-green-700 dark:text-green-300 font-medium';
+              if (isUserAnswer && !isCorrect) optClass = 'text-red-600 dark:text-red-400 font-medium';
+              return (
+                <div key={i} className={`flex items-center gap-2 text-sm ${optClass}`}>
+                  <span className="w-4 shrink-0">
+                    {isCorrectAnswer && <Check className="w-4 h-4 text-green-600 dark:text-green-400" />}
+                    {isUserAnswer && !isCorrect && <X className="w-4 h-4 text-red-500 dark:text-red-400" />}
+                  </span>
+                  <span>{String.fromCharCode(65 + i)}. {opt}</span>
+                  {isUserAnswer && !isCorrectAnswer && <span className="text-xs text-red-500 ml-1">({en ? 'Your answer' : 'あなたの回答'})</span>}
+                  {isCorrectAnswer && <span className="text-xs text-green-600 ml-1">({en ? 'Correct' : '正解'})</span>}
+                </div>
+              );
+            })}
+          </div>
+        </Card>
 
         {/* Explanation - Ren's member speech card */}
         <Card className="p-3">
