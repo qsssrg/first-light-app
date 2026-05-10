@@ -289,8 +289,8 @@ export function ListeningPractice() {
 
     // Split text into paragraphs by speaker change
     const splitBySpeaker = (text: string) => {
-      // Split before speaker labels (Man:/Woman:/Professor:/Speaker N:/男性:/女性:/教授:)
-      const segments = text.split(/(?=(?:Man|Woman|Professor|Speaker \d|男性|女性|教授):\s*)/i).filter(s => s.trim());
+      // Split before speaker labels (Woman before Man to prevent "Wo"+"man:" split)
+      const segments = text.split(/(?=(?:Woman|Man|Professor|Speaker \d+|女性|男性|教授):\s*)/g).filter(s => s.trim());
       return segments;
     };
 
