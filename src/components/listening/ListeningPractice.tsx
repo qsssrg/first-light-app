@@ -12,8 +12,10 @@ import { Progress } from '@/components/ui/progress';
 import { Play, Pause, Volume2, Check, X, Headphones, Home, RotateCcw, Star } from 'lucide-react';
 import { SpeakButton } from '@/components/common/SpeakButton';
 import { calculateXp, getLevelFromXp } from '@/lib/xp';
-import { db } from '@/lib/db';
+import { db, AFFINITY_LABELS } from '@/lib/db';
 import { ComboFlash, XpFloat } from '@/components/common/GameEffects';
+import { addAffinityPoints } from '@/lib/affinity';
+import { getMember } from '@/lib/members';
 import { TypewriterText } from '@/components/common/TypewriterText';
 import { getPlayerName } from '@/lib/player-name';
 import Link from 'next/link';
@@ -132,6 +134,7 @@ export function ListeningPractice() {
   const [xpTrigger, setXpTrigger] = useState(0);
   const [lastXp, setLastXp] = useState(0);
   const startTimeRef = useRef(Date.now());
+  const [affinityLevelUp, setAffinityLevelUp] = useState<{ memberId: string; level: number } | null>(null);
 
   // Pre-cache voices to ensure they are available on first playback
   const voicesRef = useRef<{ female: SpeechSynthesisVoice | null; male: SpeechSynthesisVoice | null }>({ female: null, male: null });
@@ -272,6 +275,13 @@ export function ListeningPractice() {
           comboMax: newCombo,
           duration: 0,
         } as any);
+
+        // Add affinity points to Ren (listening)
+        const aff = await addAffinityPoints('listening', 5);
+        if (aff.leveled) {
+          setAffinityLevelUp({ memberId: aff.memberId, level: aff.newLevel });
+          setTimeout(() => setAffinityLevelUp(null), 3000);
+        }
       } catch {}
     }
 
@@ -570,6 +580,19 @@ export function ListeningPractice() {
     <>
       <ComboFlash combo={combo} />
       <XpFloat xp={lastXp} trigger={xpTrigger} />
+      {affinityLevelUp && (() => {
+        const m = getMember(affinityLevelUp.memberId);
+        const label = AFFINITY_LABELS[affinityLevelUp.level - 1] ?? '';
+        return m ? (
+          <div className="fixed inset-0 pointer-events-none z-50 flex items-center justify-center">
+            <div className="animate-combo-flash text-center bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/20">
+              <MemberAvatar member={m} size="lg" />
+              <p className="text-sm font-bold text-pink-400 mt-2">{m.nameJa}との絆が深まった！</p>
+              <p className="text-xs text-gray-400 mt-1">親密度Lv.{affinityLevelUp.level} 「{label}」</p>
+            </div>
+          </div>
+        ) : null;
+      })()}
     </>
   );
 
