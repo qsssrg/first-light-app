@@ -10,6 +10,9 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Play, Pause, Volume2, Check, X, RotateCcw, Headphones } from 'lucide-react';
+import { calculateXp, getLevelFromXp } from '@/lib/xp';
+import { db } from '@/lib/db';
+import { ComboFlash, XpFloat } from '@/components/common/GameEffects';
 
 type Mode = 'select' | 'quiz' | 'quiz-result' | 'dictation' | 'result';
 type Speed = 0.8 | 1.0 | 1.2;
@@ -30,6 +33,12 @@ export function ListeningPractice() {
   const [speed, setSpeed] = useState<Speed>(1.0);
   const [isPlaying, setIsPlaying] = useState(false);
   const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
+
+  // XP & Combo
+  const [combo, setCombo] = useState(0);
+  const [sessionXp, setSessionXp] = useState(0);
+  const [xpTrigger, setXpTrigger] = useState(0);
+  const [lastXp, setLastXp] = useState(0);
 
   // Pre-cache voices to ensure they are available on first playback
   const voicesRef = useRef<{ female: SpeechSynthesisVoice | null; male: SpeechSynthesisVoice | null }>({ female: null, male: null });
@@ -71,6 +80,8 @@ export function ListeningPractice() {
     setScore(0);
     setSelected(null);
     setAnswered(null);
+    setCombo(0);
+    setSessionXp(0);
     setMode('quiz');
   };
 
@@ -131,10 +142,35 @@ export function ListeningPractice() {
     setSelected(index);
   };
 
-  const handleConfirm = () => {
+  const handleConfirm = async () => {
     if (selected === null || answered !== null) return;
     setAnswered(selected);
-    if (selected === questions[current].correctIndex) setScore(s => s + 1);
+    const isCorrect = selected === questions[current].correctIndex;
+    if (isCorrect) setScore(s => s + 1);
+
+    // XP & Combo
+    const newCombo = isCorrect ? combo + 1 : 0;
+    const xp = isCorrect ? calculateXp(true, newCombo) : 0;
+    setCombo(newCombo);
+
+    if (xp > 0) {
+      setSessionXp(prev => prev + xp);
+      setLastXp(xp);
+      setXpTrigger(prev => prev + 1);
+      try {
+        const profile = await db.userProfile.toCollection().first();
+        if (profile?.id) {
+          const newTotalXp = profile.totalXp + xp;
+          const newLevel = getLevelFromXp(newTotalXp);
+          await db.userProfile.update(profile.id, {
+            xp: profile.xp + xp,
+            totalXp: newTotalXp,
+            level: newLevel,
+          });
+        }
+      } catch {}
+    }
+
     setMode('quiz-result');
   };
 
@@ -214,10 +250,10 @@ export function ListeningPractice() {
         <h2 className="text-xl font-bold">{en ? 'Listening Complete' : 'リスニング完了'}</h2>
         <p className="text-3xl font-bold">{score} / {questions.length}</p>
         <p className="text-sm text-gray-500">正答率 {percent}%</p>
-        <div className="flex gap-2 justify-center">
-          <Button variant="outline" onClick={() => setMode('select')}>戻る</Button>
-          <Button onClick={startQuiz}>もう一度</Button>
-        </div>
+        {sessionXp > 0 && (
+          <p className="text-sm font-bold text-amber-500">+{sessionXp} XP</p>
+        )}
+        <Button variant="outline" onClick={() => setMode('select')}>戻る</Button>
       </div>
     );
   }
@@ -282,6 +318,14 @@ export function ListeningPractice() {
     );
   }
 
+  // Game effects (rendered in quiz-result)
+  const gameEffects = (
+    <>
+      <ComboFlash combo={combo} />
+      <XpFloat xp={lastXp} trigger={xpTrigger} />
+    </>
+  );
+
   // Quiz-result mode (after pressing 決定)
   if (mode === 'quiz-result') {
     const q = questions[current];
@@ -309,6 +353,9 @@ export function ListeningPractice() {
         {/* Result indicator */}
         <div className={`p-4 rounded-xl text-center font-bold text-lg ${isCorrect ? 'bg-green-50 dark:bg-green-950 text-green-700 dark:text-green-300 border border-green-200 dark:border-green-800' : 'bg-red-50 dark:bg-red-950 text-red-700 dark:text-red-300 border border-red-200 dark:border-red-800'}`}>
           {isCorrect ? (en ? 'Correct!' : '正解！') : (en ? 'Incorrect' : '不正解')}
+          {isCorrect && combo > 0 && (
+            <span className="ml-2 text-sm font-black text-orange-400">🔥 {combo}</span>
+          )}
         </div>
 
         {/* English script */}
@@ -350,6 +397,7 @@ export function ListeningPractice() {
         <Button onClick={nextQuestion} className="w-full" size="lg">
           {current + 1 >= questions.length ? (en ? 'View Results' : '結果を見る') : (en ? 'Next Question' : '次の問題へ')}
         </Button>
+        {gameEffects}
       </div>
     );
   }
