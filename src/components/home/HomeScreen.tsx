@@ -1,10 +1,10 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { useProfile, useDueCards } from '@/lib/hooks';
-import { db } from '@/lib/db';
+import { useProfile, useDueCards, useStudySessions } from '@/lib/hooks';
 import { getLevelProgress, xpToNextLevel, getLevelFromXp } from '@/lib/xp';
 import { LEVEL_THRESHOLDS } from '@/types';
+import type { SkillAxis } from '@/types';
 import { MEMBERS, getMember } from '@/lib/members';
 import { MemberAvatar } from '@/components/common/MemberAvatar';
 import { Progress } from '@/components/ui/progress';
@@ -34,83 +34,115 @@ import { STAGE_FAN_POSTS } from '@/data/stage-fan-posts';
 import { getStoryStage } from '@/lib/chapter-progress';
 import { Newspaper, RefreshCw, MessageSquare, Heart, UserCircle } from 'lucide-react';
 
-const STUDY_AXES = [
-  { axis: 'vocabulary', label: '単語', labelEn: 'Vocabulary', href: '/vocab-study', icon: BookOpen, member: 'haruto' },
-  { axis: 'writing', label: 'ライティング', labelEn: 'Writing', href: '/writing-study', icon: FileText, member: 'yuuki' },
-  { axis: 'listening', label: 'リスニング', labelEn: 'Listening', href: '/listening-study', icon: Headphones, member: 'ren' },
-  { axis: 'reading', label: 'リーディング', labelEn: 'Reading', href: '/reading-study', icon: BookOpen, member: 'sora' },
-  { axis: 'grammar', label: '文法', labelEn: 'Grammar', href: '/grammar-study', icon: GraduationCap, member: 'kai' },
-] as const;
+const SKILL_HREF: Record<SkillAxis, string> = {
+  vocabulary: '/vocab-study',
+  writing: '/writing-study',
+  listening: '/listening-study',
+  reading: '/reading-study',
+  grammar: '/grammar-study',
+};
+
+const SKILL_LABELS: Record<SkillAxis, { ja: string; en: string }> = {
+  vocabulary: { ja: '単語', en: 'Vocabulary' },
+  writing: { ja: 'ライティング', en: 'Writing' },
+  listening: { ja: 'リスニング', en: 'Listening' },
+  reading: { ja: 'リーディング', en: 'Reading' },
+  grammar: { ja: '文法', en: 'Grammar' },
+};
 
 function NextActionGuide({ profile, dueCardCount, en }: { profile: any; dueCardCount: number; en: boolean }) {
-  const [weakAxis, setWeakAxis] = useState<typeof STUDY_AXES[number] | null>(null);
+  const sessions = useStudySessions();
 
-  useEffect(() => {
-    (async () => {
-      try {
-        const sessions = await db.studySessions.toArray();
-        const lastStudied: Record<string, number> = {};
-        for (const s of sessions) {
-          const axis = (s as any).axis as string | undefined;
-          if (!axis) continue;
-          const t = new Date(s.date).getTime();
-          if (!lastStudied[axis] || t > lastStudied[axis]) lastStudied[axis] = t;
-        }
+  // Determine lagging skills based on last study date and session count
+  const getLaggingSkills = (): { axis: SkillAxis; reason: string }[] => {
+    const allAxes: SkillAxis[] = ['vocabulary', 'writing', 'listening', 'reading', 'grammar'];
+    const now = Date.now();
 
-        // Find axis with oldest last study (or never studied)
-        let oldest: typeof STUDY_AXES[number] | null = null;
-        let oldestTime = Infinity;
-        for (const a of STUDY_AXES) {
-          const t = lastStudied[a.axis] ?? 0;
-          if (t < oldestTime) { oldestTime = t; oldest = a; }
-        }
-        setWeakAxis(oldest);
-      } catch {
-        setWeakAxis(null);
+    // Calculate per-skill stats
+    const stats = allAxes.map(axis => {
+      const axisSessions = sessions.filter(s => s.axis === axis);
+      const lastDate = axisSessions.length > 0
+        ? Math.max(...axisSessions.map(s => new Date(s.date).getTime()))
+        : 0;
+      return { axis, count: axisSessions.length, lastDate, daysSince: lastDate > 0 ? Math.floor((now - lastDate) / 86400000) : Infinity };
+    });
+
+    // Sort by days since last study (descending = most neglected first)
+    const sorted = [...stats].sort((a, b) => b.daysSince - a.daysSince);
+
+    // Pick up to 2 lagging skills
+    const lagging: { axis: SkillAxis; reason: string }[] = [];
+    for (const s of sorted) {
+      if (lagging.length >= 2) break;
+      if (s.daysSince === Infinity) {
+        // Never studied
+        lagging.push({ axis: s.axis, reason: en ? 'Not started yet' : 'まだ未学習' });
+      } else if (s.daysSince >= 3) {
+        // 3+ days since last study
+        lagging.push({ axis: s.axis, reason: en ? `${s.daysSince} days ago` : `${s.daysSince}日前が最後` });
       }
-    })();
-  }, []);
+    }
+
+    // If no skill has 3+ days gap, pick the one with fewest sessions (if notably fewer)
+    if (lagging.length === 0 && sessions.length > 0) {
+      const bySessions = [...stats].sort((a, b) => a.count - b.count);
+      const avgCount = stats.reduce((sum, s) => sum + s.count, 0) / stats.length;
+      if (bySessions[0].count < avgCount * 0.6) {
+        lagging.push({ axis: bySessions[0].axis, reason: en ? `Only ${bySessions[0].count} sessions` : `${bySessions[0].count}回のみ` });
+      }
+    }
+
+    return lagging;
+  };
 
   const getNextAction = () => {
     if (!profile.learnerType || profile.learnerType === 'balanced' && profile.totalXp === 0) {
-      return { text: en ? 'Take the assessment' : 'まずレベルを測ろう', desc: en ? 'Measure your English skills across 5 axes' : 'あなたの英語力を5つの軸で判定します', href: '/settings', icon: Target };
+      return [{ text: en ? 'Take the assessment' : 'まずレベルを測ろう', desc: en ? 'Measure your English skills across 5 axes' : 'あなたの英語力を5つの軸で判定します', href: '/settings' }];
     }
     if (dueCardCount > 0) {
-      return { text: en ? `Study ${dueCardCount} words` : `${dueCardCount}語の学習しよう`, desc: en ? 'Build your vocabulary' : '単語を学習して語彙力を伸ばそう', href: '/vocab-study', icon: BookOpen };
+      return [{ text: en ? `Study ${dueCardCount} words` : `${dueCardCount}語の学習しよう`, desc: en ? 'Build your vocabulary' : '単語を学習して語彙力を伸ばそう', href: '/vocab-study' }];
     }
-    if (weakAxis) {
-      const member = getMember(weakAxis.member);
-      const memberName = member?.nameJa ?? '';
-      return {
-        text: en ? `Practice ${weakAxis.labelEn}` : `${weakAxis.label}をやろう`,
-        desc: en ? `${weakAxis.labelEn} needs attention` : `${memberName}が待ってるよ！ 最近やってない科目です`,
-        href: weakAxis.href,
-        icon: weakAxis.icon,
-      };
+
+    // Check for lagging skills
+    const lagging = getLaggingSkills();
+    if (lagging.length > 0) {
+      return lagging.map(l => ({
+        text: en ? `${SKILL_LABELS[l.axis].en} needs attention` : `${SKILL_LABELS[l.axis].ja}が遅れています`,
+        desc: l.reason,
+        href: SKILL_HREF[l.axis],
+      }));
     }
+
     if (profile.totalXp < 100) {
-      return { text: en ? 'Start learning words' : '単語学習を始めよう', desc: en ? 'Add new words and begin' : '新しい単語を追加して学習スタート', href: '/vocab-study', icon: BookOpen };
+      return [{ text: en ? 'Start learning words' : '単語学習を始めよう', desc: en ? 'Add new words and begin' : '新しい単語を追加して学習スタート', href: '/vocab-study' }];
     }
-    return { text: en ? 'Try writing' : 'ライティングに挑戦しよう', desc: en ? 'Write sentences in English' : '英語で文を書いてみよう', href: '/writing-study', icon: Sparkles };
+    if (!profile.lastStudyAt || Date.now() - new Date(profile.lastStudyAt).getTime() > 86400000) {
+      return [{ text: en ? 'Study today' : '今日の学習をしよう', desc: en ? 'Consistency is key' : '毎日の積み重ねが力になる', href: '/vocabulary' }];
+    }
+    return [{ text: en ? 'Try writing' : 'ライティングに挑戦しよう', desc: en ? 'Write sentences in English' : '英語で文を書いてみよう', href: '/writing-study' }];
   };
 
-  const action = getNextAction();
+  const actions = getNextAction();
 
   return (
-    <Link href={action.href}>
-      <Card className="p-4 border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-950/50 hover:shadow-md transition-shadow cursor-pointer">
-        <div className="flex items-center gap-3">
-          <div className="p-2 bg-blue-100 dark:bg-blue-900 rounded-full">
-            <Lightbulb className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-          </div>
-          <div className="flex-1">
-            <p className="text-sm font-medium text-blue-900 dark:text-blue-100">{en ? 'Suggested' : 'おすすめ'}: {action.text}</p>
-            <p className="text-xs text-blue-600 dark:text-blue-400">{action.desc}</p>
-          </div>
-          <ArrowRight className="w-4 h-4 text-blue-400" />
-        </div>
-      </Card>
-    </Link>
+    <div className="space-y-2">
+      {actions.map((action, i) => (
+        <Link key={i} href={action.href}>
+          <Card className="p-4 border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-950/50 hover:shadow-md transition-shadow cursor-pointer">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-blue-100 dark:bg-blue-900 rounded-full">
+                <Lightbulb className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+              </div>
+              <div className="flex-1">
+                <p className="text-sm font-medium text-blue-900 dark:text-blue-100">{en ? 'Suggested' : 'おすすめ'}: {action.text}</p>
+                <p className="text-xs text-blue-600 dark:text-blue-400">{action.desc}</p>
+              </div>
+              <ArrowRight className="w-4 h-4 text-blue-400" />
+            </div>
+          </Card>
+        </Link>
+      ))}
+    </div>
   );
 }
 
