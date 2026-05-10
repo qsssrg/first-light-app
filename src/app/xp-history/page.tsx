@@ -104,10 +104,13 @@ export default function XpHistoryPage() {
               // 最大日を80%高さにし、他の日は比例計算
               const heightPct = maxXp > 0 ? (total / maxXp) * 80 : 0;
 
+              // 棒の最大幅: 7日=太め, 14日=中間, 30日=細め
+              const barMaxWidth = range === 7 ? '2.5rem' : range === 14 ? '1.5rem' : '0.75rem';
+
               return (
                 <div key={day.date} className="flex-1 flex flex-col justify-end items-center" style={{ height: '256px', maxWidth: range <= 7 ? '48px' : range <= 14 ? '32px' : '20px' }}>
                   {/* Stacked bar - px計算で確実に描画 */}
-                  <div className="w-full flex flex-col-reverse" style={{ height: `${Math.round(Math.max((256 * heightPct) / 100, total > 0 ? 8 : 0))}px` }}>
+                  <div className="flex flex-col-reverse mx-auto" style={{ height: `${Math.round(Math.max((256 * heightPct) / 100, total > 0 ? 8 : 0))}px`, width: '100%', maxWidth: barMaxWidth }}>
                     {TIME_SLOTS.map(slot => {
                       const slotXp = day.slots[slot.key];
                       if (slotXp === 0 || total === 0) return null;
