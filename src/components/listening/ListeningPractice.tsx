@@ -82,8 +82,8 @@ export function ListeningPractice() {
     const femaleVoice = voicesRef.current.female;
     const maleVoice = voicesRef.current.male;
 
-    // Split by speaker labels (Man:/Woman:/Professor:/Speaker N:) for multi-voice
-    const parts = text.split(/((?:Man|Woman|Professor|Speaker \d):\s*)/i).filter(Boolean);
+    // Split by speaker labels — Woman before Man to avoid substring match
+    const parts = text.split(/((?:Woman|Man|Professor|Speaker \d):\s*)/i).filter(Boolean);
 
     let currentGender: 'male' | 'female' = 'male';
     const utterances: SpeechSynthesisUtterance[] = [];
