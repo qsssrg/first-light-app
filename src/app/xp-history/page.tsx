@@ -58,7 +58,6 @@ export default function XpHistoryPage() {
   }, [sessions, range]);
 
   const totalXp = dailyData.reduce((sum, d) => sum + Object.values(d.slots).reduce((a, b) => a + b, 0), 0);
-
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
