@@ -582,8 +582,6 @@ export function HomeScreen({ onVNPlaying }: { onVNPlaying?: (playing: boolean) =
 
       {/* Group 2: 5 Courses + Chapter */}
       <div className="space-y-2">
-      {/* 5 Member Courses */}
-
       {/* ハルト × 語彙 */}
       <Link href="/vocab-study">
         <Card className="p-4 hover:shadow-md transition-shadow cursor-pointer border-blue-300 dark:border-blue-700 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/30">
@@ -653,6 +651,8 @@ export function HomeScreen({ onVNPlaying }: { onVNPlaying?: (playing: boolean) =
           </div>
         </Card>
       </Link>
+
+      <div className="h-3" />
 
       {/* Psychology course card (if unlocked) */}
       {isPsychologyUnlocked() && (
