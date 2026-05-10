@@ -148,7 +148,7 @@ function useDragAndDrop(
 
   const handleDragEnd = useCallback((e: TouchEvent | MouseEvent) => {
     if (!dragStateRef.current) return;
-    const { chipId, source, currentX, currentY, element } = dragStateRef.current;
+    const { chipId, source, startX, startY, currentX, currentY, element } = dragStateRef.current;
 
     if (element) element.style.opacity = '';
     removeGhost();
@@ -156,6 +156,22 @@ function useDragAndDrop(
     // Reset border highlights
     if (answerAreaRef.current) answerAreaRef.current.style.borderColor = '';
     if (poolAreaRef.current) poolAreaRef.current.style.borderColor = '';
+
+    // Tap detection: if moved less than 10px, treat as tap
+    const dx = Math.abs(currentX - startX);
+    const dy = Math.abs(currentY - startY);
+    if (dx < 10 && dy < 10) {
+      if (source === 'pool') {
+        const chip = puzzleChips.find(c => c.id === chipId);
+        if (chip && !selectedChips.find(c => c.id === chipId)) {
+          setSelectedChips(prev => [...prev, chip]);
+        }
+      } else if (source === 'answer') {
+        setSelectedChips(prev => prev.filter(c => c.id !== chipId));
+      }
+      dragStateRef.current = null;
+      return;
+    }
 
     const droppedOnAnswer = isOverElement(currentX, currentY, answerAreaRef);
     const droppedOnPool = isOverElement(currentX, currentY, poolAreaRef);
@@ -760,7 +776,7 @@ Remember the Montessori principle: acknowledge growth rather than just praise.`,
               <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300 font-medium">{promptData.level}</span>
             </div>
             <p className="text-base leading-relaxed text-gray-800 dark:text-gray-100 italic font-medium px-2">{prompt}</p>
-            <p className="text-xs text-gray-500 mt-3">{en ? 'Arrange words to form the answer' : '単語を並べて回答を完成させてください'}</p>
+            <p className="text-xs text-gray-500 mt-3">{en ? 'Tap or drag words to form the answer' : 'タップまたはドラッグで単語を並べよう'}</p>
           </div>
 
           {/* Answer drop area */}
@@ -768,10 +784,10 @@ Remember the Montessori principle: acknowledge growth rather than just praise.`,
             ref={answerAreaRef}
             className="rounded-2xl bg-white/5 backdrop-blur-md border-2 border-dashed border-white/20 p-4 min-h-[70px] mb-3 transition-colors"
           >
-            <p className="text-[10px] text-gray-500 mb-2">{en ? 'Your Answer (drop here)' : '回答（ここにドロップ）'}</p>
+            <p className="text-[10px] text-gray-500 mb-2">{en ? 'Your Answer' : '回答'}</p>
             <div className="flex flex-wrap gap-1.5">
               {selectedChips.length === 0 ? (
-                <span className="text-xs text-gray-500 italic">{en ? 'Drag words here to build your answer' : '下の単語をドラッグして文を作ろう'}</span>
+                <span className="text-xs text-gray-500 italic">{en ? 'Tap or drag words to build your answer' : '下の単語をタップまたはドラッグして文を作ろう'}</span>
               ) : (
                 selectedChips.map((chip) => (
                   <div
