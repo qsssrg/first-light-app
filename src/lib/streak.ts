@@ -53,8 +53,13 @@ export async function checkAndUpdateStreak(): Promise<{
   let grandSlam = false;
 
   if (lastStudy === yesterday) {
-    // Studied yesterday → streak continues (increment happens in onStudyComplete)
-    // No change here — just report current streak
+    // Studied yesterday → streak is already correct from onStudyComplete.
+    // Don't increment here (onStudyComplete handles incrementing).
+    // Just check for grand slam milestone on current streak.
+    if (newStreak > 0 && newStreak % 35 === 0) {
+      grandSlam = true;
+    }
+    return { updated: false, wasReset: false, grandSlam, streak: newStreak };
   } else if (lastStudy && lastStudy !== today) {
     // 2+ days gap → reset streak
     newStreak = 0;
@@ -64,11 +69,6 @@ export async function checkAndUpdateStreak(): Promise<{
     });
   }
   // If lastStudy is null (first time), streak stays at 0
-
-  // Check grand slam (35 day milestone)
-  if (newStreak > 0 && newStreak % 35 === 0) {
-    grandSlam = true;
-  }
 
   return { updated: wasReset, wasReset, grandSlam, streak: newStreak };
 }
