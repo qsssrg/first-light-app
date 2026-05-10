@@ -9,14 +9,104 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { Play, Pause, Volume2, Check, X, Headphones } from 'lucide-react';
+import { Play, Pause, Volume2, Check, X, Headphones, Home, RotateCcw, Star } from 'lucide-react';
 import { SpeakButton } from '@/components/common/SpeakButton';
 import { calculateXp, getLevelFromXp } from '@/lib/xp';
 import { db } from '@/lib/db';
 import { ComboFlash, XpFloat } from '@/components/common/GameEffects';
+import { TypewriterText } from '@/components/common/TypewriterText';
+import { getPlayerName } from '@/lib/player-name';
+import Link from 'next/link';
 
 type Mode = 'select' | 'quiz' | 'quiz-result' | 'dictation' | 'result';
 type Speed = 0.8 | 1.0 | 1.2;
+
+type EncouragementLevel = 'great' | 'good' | 'struggle';
+
+const LISTENING_ENCOURAGEMENT: Record<string, Record<EncouragementLevel, string[]>> = {
+  kai: {
+    great: [
+      'すごいじゃん、{name}！ リスニング完璧だ。',
+      '{name}、聞き取り力バッチリだな。この調子で行こう。',
+    ],
+    good: [
+      'お疲れ、{name}。いい感じだ。耳が慣れてきてるよ。',
+      '{name}、着実に聞き取れるようになってる。この調子で。',
+    ],
+    struggle: [
+      '焦らなくていい、{name}。リスニングは慣れだから。',
+      '{name}、大丈夫。毎日聞いてれば必ず聞こえるようになる。',
+    ],
+  },
+  ren: {
+    great: [
+      'ふっ…{name}、耳いいな。ちょっと悔しいわ。',
+      '{name}…リスニング得意なんだな。やるじゃん。',
+    ],
+    good: [
+      '{name}、お疲れ。今日もちゃんと聞けてたよ。',
+      '悪くない。{name}、この調子で続けてくれ。',
+    ],
+    struggle: [
+      '{name}…まぁ、そういう日もある。気にすんな。',
+      '俺も最初は全然聞き取れなかったよ。{name}、明日また来いよ。',
+    ],
+  },
+  yuuki: {
+    great: [
+      '{name}〜！ リスニングすごすぎ！！',
+      'やばい！ {name}、耳良すぎない！？',
+    ],
+    good: [
+      '{name}、お疲れ〜！ 頑張ったね！',
+      'いいね{name}！ どんどん聞き取れるようになってるよ！',
+    ],
+    struggle: [
+      '{name}〜、ドンマイ！ 俺なんかもっとひどかったよ！笑',
+      '大丈夫！ {name}なら絶対聞き取れるようになるって！',
+    ],
+  },
+  haruto: {
+    great: [
+      '{name}さん…すごいです。リスニング力、尊敬します。',
+      '音の一つひとつを正確に捉えてる…{name}さん、素敵です。',
+    ],
+    good: [
+      '{name}さん、今日もお疲れさまでした。確実に耳が育ってます。',
+      '{name}さんの努力、ちゃんと実を結んでると思います。',
+    ],
+    struggle: [
+      '{name}さん、大丈夫です。音って繰り返すうちに急に聞こえる瞬間が来るんです。',
+      '{name}さん、今日聞いた分だけ、確実に前に進んでますから。',
+    ],
+  },
+  sora: {
+    great: [
+      '{name}さん…すごい正答率ですね。リスニング力、尊敬します。',
+      '…{name}さんの集中力、見習いたいです。',
+    ],
+    good: [
+      '{name}さん、お疲れさまです。今日も一歩前に進みましたね。',
+      'コツコツ続ける{name}さん、かっこいいと思います。',
+    ],
+    struggle: [
+      '{name}さん…僕もリスニング、最初は全然でした。大丈夫ですよ。',
+      '{name}さん、無理しないでくださいね。明日もここで待ってます。',
+    ],
+  },
+};
+
+function getListeningEncouragement(correctRate: number): { member: typeof MEMBERS[0]; message: string } {
+  const name = getPlayerName() || 'マネージャー';
+  const level: EncouragementLevel = correctRate >= 0.8 ? 'great' : correctRate >= 0.5 ? 'good' : 'struggle';
+  const memberKeys = Object.keys(LISTENING_ENCOURAGEMENT);
+  const memberId = memberKeys[Math.floor(Math.random() * memberKeys.length)];
+  const member = MEMBERS.find(m => m.id === memberId)!;
+  const messages = LISTENING_ENCOURAGEMENT[memberId][level];
+  const message = messages[Math.floor(Math.random() * messages.length)]
+    .replace(/\{name\}/g, name);
+  return { member, message };
+}
 
 // Ren member data for explanation speech card
 const REN_MEMBER = MEMBERS.find(m => m.id === 'ren')!;
@@ -37,9 +127,11 @@ export function ListeningPractice() {
 
   // XP & Combo
   const [combo, setCombo] = useState(0);
+  const [maxCombo, setMaxCombo] = useState(0);
   const [sessionXp, setSessionXp] = useState(0);
   const [xpTrigger, setXpTrigger] = useState(0);
   const [lastXp, setLastXp] = useState(0);
+  const startTimeRef = useRef(Date.now());
 
   // Pre-cache voices to ensure they are available on first playback
   const voicesRef = useRef<{ female: SpeechSynthesisVoice | null; male: SpeechSynthesisVoice | null }>({ female: null, male: null });
@@ -153,6 +245,7 @@ export function ListeningPractice() {
     const newCombo = isCorrect ? combo + 1 : 0;
     const xp = isCorrect ? calculateXp(true, newCombo) : 0;
     setCombo(newCombo);
+    setMaxCombo(prev => Math.max(prev, newCombo));
 
     if (xp > 0) {
       setSessionXp(prev => prev + xp);
@@ -254,17 +347,111 @@ export function ListeningPractice() {
 
   // Final result
   if (mode === 'result') {
-    const percent = Math.round((score / questions.length) * 100);
+    const correctRate = questions.length > 0 ? score / questions.length : 0;
+    const rank = correctRate >= 0.9 ? 'S' : correctRate >= 0.7 ? 'A' : correctRate >= 0.5 ? 'B' : 'C';
+    const rankColors: Record<string, string> = {
+      S: 'from-yellow-400 via-amber-300 to-yellow-500 text-yellow-900',
+      A: 'from-indigo-400 via-purple-400 to-fuchsia-400 text-white',
+      B: 'from-emerald-400 via-green-400 to-teal-400 text-white',
+      C: 'from-gray-400 via-gray-300 to-gray-400 text-gray-800',
+    };
+    const elapsed = Math.floor((Date.now() - startTimeRef.current) / 60000);
+    const encouragement = questions.length > 0 ? getListeningEncouragement(correctRate) : null;
+
     return (
-      <div className="text-center py-8 px-4 space-y-4">
-        <Headphones className="w-12 h-12 text-blue-500 mx-auto" />
-        <h2 className="text-xl font-bold">{en ? 'Listening Complete' : 'リスニング完了'}</h2>
-        <p className="text-3xl font-bold">{score} / {questions.length}</p>
-        <p className="text-sm text-gray-500">正答率 {percent}%</p>
-        {sessionXp > 0 && (
-          <p className="text-sm font-bold text-amber-500">+{sessionXp} XP</p>
-        )}
-        <Button variant="outline" onClick={() => setMode('select')}>戻る</Button>
+      <div className="min-h-[85vh] flex flex-col px-4 py-6">
+        {/* Header */}
+        <p className="text-center text-[10px] font-bold tracking-[0.3em] text-gray-500 uppercase mb-6">
+          Session Complete
+        </p>
+
+        <div className="flex-1 space-y-5">
+          {/* Rank badge */}
+          {questions.length > 0 && (
+            <div className="flex flex-col items-center gap-2">
+              <p className="text-[10px] text-gray-500 tracking-wider uppercase">{en ? 'Rank' : 'ランク'}</p>
+              <div className={`w-24 h-24 rounded-2xl bg-gradient-to-br ${rankColors[rank]} flex items-center justify-center shadow-2xl`}>
+                <span className="text-5xl font-black">{rank}</span>
+              </div>
+              <p className="text-xs text-gray-500">
+                {rank === 'S' ? (en ? '90%+ accuracy' : '正答率90%+') : rank === 'A' ? (en ? '70%+ accuracy' : '正答率70%+') : rank === 'B' ? (en ? '50%+ accuracy' : '正答率50%+') : (en ? 'Under 50%' : '正答率50%未満')}
+              </p>
+            </div>
+          )}
+
+          {/* XP gauge */}
+          {sessionXp > 0 && (
+            <div className="rounded-xl bg-white/5 backdrop-blur-md border border-white/10 p-4">
+              <div className="flex items-center justify-between mb-2">
+                <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">{en ? 'XP Earned' : '獲得XP'}</p>
+                <p className="text-lg font-black text-amber-400">+{sessionXp}</p>
+              </div>
+              <div className="h-3 bg-gray-800 rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-gradient-to-r from-amber-500 to-yellow-400 rounded-full transition-all duration-1000 ease-out"
+                  style={{ width: `${Math.min(100, (sessionXp / 200) * 100)}%` }}
+                />
+              </div>
+            </div>
+          )}
+
+          {/* Stats grid */}
+          <div className="grid grid-cols-2 gap-3">
+            <div className="rounded-xl bg-white/5 backdrop-blur-md border border-white/10 p-4 text-center">
+              <p className="text-2xl font-black text-indigo-400">{score}/{questions.length}</p>
+              <p className="text-[10px] text-gray-500 tracking-wider uppercase mt-1">Correct</p>
+            </div>
+            <div className="rounded-xl bg-white/5 backdrop-blur-md border border-white/10 p-4 text-center">
+              <p className="text-2xl font-black text-purple-400">{sessionXp}</p>
+              <p className="text-[10px] text-gray-500 tracking-wider uppercase mt-1">XP Earned</p>
+            </div>
+            <div className="rounded-xl bg-white/5 backdrop-blur-md border border-white/10 p-4 text-center">
+              <p className="text-2xl font-black text-orange-400">🔥 {maxCombo}</p>
+              <p className="text-[10px] text-gray-500 tracking-wider uppercase mt-1">Max Combo</p>
+            </div>
+            <div className="rounded-xl bg-white/5 backdrop-blur-md border border-white/10 p-4 text-center">
+              <p className="text-2xl font-black text-fuchsia-400">{elapsed > 0 ? `${elapsed}m` : '<1m'}</p>
+              <p className="text-[10px] text-gray-500 tracking-wider uppercase mt-1">Time</p>
+            </div>
+          </div>
+
+          {/* Member encouragement */}
+          {encouragement && (
+            <div className="rounded-xl bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-4">
+              <div className="flex gap-3 items-start">
+                <div className="shrink-0">
+                  <MemberAvatar member={encouragement.member} size="md" />
+                </div>
+                <div className="flex-1">
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">{encouragement.member.nameJa}</p>
+                  <TypewriterText text={encouragement.message} speed={40} className="text-sm font-medium text-gray-800 dark:text-gray-100" />
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Action buttons */}
+        <div className="space-y-2.5 pt-4 pb-2">
+          <Link href="/" className="block">
+            <button className="w-full py-3.5 rounded-xl text-sm font-bold tracking-wide bg-gradient-to-r from-indigo-500 via-purple-500 to-fuchsia-500 text-white shadow-lg shadow-purple-500/30 hover:shadow-xl active:scale-[0.98] transition-all flex items-center justify-center gap-2">
+              <Home className="w-4 h-4" /> {en ? 'Home' : 'ホームに戻る'}
+            </button>
+          </Link>
+          <div className="flex gap-2.5">
+            <button
+              onClick={() => { setMode('select'); setCombo(0); setMaxCombo(0); setSessionXp(0); startTimeRef.current = Date.now(); }}
+              className="flex-1 py-3 rounded-xl text-sm font-medium border-2 border-gray-700/50 text-gray-300 hover:border-gray-500 hover:bg-gray-800/30 active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+            >
+              <RotateCcw className="w-4 h-4" /> {en ? 'Retry' : 'もう一度'}
+            </button>
+            <Link href="/listening" className="flex-1">
+              <button className="w-full py-3 rounded-xl text-sm font-medium border-2 border-blue-700/50 text-blue-300 hover:border-blue-500 hover:bg-blue-800/30 active:scale-[0.98] transition-all flex items-center justify-center gap-2">
+                <Headphones className="w-4 h-4" /> {en ? 'Listening' : 'リスニングへ'}
+              </button>
+            </Link>
+          </div>
+        </div>
       </div>
     );
   }
