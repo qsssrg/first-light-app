@@ -461,56 +461,105 @@ export function ListeningPractice() {
     const exercise = DICTATION_EXERCISES[dictIndex];
     if (!exercise) {
       return (
-        <div className="text-center py-8 px-4 space-y-4">
-          <h2 className="text-xl font-bold">ディクテーション完了！</h2>
-          <Button onClick={() => setMode('select')}>戻る</Button>
+        <div className="min-h-[85vh] flex flex-col px-4 py-6">
+          <p className="text-center text-[10px] font-bold tracking-[0.3em] text-gray-500 uppercase mb-6">
+            Dictation Complete
+          </p>
+          <div className="flex-1 flex flex-col items-center justify-center">
+            <div className="w-24 h-24 rounded-2xl bg-gradient-to-br from-indigo-400 via-purple-400 to-fuchsia-400 flex items-center justify-center shadow-2xl mb-4">
+              <Check className="w-10 h-10 text-white" />
+            </div>
+            <p className="text-lg font-black text-gray-200 mb-2">{en ? 'All Done!' : 'ディクテーション完了！'}</p>
+          </div>
+          <div className="space-y-2.5 pt-4 pb-2">
+            <Link href="/" className="block">
+              <button className="w-full py-3.5 rounded-xl text-sm font-bold tracking-wide bg-gradient-to-r from-indigo-500 via-purple-500 to-fuchsia-500 text-white shadow-lg shadow-purple-500/30 hover:shadow-xl active:scale-[0.98] transition-all flex items-center justify-center gap-2">
+                <Home className="w-4 h-4" /> {en ? 'Home' : 'ホームに戻る'}
+              </button>
+            </Link>
+            <button
+              onClick={() => { setMode('select'); setDictIndex(0); setDictInput(''); setDictRevealed(false); }}
+              className="w-full py-3 rounded-xl text-sm font-medium border-2 border-gray-700/50 text-gray-300 hover:border-gray-500 hover:bg-gray-800/30 active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+            >
+              <RotateCcw className="w-4 h-4" /> {en ? 'Retry' : 'もう一度'}
+            </button>
+          </div>
         </div>
       );
     }
 
     return (
-      <div className="space-y-4 px-4">
-        <div className="flex items-center justify-between">
-          <h2 className="text-lg font-bold">ディクテーション</h2>
-          <span className="text-xs text-gray-500">{dictIndex + 1} / {DICTATION_EXERCISES.length}</span>
+      <div className="min-h-[85vh] flex flex-col px-4 py-3">
+        {/* Progress header */}
+        <div className="mb-4">
+          <div className="flex items-center justify-between mb-1.5">
+            <span className="text-xs font-bold tracking-wider text-indigo-400">DICTATION</span>
+            <span className="text-xs font-medium text-gray-400">{dictIndex + 1} / {DICTATION_EXERCISES.length}</span>
+          </div>
+          <div className="h-2 bg-gray-800/50 rounded-full overflow-hidden">
+            <div
+              className="h-full rounded-full bg-gradient-to-r from-indigo-500 via-purple-500 to-fuchsia-500 transition-all duration-500"
+              style={{ width: `${((dictIndex + 1) / DICTATION_EXERCISES.length) * 100}%` }}
+            />
+          </div>
         </div>
 
-        <Card className="p-4 text-center">
-          <p className="text-xs text-gray-500 mb-3">{exercise.hint}</p>
-          <Button
-            onClick={() => speak(exercise.text)}
-            disabled={isPlaying}
-            size="lg"
+        {/* Audio card — glassmorphism */}
+        <div className="rounded-2xl bg-white/5 dark:bg-white/5 backdrop-blur-md border border-white/10 p-6 text-center shadow-xl mb-4">
+          <p className="text-[10px] font-bold tracking-widest text-purple-400 uppercase mb-3">{exercise.hint}</p>
+          <button
+            onClick={() => isPlaying ? stopSpeech() : speak(exercise.text)}
+            className="w-16 h-16 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 hover:from-amber-500 hover:to-orange-600 shadow-lg shadow-orange-200 dark:shadow-orange-900/30 flex items-center justify-center transition-all active:scale-95 mx-auto"
           >
-            {isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}
-          </Button>
-          <p className="text-xs text-gray-400 mt-2">{en ? 'Tap to play audio' : 'タップして音声を再生'}</p>
-        </Card>
+            {isPlaying ? <Pause className="w-7 h-7 text-white" /> : <Play className="w-7 h-7 text-white ml-1" />}
+          </button>
+          <p className="text-xs text-gray-500 mt-3">{en ? 'Tap to play audio' : 'タップして音声を再生'}</p>
+        </div>
 
-        <textarea
-          value={dictInput}
-          onChange={(e) => setDictInput(e.target.value)}
-          placeholder="聞こえた英文を入力..."
-          rows={3}
-          className="w-full border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-900 resize-none"
-        />
+        {/* Input area */}
+        <div className="flex-1">
+          <textarea
+            value={dictInput}
+            onChange={(e) => setDictInput(e.target.value)}
+            placeholder={en ? 'Write what you hear...' : '聞こえた英文を入力...'}
+            rows={3}
+            className="w-full rounded-xl border-2 border-gray-700/50 bg-gray-800/30 px-4 py-3 text-sm text-gray-200 placeholder-gray-500 resize-none focus:border-indigo-400 focus:outline-none focus:ring-0 transition-colors"
+          />
 
-        {dictRevealed && (
-          <Card className="p-3 bg-green-50 dark:bg-green-950 border-green-200 dark:border-green-800">
-            <p className="text-xs text-green-700 dark:text-green-300 font-medium mb-1">正解:</p>
-            <p className="text-sm">{exercise.text}</p>
-          </Card>
-        )}
-
-        <div className="flex gap-2">
-          {!dictRevealed ? (
-            <Button onClick={() => setDictRevealed(true)} className="flex-1">{en ? 'Show Answer' : '答えを見る'}</Button>
-          ) : (
-            <Button onClick={() => { setDictIndex(dictIndex + 1); setDictInput(''); setDictRevealed(false); stopSpeech(); }} className="flex-1">
-              次の問題
-            </Button>
+          {dictRevealed && (
+            <div className="mt-3 rounded-xl border-2 border-emerald-400/50 bg-emerald-500/5 backdrop-blur-md p-4 shadow-xl shadow-emerald-500/10">
+              <div className="flex items-center gap-2 mb-2">
+                <Check className="w-4 h-4 text-emerald-400" />
+                <p className="text-xs font-bold text-emerald-400 uppercase tracking-wider">{en ? 'Answer' : '正解'}</p>
+              </div>
+              <p className="text-sm text-gray-200 leading-relaxed">{exercise.text}</p>
+            </div>
           )}
-          <Button variant="outline" onClick={() => { stopSpeech(); setMode('select'); }}>終了</Button>
+        </div>
+
+        {/* Action buttons — gradient style */}
+        <div className="mt-4 pb-2 space-y-2.5">
+          {!dictRevealed ? (
+            <button
+              onClick={() => setDictRevealed(true)}
+              className="w-full py-3.5 rounded-xl text-sm font-bold tracking-wide bg-gradient-to-r from-indigo-500 via-purple-500 to-fuchsia-500 text-white shadow-lg shadow-purple-500/30 hover:shadow-xl active:scale-[0.98] transition-all"
+            >
+              {en ? 'Show Answer' : '答えを見る'}
+            </button>
+          ) : (
+            <button
+              onClick={() => { setDictIndex(dictIndex + 1); setDictInput(''); setDictRevealed(false); stopSpeech(); }}
+              className="w-full py-3.5 rounded-xl text-sm font-bold tracking-wide bg-gradient-to-r from-indigo-500 via-purple-500 to-fuchsia-500 text-white shadow-lg shadow-purple-500/30 hover:shadow-xl active:scale-[0.98] transition-all"
+            >
+              {en ? 'Next' : '次の問題'} →
+            </button>
+          )}
+          <button
+            onClick={() => { stopSpeech(); setMode('select'); }}
+            className="w-full py-3 rounded-xl text-sm font-medium border-2 border-gray-700/50 text-gray-300 hover:border-gray-500 hover:bg-gray-800/30 active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+          >
+            {en ? 'End Session' : '今日はここまで'}
+          </button>
         </div>
       </div>
     );
