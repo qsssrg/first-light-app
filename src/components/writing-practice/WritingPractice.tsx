@@ -159,26 +159,30 @@ Remember the Montessori principle: acknowledge growth rather than just praise.`,
       setResult({ ...submission, id } as WritingSubmission);
       setSubmissionCount(prev => prev + 1);
 
-      // Award XP based on score
-      const xpEarned = data.score !== null ? Math.max(5, Math.floor(data.score / 10) * 2) : 5;
-      setSessionXp(prev => prev + xpEarned);
-      setLastXp(xpEarned);
-      setXpTrigger(prev => prev + 1);
+      // Award XP only when score >= 50 (correct threshold)
+      const isCorrect = data.score !== null && data.score >= 50;
+      const xpEarned = isCorrect ? Math.max(5, Math.floor(data.score / 10) * 2) : 0;
 
-      // Update profile XP
-      const profileData = await db.userProfile.toCollection().first();
-      if (profileData?.id) {
-        const newTotalXp = profileData.totalXp + xpEarned;
-        const oldLevel = getLevelFromXp(profileData.totalXp);
-        const newLevel = getLevelFromXp(newTotalXp);
-        await db.userProfile.update(profileData.id, {
-          xp: profileData.xp + xpEarned,
-          totalXp: newTotalXp,
-          level: newLevel,
-        });
-        if (newLevel > oldLevel) {
-          setLevelUpDisplay(newLevel);
-          setTimeout(() => setLevelUpDisplay(null), 3000);
+      if (xpEarned > 0) {
+        setSessionXp(prev => prev + xpEarned);
+        setLastXp(xpEarned);
+        setXpTrigger(prev => prev + 1);
+
+        // Update profile XP
+        const profileData = await db.userProfile.toCollection().first();
+        if (profileData?.id) {
+          const newTotalXp = profileData.totalXp + xpEarned;
+          const oldLevel = getLevelFromXp(profileData.totalXp);
+          const newLevel = getLevelFromXp(newTotalXp);
+          await db.userProfile.update(profileData.id, {
+            xp: profileData.xp + xpEarned,
+            totalXp: newTotalXp,
+            level: newLevel,
+          });
+          if (newLevel > oldLevel) {
+            setLevelUpDisplay(newLevel);
+            setTimeout(() => setLevelUpDisplay(null), 3000);
+          }
         }
       }
 
@@ -186,7 +190,7 @@ Remember the Montessori principle: acknowledge growth rather than just praise.`,
       await db.studySessions.add({
         date: new Date(),
         axis: 'writing',
-        correctCount: data.score !== null && data.score >= 50 ? 1 : 0,
+        correctCount: isCorrect ? 1 : 0,
         totalCount: 1,
         xpEarned,
         comboMax: 0,
@@ -197,11 +201,13 @@ Remember the Montessori principle: acknowledge growth rather than just praise.`,
       const { onStudyComplete } = await import('@/lib/streak');
       await onStudyComplete();
 
-      // Add affinity points to Yuuki (writing)
-      const aff = await addAffinityPoints('writing', 5);
-      if (aff.leveled) {
-        setAffinityLevelUp({ memberId: aff.memberId, level: aff.newLevel });
-        setTimeout(() => setAffinityLevelUp(null), 3000);
+      // Add affinity points to Yuuki (writing) only on correct
+      if (isCorrect) {
+        const aff = await addAffinityPoints('writing', 5);
+        if (aff.leveled) {
+          setAffinityLevelUp({ memberId: aff.memberId, level: aff.newLevel });
+          setTimeout(() => setAffinityLevelUp(null), 3000);
+        }
       }
     } catch (err) {
       const message = err instanceof Error && err.message === 'API_KEY_NOT_SET'
