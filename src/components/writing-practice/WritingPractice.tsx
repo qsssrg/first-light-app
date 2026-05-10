@@ -6,7 +6,7 @@ import { useLiveQuery } from 'dexie-react-hooks';
 import { useProfile } from '@/lib/hooks';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Send, Loader2, BookOpen, AlertCircle, Home, RotateCcw, Star } from 'lucide-react';
+import { Send, Loader2, BookOpen, AlertCircle, Home, RotateCcw, Star, Check, X, Puzzle } from 'lucide-react';
 import { hasApiKey } from '@/lib/api-key';
 import { callClaude } from '@/lib/claude-client';
 import type { WritingSubmission } from '@/types';
@@ -17,16 +17,47 @@ import { TypewriterText } from '@/components/common/TypewriterText';
 import { getPlayerName } from '@/lib/player-name';
 import { calculateXp, getLevelFromXp } from '@/lib/xp';
 import { addAffinityPoints } from '@/lib/affinity';
-import { XpFloat } from '@/components/common/GameEffects';
+import { XpFloat, ComboFlash } from '@/components/common/GameEffects';
 
 const PROMPTS = [
-  { text: 'Describe your favorite place to relax and explain why you enjoy spending time there.', level: '英検2級' },
-  { text: 'Do you think social media has a positive or negative impact on society? Explain your opinion.', level: '英検準1級' },
-  { text: 'Write about a person who has influenced your life and explain how they changed you.', level: '英検2級' },
-  { text: 'Should students be required to learn a second language? Give reasons for your answer.', level: '英検準1級' },
-  { text: 'Describe a challenge you faced and how you overcame it.', level: '英検2級' },
-  { text: 'What is one invention that you think has changed the world the most? Explain why.', level: 'TOEFL' },
+  { text: 'Describe your favorite place to relax and explain why you enjoy spending time there.', level: '英検2級', sampleAnswer: 'My favorite place to relax is the park near my house because I enjoy walking and reading there' },
+  { text: 'Do you think social media has a positive or negative impact on society? Explain your opinion.', level: '英検準1級', sampleAnswer: 'I think social media has a negative impact on society because it reduces face-to-face communication' },
+  { text: 'Write about a person who has influenced your life and explain how they changed you.', level: '英検2級', sampleAnswer: 'My mother has influenced my life the most because she always encouraged me to work hard' },
+  { text: 'Should students be required to learn a second language? Give reasons for your answer.', level: '英検準1級', sampleAnswer: 'Students should be required to learn a second language because it helps them understand different cultures' },
+  { text: 'Describe a challenge you faced and how you overcame it.', level: '英検2級', sampleAnswer: 'I faced a challenge when I moved to a new school but I overcame it by making new friends' },
+  { text: 'What is one invention that you think has changed the world the most? Explain why.', level: 'TOEFL', sampleAnswer: 'The internet has changed the world the most because it connects people across different countries instantly' },
 ];
+
+// Dummy words for puzzle mode (common English words not in answers)
+const DUMMY_WORDS = ['always', 'never', 'very', 'much', 'often', 'really', 'just', 'also', 'only', 'still', 'even', 'already', 'perhaps', 'quite', 'rather', 'almost', 'between', 'without', 'through', 'during'];
+
+type PuzzleChip = { word: string; id: number; isDummy: boolean };
+
+function tokenize(answer: string): string[] {
+  // Split by space, separate commas as independent tokens, remove periods
+  return answer
+    .replace(/\./g, '')
+    .split(/\s+/)
+    .flatMap(w => {
+      if (w.endsWith(',')) return [w.slice(0, -1), ','];
+      if (w.startsWith(',')) return [',', w.slice(1)];
+      return [w];
+    })
+    .filter(Boolean);
+}
+
+function buildPuzzleChips(answer: string): PuzzleChip[] {
+  const tokens = tokenize(answer);
+  const chips: PuzzleChip[] = tokens.map((w, i) => ({ word: w, id: i, isDummy: false }));
+  // Add ~30% dummy words
+  const dummyCount = Math.max(2, Math.round(tokens.length * 0.3));
+  const usedWords = new Set(tokens.map(w => w.toLowerCase()));
+  const available = DUMMY_WORDS.filter(w => !usedWords.has(w));
+  const shuffledDummies = [...available].sort(() => Math.random() - 0.5).slice(0, dummyCount);
+  shuffledDummies.forEach((w, i) => chips.push({ word: w, id: tokens.length + i, isDummy: true }));
+  // Shuffle all
+  return chips.sort(() => Math.random() - 0.5);
+}
 
 const YUUKI_LINES = [
   'お願い！ この英文、なんて書けばいいか教えて！',
@@ -102,6 +133,13 @@ export function WritingPractice() {
   const [levelUpDisplay, setLevelUpDisplay] = useState<number | null>(null);
   const [submissionCount, setSubmissionCount] = useState(0);
   const startTimeRef = useRef(Date.now());
+
+  // Puzzle mode
+  const [mode, setMode] = useState<'freewrite' | 'puzzle'>('freewrite');
+  const [puzzleChips, setPuzzleChips] = useState<PuzzleChip[]>([]);
+  const [selectedChips, setSelectedChips] = useState<PuzzleChip[]>([]);
+  const [puzzleResult, setPuzzleResult] = useState<'correct' | 'incorrect' | null>(null);
+  const [combo, setCombo] = useState(0);
 
   const submissions = useLiveQuery(() => db.writingSubmissions.orderBy('date').reverse().limit(5).toArray()) ?? [];
 
@@ -229,10 +267,79 @@ Remember the Montessori principle: acknowledge growth rather than just praise.`,
   };
 
   const newPrompt = () => {
-    setPromptData(PROMPTS[Math.floor(Math.random() * PROMPTS.length)]);
+    const p = PROMPTS[Math.floor(Math.random() * PROMPTS.length)];
+    setPromptData(p);
     setText('');
     setResult(null);
+    setPuzzleResult(null);
+    setSelectedChips([]);
+    setPuzzleChips(buildPuzzleChips(p.sampleAnswer));
     startTimeRef.current = Date.now();
+  };
+
+  // Initialize puzzle chips on mount/mode change
+  const initPuzzle = () => {
+    setPuzzleChips(buildPuzzleChips(promptData.sampleAnswer));
+    setSelectedChips([]);
+    setPuzzleResult(null);
+  };
+
+  const handlePuzzleConfirm = async () => {
+    const userAnswer = selectedChips.map(c => c.word).join(' ');
+    const correctAnswer = tokenize(promptData.sampleAnswer).join(' ');
+    const isCorrect = userAnswer.toLowerCase() === correctAnswer.toLowerCase();
+    setPuzzleResult(isCorrect ? 'correct' : 'incorrect');
+
+    // XP at 50% of freewrite
+    const xpEarned = isCorrect ? 5 : 0;
+    const newCombo = isCorrect ? combo + 1 : 0;
+    setCombo(newCombo);
+
+    if (xpEarned > 0) {
+      setSessionXp(prev => prev + xpEarned);
+      setLastXp(xpEarned);
+      setXpTrigger(prev => prev + 1);
+
+      try {
+        const profileData = await db.userProfile.toCollection().first();
+        if (profileData?.id) {
+          const newTotalXp = profileData.totalXp + xpEarned;
+          const oldLevel = getLevelFromXp(profileData.totalXp);
+          const newLevel = getLevelFromXp(newTotalXp);
+          await db.userProfile.update(profileData.id, {
+            xp: profileData.xp + xpEarned,
+            totalXp: newTotalXp,
+            level: newLevel,
+          });
+          if (newLevel > oldLevel) {
+            setLevelUpDisplay(newLevel);
+            setTimeout(() => setLevelUpDisplay(null), 3000);
+          }
+        }
+
+        await db.studySessions.add({
+          date: new Date(),
+          axis: 'writing',
+          correctCount: isCorrect ? 1 : 0,
+          totalCount: 1,
+          xpEarned,
+          comboMax: newCombo,
+          duration: 0,
+        } as any);
+
+        const { onStudyComplete } = await import('@/lib/streak');
+        await onStudyComplete();
+
+        if (isCorrect) {
+          const aff = await addAffinityPoints('writing', 3);
+          if (aff.leveled) {
+            setAffinityLevelUp({ memberId: aff.memberId, level: aff.newLevel });
+            setTimeout(() => setAffinityLevelUp(null), 3000);
+          }
+        }
+      } catch {}
+    }
+    setSubmissionCount(prev => prev + 1);
   };
 
   // ─── 結果画面（VocabStudy風） ───
@@ -469,6 +576,133 @@ Remember the Montessori principle: acknowledge growth rather than just praise.`,
         </div>
       </div>
 
+      {/* Mode toggle */}
+      <div className="flex rounded-xl overflow-hidden border-2 border-gray-700/50 mb-4">
+        <button
+          onClick={() => { setMode('freewrite'); setPuzzleResult(null); }}
+          className={`flex-1 py-2 text-xs font-bold tracking-wide transition-colors ${mode === 'freewrite' ? 'bg-indigo-500 text-white' : 'bg-gray-800/30 text-gray-400'}`}
+        >
+          <Send className="w-3 h-3 inline mr-1" />{en ? 'Free Write' : '手入力'}
+        </button>
+        <button
+          onClick={() => { setMode('puzzle'); initPuzzle(); }}
+          className={`flex-1 py-2 text-xs font-bold tracking-wide transition-colors ${mode === 'puzzle' ? 'bg-indigo-500 text-white' : 'bg-gray-800/30 text-gray-400'}`}
+        >
+          <Puzzle className="w-3 h-3 inline mr-1" />{en ? 'Puzzle' : 'パズル'}
+        </button>
+      </div>
+
+      {mode === 'puzzle' ? (
+        // ─── パズルモード ───
+        <>
+          {/* Prompt */}
+          <div className="rounded-2xl bg-white/5 backdrop-blur-md border border-white/10 p-5 text-center shadow-xl mb-4">
+            <div className="flex items-center justify-center gap-2 mb-2">
+              <p className="text-[10px] font-bold tracking-widest text-indigo-400 uppercase">{en ? 'Prompt' : 'お題'}</p>
+              <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300 font-medium">{promptData.level}</span>
+            </div>
+            <p className="text-base leading-relaxed text-gray-800 dark:text-gray-100 italic font-medium px-2">{prompt}</p>
+            <p className="text-xs text-gray-500 mt-3">{en ? 'Arrange words to form the answer' : '単語を並べて回答を完成させてください'}</p>
+          </div>
+
+          {/* Selected area */}
+          <div className="rounded-2xl bg-white/5 backdrop-blur-md border border-white/10 p-4 min-h-[60px] mb-3">
+            <p className="text-[10px] text-gray-500 mb-2">{en ? 'Your Answer' : '回答'}</p>
+            <div className="flex flex-wrap gap-1.5">
+              {selectedChips.length === 0 ? (
+                <span className="text-xs text-gray-500 italic">{en ? 'Tap words below to build your answer' : '下の単語をタップして文を作ろう'}</span>
+              ) : (
+                selectedChips.map((chip, i) => (
+                  <button
+                    key={`sel-${chip.id}`}
+                    onClick={() => {
+                      if (puzzleResult) return;
+                      setSelectedChips(prev => prev.filter(c => c.id !== chip.id));
+                    }}
+                    className="px-3 py-1.5 rounded-lg bg-indigo-500/20 border border-indigo-400/50 text-sm font-medium text-indigo-300 hover:bg-indigo-500/30 active:scale-95 transition-all"
+                  >
+                    {chip.word}
+                  </button>
+                ))
+              )}
+            </div>
+          </div>
+
+          {/* Available chips */}
+          <div className="flex flex-wrap gap-1.5 mb-4">
+            {puzzleChips
+              .filter(c => !selectedChips.find(s => s.id === c.id))
+              .map(chip => (
+                <button
+                  key={`avail-${chip.id}`}
+                  onClick={() => {
+                    if (puzzleResult) return;
+                    setSelectedChips(prev => [...prev, chip]);
+                  }}
+                  className="px-3 py-1.5 rounded-lg border-2 border-gray-700/50 bg-gray-800/30 text-sm font-medium text-gray-200 hover:border-gray-500 hover:bg-gray-800/50 active:scale-95 transition-all"
+                >
+                  {chip.word}
+                </button>
+              ))}
+          </div>
+
+          {/* Puzzle result */}
+          {puzzleResult && (
+            <div className={`rounded-xl p-4 text-center mb-4 ${puzzleResult === 'correct' ? 'bg-green-500/10 border border-green-400/30' : 'bg-red-500/10 border border-red-400/30'}`}>
+              {puzzleResult === 'correct'
+                ? <Check className="w-8 h-8 text-green-400 mx-auto mb-1" />
+                : <X className="w-8 h-8 text-red-400 mx-auto mb-1" />}
+              <p className={`text-lg font-black ${puzzleResult === 'correct' ? 'text-green-400' : 'text-red-400'}`}>
+                {puzzleResult === 'correct' ? (en ? 'Correct!' : '正解！') : (en ? 'Incorrect' : '不正解')}
+              </p>
+              {puzzleResult === 'incorrect' && (
+                <div className="mt-3 text-left rounded-lg bg-white/5 p-3">
+                  <p className="text-[10px] text-gray-500 mb-1">{en ? 'Correct answer' : '模範解答'}</p>
+                  <p className="text-sm text-gray-300">{tokenize(promptData.sampleAnswer).join(' ')}</p>
+                </div>
+              )}
+              {combo > 1 && puzzleResult === 'correct' && (
+                <span className="text-sm font-black text-orange-400 mt-1 block">🔥 {combo} COMBO</span>
+              )}
+            </div>
+          )}
+
+          {/* Puzzle buttons */}
+          <div className="space-y-2.5 pb-2">
+            {!puzzleResult ? (
+              <>
+                <button
+                  onClick={handlePuzzleConfirm}
+                  disabled={selectedChips.length === 0}
+                  className={`w-full py-3.5 rounded-xl text-sm font-bold tracking-wide transition-all duration-200 ${
+                    selectedChips.length > 0
+                      ? 'bg-gradient-to-r from-indigo-500 via-purple-500 to-fuchsia-500 text-white shadow-lg shadow-purple-500/30 hover:shadow-xl active:scale-[0.98]'
+                      : 'bg-gray-800 text-gray-600 cursor-not-allowed'
+                  }`}
+                >
+                  {en ? 'Confirm' : '決定'}
+                </button>
+                <button
+                  onClick={() => setSelectedChips([])}
+                  className="w-full py-2.5 rounded-xl text-xs font-medium text-gray-400 hover:text-gray-200 transition-colors"
+                >
+                  <RotateCcw className="w-3 h-3 inline mr-1" />{en ? 'Reset' : 'リセット'}
+                </button>
+              </>
+            ) : (
+              <button
+                onClick={newPrompt}
+                className="w-full py-3.5 rounded-xl text-sm font-bold tracking-wide bg-gradient-to-r from-indigo-500 via-purple-500 to-fuchsia-500 text-white shadow-lg shadow-purple-500/30 hover:shadow-xl active:scale-[0.98] transition-all"
+              >
+                {en ? 'Next Question' : '次の問題へ'}
+              </button>
+            )}
+          </div>
+
+          <ComboFlash combo={combo} />
+        </>
+      ) : (
+      <>
       {/* Yuuki guide card */}
       <YuukiGuideCard />
 
@@ -571,6 +805,8 @@ Remember the Montessori principle: acknowledge growth rather than just praise.`,
             ))}
           </div>
         </div>
+      )}
+      </>
       )}
     </div>
   );
