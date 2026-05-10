@@ -53,12 +53,15 @@ export async function checkAndUpdateStreak(): Promise<{
   let grandSlam = false;
 
   if (lastStudy === yesterday) {
-    // Studied yesterday → streak continues, +1
-    newStreak = profile.streak + 1;
-  } else if (lastStudy) {
-    // 2+ days gap → reset
+    // Studied yesterday → streak continues (increment happens in onStudyComplete)
+    // No change here — just report current streak
+  } else if (lastStudy && lastStudy !== today) {
+    // 2+ days gap → reset streak
     newStreak = 0;
     wasReset = true;
+    await db.userProfile.update(profile.id, {
+      streak: 0,
+    });
   }
   // If lastStudy is null (first time), streak stays at 0
 
@@ -67,14 +70,7 @@ export async function checkAndUpdateStreak(): Promise<{
     grandSlam = true;
   }
 
-  // Update profile
-  const longestStreak = Math.max(profile.longestStreak ?? 0, newStreak);
-  await db.userProfile.update(profile.id, {
-    streak: newStreak,
-    longestStreak,
-  });
-
-  return { updated: true, wasReset, grandSlam, streak: newStreak };
+  return { updated: wasReset, wasReset, grandSlam, streak: newStreak };
 }
 
 /**
