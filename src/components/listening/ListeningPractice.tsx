@@ -700,9 +700,9 @@ export function ListeningPractice() {
               <button
                 key={i}
                 onClick={() => handleSelect(i)}
-                className={`w-full text-left p-3 rounded-lg border text-sm flex items-center gap-2 transition-colors ${cls}`}
+                className={`w-full text-left px-5 py-3.5 rounded-xl border-2 text-sm font-medium flex items-center gap-2.5 transition-all duration-200 ${cls}`}
               >
-                <span className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 text-xs font-bold ${badgeCls}`}>
+                <span className={`w-6 h-6 rounded-full border-2 flex items-center justify-center flex-shrink-0 text-xs font-bold ${badgeCls}`}>
                   {String.fromCharCode(65 + i)}
                 </span>
                 {opt}
@@ -712,14 +712,24 @@ export function ListeningPractice() {
         </div>
 
         {/* Confirm button */}
-        <Button
-          onClick={handleConfirm}
-          disabled={selected === null}
-          className="w-full mt-4 bg-blue-600 hover:bg-blue-700 disabled:opacity-40"
-          size="lg"
-        >
-          {en ? 'Confirm' : '決定'}
-        </Button>
+        <div className="mt-4">
+          <button
+            onClick={handleConfirm}
+            disabled={selected === null}
+            className={`w-full py-3.5 rounded-xl text-sm font-bold tracking-wide transition-all duration-200 ${
+              selected !== null
+                ? 'bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 text-white shadow-lg shadow-indigo-500/30 hover:shadow-xl active:scale-[0.98]'
+                : 'bg-gray-800 text-gray-600 cursor-not-allowed'
+            }`}
+          >
+            {en ? 'Confirm' : '決定'}
+          </button>
+          {sessionXp > 0 && (
+            <p className="text-center text-xs text-indigo-400/70 font-medium mt-2">
+              +{sessionXp} XP
+            </p>
+          )}
+        </div>
       </Card>
       {gameEffects}
     </div>
