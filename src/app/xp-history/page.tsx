@@ -14,20 +14,20 @@ const TIME_SLOTS = [
 
 type SlotKey = typeof TIME_SLOTS[number]['key'];
 
+function toJSTDateString(date: Date): string {
+  return date.toLocaleDateString('sv-SE', { timeZone: 'Asia/Tokyo' });
+}
+
+function getJSTHour(date: Date): number {
+  return parseInt(date.toLocaleTimeString('en-US', { timeZone: 'Asia/Tokyo', hour: 'numeric', hour12: false }), 10);
+}
+
 function getSlotKey(date: Date): SlotKey {
-  const h = date.getHours();
+  const h = getJSTHour(date);
   if (h < 6) return 'night';
   if (h < 12) return 'morning';
   if (h < 18) return 'afternoon';
   return 'evening';
-}
-
-/** Get YYYY-MM-DD in local timezone (not UTC) */
-function toLocalDateStr(d: Date): string {
-  const y = d.getFullYear();
-  const m = String(d.getMonth() + 1).padStart(2, '0');
-  const day = String(d.getDate()).padStart(2, '0');
-  return `${y}-${m}-${day}`;
 }
 
 export default function XpHistoryPage() {
@@ -41,14 +41,15 @@ export default function XpHistoryPage() {
     for (let i = range - 1; i >= 0; i--) {
       const d = new Date(now);
       d.setDate(d.getDate() - i);
-      const dateStr = toLocalDateStr(d);
-      const label = `${d.getMonth() + 1}/${d.getDate()}`;
+      const dateStr = toJSTDateString(d);
+      const [, m, day_] = dateStr.split('-');
+      const label = `${parseInt(m)}/${parseInt(day_)}`;
       days.push({ date: dateStr, label, slots: { night: 0, morning: 0, afternoon: 0, evening: 0 } });
     }
 
     for (const s of sessions) {
       const sd = new Date(s.date);
-      const dateStr = toLocalDateStr(sd);
+      const dateStr = toJSTDateString(sd);
       const day = days.find(d => d.date === dateStr);
       if (day) {
         const slot = getSlotKey(sd);
