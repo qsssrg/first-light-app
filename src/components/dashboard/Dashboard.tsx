@@ -563,24 +563,52 @@ export function Dashboard() {
         );
       })()}
 
-      {/* Session history */}
+      {/* Session history — grouped by axis + date */}
       <Card className="p-4 backdrop-blur-sm bg-white/80 dark:bg-gray-900/80">
         <h3 className="text-sm font-medium mb-3">{en ? 'Recent Sessions' : '最近のセッション'}</h3>
         {sessions.length === 0 ? (
           <p className="text-xs text-gray-500 text-center py-4">{en ? 'No sessions yet' : 'まだセッションがありません'}</p>
-        ) : (
-          <div className="space-y-2">
-            {sessions.slice(0, 10).map((session, i) => (
-              <div key={i} className="flex justify-between items-center text-xs py-1 border-b border-gray-100 dark:border-gray-800 last:border-0">
-                <span className="text-gray-600 dark:text-gray-400">
-                  {new Date(session.date).toLocaleDateString('ja-JP', { month: 'numeric', day: 'numeric' })} {new Date(session.date).toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' })}
-                </span>
-                <span>{AXIS_LABELS[session.axis]}</span>
-                <span className="text-green-600 font-mono w-16 text-right inline-block">+{session.xpEarned} XP</span>
-              </div>
-            ))}
-          </div>
-        )}
+        ) : (() => {
+          // Group consecutive sessions by axis + date
+          const grouped: { axis: SkillAxis; date: Date; count: number; xp: number; correct: number }[] = [];
+          const sorted = [...sessions].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+          for (const s of sorted) {
+            const sDate = new Date(s.date);
+            const dateKey = sDate.toISOString().split('T')[0];
+            const last = grouped[grouped.length - 1];
+            if (last && last.axis === s.axis && new Date(last.date).toISOString().split('T')[0] === dateKey) {
+              last.count += s.totalCount;
+              last.xp += s.xpEarned;
+              last.correct += s.correctCount;
+            } else {
+              grouped.push({ axis: s.axis, date: sDate, count: s.totalCount, xp: s.xpEarned, correct: s.correctCount });
+            }
+          }
+
+          const AXIS_ICONS: Record<SkillAxis, string> = {
+            vocabulary: '📖', listening: '🎧', reading: '📕', writing: '✏️', grammar: '📐',
+          };
+
+          return (
+            <div className="space-y-1.5">
+              {grouped.slice(0, 15).map((g, i) => (
+                <div key={i} className="flex items-center justify-between text-xs py-1.5 border-b border-gray-100 dark:border-gray-800 last:border-0">
+                  <div className="flex items-center gap-2">
+                    <span>{AXIS_ICONS[g.axis]}</span>
+                    <span className="font-medium">{AXIS_LABELS[g.axis]}</span>
+                    <span className="text-gray-400">{g.count}{en ? 'Q' : '問'}</span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <span className="text-amber-500 font-bold">+{g.xp} XP</span>
+                    <span className="text-gray-400 w-12 text-right">
+                      {new Date(g.date).toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' })}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          );
+        })()}
       </Card>
     </div>
   );
