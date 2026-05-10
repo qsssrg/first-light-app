@@ -370,7 +370,16 @@ export function ListeningPractice() {
 
         {/* English script */}
         <Card className="p-4 border-blue-200 dark:border-blue-800 bg-blue-50/50 dark:bg-blue-950/50">
-          <p className="text-xs text-blue-500 font-bold mb-2">{en ? 'Script' : '英文'}</p>
+          <div className="flex items-center justify-between mb-2">
+            <p className="text-xs text-blue-500 font-bold">{en ? 'Script' : '英文'}</p>
+            <button
+              onClick={() => isPlaying ? stopSpeech() : speak(q.audioText)}
+              className="flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-400 hover:bg-blue-200 dark:hover:bg-blue-800 transition-colors"
+            >
+              {isPlaying ? <Pause className="w-3.5 h-3.5" /> : <Volume2 className="w-3.5 h-3.5" />}
+              {isPlaying ? (en ? 'Stop' : '停止') : (en ? 'Play' : '再生')}
+            </button>
+          </div>
           <div className="space-y-2">
             {scriptParagraphs.map((para, i) => (
               <p key={i} className="text-sm text-gray-800 dark:text-gray-200 leading-relaxed">{para.trim()}</p>
