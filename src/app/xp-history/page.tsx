@@ -98,14 +98,14 @@ export default function XpHistoryPage() {
         {/* Bar chart */}
         <Card className="p-4 backdrop-blur-sm bg-white/80 dark:bg-gray-900/80">
           <div className="overflow-x-auto" ref={scrollRef}>
-          <div className="flex gap-1" style={{ height: '256px', minWidth: range > 14 ? `${Math.round((range / 14) * 100)}%` : undefined }}>
+          <div className={`flex ${range <= 7 ? 'gap-2' : range <= 14 ? 'gap-1.5' : 'gap-1'}`} style={{ height: '256px', minWidth: range > 14 ? `${Math.round((range / 14) * 100)}%` : undefined }}>
             {dailyData.map((day, i) => {
               const total = Object.values(day.slots).reduce((a, b) => a + b, 0);
               // 最大日を80%高さにし、他の日は比例計算
               const heightPct = maxXp > 0 ? (total / maxXp) * 80 : 0;
 
               return (
-                <div key={day.date} className="flex-1 flex flex-col justify-end items-center" style={{ height: '256px' }}>
+                <div key={day.date} className="flex-1 flex flex-col justify-end items-center" style={{ height: '256px', maxWidth: range <= 7 ? '48px' : range <= 14 ? '32px' : '20px' }}>
                   {/* Stacked bar - px計算で確実に描画 */}
                   <div className="w-full flex flex-col-reverse" style={{ height: `${Math.round(Math.max((256 * heightPct) / 100, total > 0 ? 8 : 0))}px` }}>
                     {TIME_SLOTS.map(slot => {
