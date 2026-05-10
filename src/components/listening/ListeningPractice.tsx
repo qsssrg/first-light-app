@@ -135,6 +135,7 @@ export function ListeningPractice() {
   const [lastXp, setLastXp] = useState(0);
   const startTimeRef = useRef(Date.now());
   const [affinityLevelUp, setAffinityLevelUp] = useState<{ memberId: string; level: number } | null>(null);
+  const [levelUpDisplay, setLevelUpDisplay] = useState<number | null>(null);
 
   // Pre-cache voices to ensure they are available on first playback
   const voicesRef = useRef<{ female: SpeechSynthesisVoice | null; male: SpeechSynthesisVoice | null }>({ female: null, male: null });
@@ -258,12 +259,17 @@ export function ListeningPractice() {
         const profile = await db.userProfile.toCollection().first();
         if (profile?.id) {
           const newTotalXp = profile.totalXp + xp;
+          const oldLevel = getLevelFromXp(profile.totalXp);
           const newLevel = getLevelFromXp(newTotalXp);
           await db.userProfile.update(profile.id, {
             xp: profile.xp + xp,
             totalXp: newTotalXp,
             level: newLevel,
           });
+          if (newLevel > oldLevel) {
+            setLevelUpDisplay(newLevel);
+            setTimeout(() => setLevelUpDisplay(null), 3000);
+          }
         }
         // Record study session for XP history
         await db.studySessions.add({
