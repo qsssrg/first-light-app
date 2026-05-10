@@ -5,10 +5,14 @@ import { BottomNav } from '@/components/common/BottomNav';
 import { HomeScreen } from '@/components/home/HomeScreen';
 import { VNEngine } from '@/components/vn/VNEngine';
 import { openingScenario } from '@/lib/scenarios/opening';
+import { applyFontSize } from '@/lib/font-size';
 import type { UserProfile } from '@/types';
 
 export default function Page() {
   const [ready, setReady] = useState(false);
+
+  // Apply saved font size on mount
+  useEffect(() => { applyFontSize(); }, []);
   const [profile, setProfile] = useState<UserProfile | null | undefined>(undefined);
   const [dbError, setDbError] = useState(false);
   const [vnPlaying, setVnPlaying] = useState(false);
