@@ -24,6 +24,8 @@ import { birthdayScenario } from '@/lib/scenarios/birthday';
 import { getMemberBirthdayToday, markMemberBirthdayCelebrated } from '@/lib/member-birthday';
 import { getMemberBirthdayScenario } from '@/lib/scenarios/member-birthday';
 import { checkInactivityPenalty } from '@/lib/affinity-penalty';
+import { checkAndUpdateStreak } from '@/lib/streak';
+import { grandSlamScenario } from '@/lib/scenarios/grand-slam';
 import { FAKE_NEWS } from '@/data/fake-news';
 import { FAN_POSTS } from '@/data/fan-posts';
 import { STAGE_NEWS } from '@/data/stage-news';
@@ -240,8 +242,15 @@ export function HomeScreen({ onVNPlaying }: { onVNPlaying?: (playing: boolean) =
 
   // Inactivity penalty check
   const [penaltyMsg, setPenaltyMsg] = useState<string | null>(null);
+  const [grandSlamPlaying, setGrandSlamPlaying] = useState(false);
   useEffect(() => {
     checkInactivityPenalty().then(msg => { if (msg) setPenaltyMsg(msg); });
+    checkAndUpdateStreak().then(result => {
+      if (result.grandSlam) {
+        setGrandSlamPlaying(true);
+        onVNPlaying?.(true);
+      }
+    });
   }, []);
 
   const [playingLevelup, setPlayingLevelup] = useState(false);
@@ -357,6 +366,17 @@ export function HomeScreen({ onVNPlaying }: { onVNPlaying?: (playing: boolean) =
       <VNEngine
         scenario={scenario}
         onComplete={() => { setMemberBdEvent({ memberId: '', isOshi: false, phase: 'none' }); onVNPlaying?.(false); }}
+        skippable
+      />
+    );
+  }
+
+  // Grand slam VN (35-day streak)
+  if (grandSlamPlaying) {
+    return (
+      <VNEngine
+        scenario={grandSlamScenario}
+        onComplete={() => { setGrandSlamPlaying(false); onVNPlaying?.(false); }}
         skippable
       />
     );

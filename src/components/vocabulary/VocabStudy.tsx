@@ -474,6 +474,9 @@ export function VocabStudy() {
           comboMax: newCombo,
           duration: 0,
         } as any);
+        // Update streak
+        const { onStudyComplete } = await import('@/lib/streak');
+        await onStudyComplete();
 
         // Add affinity points to Haruto (vocabulary)
         const aff = await addAffinityPoints('vocabulary', 5);

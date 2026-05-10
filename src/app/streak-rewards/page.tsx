@@ -107,7 +107,8 @@ const TOTAL_DAYS = 35;
 export default function StreakRewardsPage() {
   const profile = useProfile();
   const [selectedDay, setSelectedDay] = useState<number | null>(null);
-  const streak = profile?.streak ?? 0;
+  const totalStreak = profile?.streak ?? 0;
+  const streak = totalStreak % TOTAL_DAYS || (totalStreak > 0 ? TOTAL_DAYS : 0); // Grid position (1-35 loop)
   const name = getPlayerName() || 'マネージャー';
 
   const selected = selectedDay !== null ? getDailyContent(selectedDay) : null;
@@ -123,7 +124,8 @@ export default function StreakRewardsPage() {
             <div>
               <h2 className="text-xl font-black tracking-wide">ストリーク報酬</h2>
               <p className="text-xs opacity-60">Daily Streak Rewards</p>
-              <p className="text-2xl font-black mt-1">{streak}日連続</p>
+              <p className="text-2xl font-black mt-1">{totalStreak}日連続</p>
+              {totalStreak > TOTAL_DAYS && <p className="text-[10px] opacity-60">ラウンド {Math.floor(totalStreak / TOTAL_DAYS) + 1}</p>}
             </div>
           </div>
         </div>
