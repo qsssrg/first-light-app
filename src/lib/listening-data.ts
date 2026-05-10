@@ -21,7 +21,7 @@ export const LISTENING_QUESTIONS: ListeningQuestion[] = [
     question: 'Where is the library?',
     options: ['On the left after two blocks', 'On the right after turning left', 'Straight ahead at the traffic light', 'Behind the traffic light'],
     correctIndex: 1,
-    explanation: '男性は「2ブロック直進して信号を左折、右手にある」と説明しています。',
+    explanation: '聞き取れたか？ ポイントは "turn left" と "on your right" だ。方向の指示は動作と位置をセットで押さえろ。',
   },
   {
     id: 'l-eiken2-2',
@@ -32,7 +32,7 @@ export const LISTENING_QUESTIONS: ListeningQuestion[] = [
     question: 'What happened to the concert?',
     options: ['It was cancelled permanently', 'It was moved to next Saturday', 'The tickets were refunded', 'A different singer will perform'],
     correctIndex: 1,
-    explanation: '女性が「来週の土曜に延期された」と説明しています。postponed = 延期。',
+    explanation: 'cancelled と postponed、似てるようで全然違う。postponed は「後にずらした」だけ。洋楽のライブ情報追ってると嫌でも覚えるぞ。',
   },
   {
     id: 'l-eiken2-3',
@@ -43,7 +43,7 @@ export const LISTENING_QUESTIONS: ListeningQuestion[] = [
     question: 'What will happen within a week?',
     options: ['He will start working', 'He will have another interview', 'The company will contact him', 'He will submit more documents'],
     correctIndex: 2,
-    explanation: '男性は「1週間以内に連絡すると言われた」と述べています。',
+    explanation: '"contact me within a week" が聞き取れればOK。within は期限を示すときによく出る。耳が慣れてくると自然に拾えるようになる。',
   },
   // 準一級型 - やや長い会話
   {
@@ -55,7 +55,7 @@ export const LISTENING_QUESTIONS: ListeningQuestion[] = [
     question: 'According to the professor, how does social media addiction differ from substance addiction?',
     options: ['It is less harmful', 'Complete abstinence is not the solution', 'It only affects young people', 'It does not involve dopamine'],
     correctIndex: 1,
-    explanation: '教授は「完全な禁止ではなくマインドフルな使用が解決策」と述べています。',
+    explanation: 'ここは対比構造だな。"unlike substance addiction" で違いを示してる。長い講義でも、対比のシグナルワードを拾えば要点がつかめる。',
   },
   {
     id: 'l-pre1-2',
@@ -66,7 +66,7 @@ export const LISTENING_QUESTIONS: ListeningQuestion[] = [
     question: 'What does the man suggest about plant-based protein?',
     options: ['Supplements are necessary', 'Only tofu provides enough protein', 'Eating a variety of plant foods is sufficient', 'It is impossible to get enough protein from plants'],
     correctIndex: 2,
-    explanation: '男性は「多様な植物性食品を食べれば、サプリなしでタンパク質を摂れる」と述べています。',
+    explanation: '"The key is variety" ってフレーズ、会話の核心を一発で示してる。こういう決めゼリフみたいな一文を聞き逃すな。',
   },
   // TOEFL型 - レクチャー
   {
@@ -78,7 +78,7 @@ export const LISTENING_QUESTIONS: ListeningQuestion[] = [
     question: 'What was the previous assumption about the adult brain?',
     options: ['It could grow new neurons easily', 'It was fixed and unchangeable', 'It was more plastic than children\'s brains', 'It could only change through medication'],
     correctIndex: 1,
-    explanation: '教授は「何十年も大人の脳は固定されて変わらないと信じられていた」と述べています。',
+    explanation: '講義の流れは「昔はこう思われてた→でも違った」。"overturned this assumption" が転換点だ。この構造、TOEFLでめちゃくちゃ出る。',
   },
   {
     id: 'l-toefl-2',
@@ -89,7 +89,7 @@ export const LISTENING_QUESTIONS: ListeningQuestion[] = [
     question: 'Why does each farmer add more cattle in the tragedy of the commons?',
     options: ['They want to destroy the pasture', 'Individual benefit exceeds individual cost', 'They do not know about the problem', 'The government requires it'],
     correctIndex: 1,
-    explanation: '各農家は「利益は全て自分のもの、コストは全員で分担」するため追加のインセンティブがあります。',
+    explanation: '理由を聞かれたら "because" の後を集中して聴け。ここでは "they receive all the benefit while the cost is shared" が答えの根拠。',
   },
   {
     id: 'l-toefl-3',
@@ -100,7 +100,7 @@ export const LISTENING_QUESTIONS: ListeningQuestion[] = [
     question: 'What does the weak version of the Sapir-Whorf hypothesis claim?',
     options: ['Language has no effect on thought', 'Language completely determines thought', 'Language influences cognitive processes', 'All languages are equally complex'],
     correctIndex: 2,
-    explanation: '弱い版は「言語が思考と認知プロセスに影響する」と主張しています。',
+    explanation: 'strong version と weak version の違いを聴き分けるのがカギ。"determines" と "influences" は似てるけど強さが全然違う。言葉のニュアンスに敏感になれ。',
   },
 ];
 
