@@ -19,6 +19,7 @@ import { MemberAvatar } from '@/components/common/MemberAvatar';
 import type { SkillAxis } from '@/types';
 import { getStudyGoal, setStudyGoal, EIKEN_GRADES, type StudyGoal, type EikenSetting, type ToeflSetting } from '@/lib/study-goals';
 import { getBirthday, setBirthday } from '@/lib/birthday';
+import { getFontSize, setFontSize, FONT_SIZE_OPTIONS, type FontSize } from '@/lib/font-size';
 import { isPsychologyEventEnabled, setPsychologyEventEnabled } from '@/lib/psychology-settings';
 import { getAvatarStyle, setAvatarStyle, AVATAR_OPTIONS, type AvatarStyle } from '@/lib/user-avatar';
 import { AvatarSilhouette } from '@/components/common/AvatarSilhouette';
@@ -82,7 +83,10 @@ export function Settings() {
       {/* 4. ストーリー回想 */}
       <StoryRecollectionSection />
 
-      {/* 5. トグル設定 */}
+      {/* 5. 文字サイズ */}
+      <FontSizeSection />
+
+      {/* 6. トグル設定 */}
       <Card className="divide-y divide-gray-100 dark:divide-gray-800">
         <SettingRow
           label="ダークモード"
@@ -338,6 +342,37 @@ function PlayerMonologue() {
         <TypewriterText text={`（${text}）`} speed={30} className="text-xs text-gray-500 dark:text-gray-400 italic" />
       </div>
     </div>
+  );
+}
+
+function FontSizeSection() {
+  const [current, setCurrent] = useState<FontSize>(getFontSize);
+
+  const handleChange = (size: FontSize) => {
+    setFontSize(size);
+    setCurrent(size);
+  };
+
+  return (
+    <Card className="p-4">
+      <h3 className="text-sm font-medium mb-2">🔤 文字サイズ</h3>
+      <div className="flex gap-2">
+        {FONT_SIZE_OPTIONS.map(opt => (
+          <button
+            key={opt.id}
+            onClick={() => handleChange(opt.id)}
+            className={`flex-1 py-2 rounded-lg text-sm font-medium transition-colors ${
+              current === opt.id
+                ? 'bg-indigo-600 text-white'
+                : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400'
+            }`}
+          >
+            {opt.label}
+          </button>
+        ))}
+      </div>
+      <p className="text-[9px] text-gray-400 mt-2">レイアウトが崩れる場合があります</p>
+    </Card>
   );
 }
 
