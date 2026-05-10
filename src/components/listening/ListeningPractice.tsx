@@ -9,7 +9,7 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { Play, Pause, Volume2, Check, X, RotateCcw, Headphones } from 'lucide-react';
+import { Play, Pause, Volume2, Check, X, Headphones } from 'lucide-react';
 import { calculateXp, getLevelFromXp } from '@/lib/xp';
 import { db } from '@/lib/db';
 import { ComboFlash, XpFloat } from '@/components/common/GameEffects';
@@ -168,6 +168,16 @@ export function ListeningPractice() {
             level: newLevel,
           });
         }
+        // Record study session for XP history
+        await db.studySessions.add({
+          date: new Date(),
+          axis: 'listening',
+          correctCount: isCorrect ? 1 : 0,
+          totalCount: 1,
+          xpEarned: xp,
+          comboMax: newCombo,
+          duration: 0,
+        } as any);
       } catch {}
     }
 
@@ -409,7 +419,11 @@ export function ListeningPractice() {
     <div className="space-y-4 px-4">
       <div className="flex items-center justify-between">
         <Badge variant="secondary">{q.type === 'eiken' ? '英検型' : 'TOEFL型'}</Badge>
-        <span className="text-xs text-gray-500">{current + 1} / {questions.length}</span>
+        <div className="flex items-center gap-2">
+          {combo > 0 && <span className="text-xs font-black text-orange-400">🔥 {combo}</span>}
+          {sessionXp > 0 && <span className="text-xs font-bold text-amber-500">+{sessionXp} XP</span>}
+          <span className="text-xs text-gray-500">{current + 1} / {questions.length}</span>
+        </div>
       </div>
 
       <Progress value={((current + 1) / questions.length) * 100} className="h-1.5" />
@@ -438,12 +452,6 @@ export function ListeningPractice() {
               </button>
             ))}
           </div>
-        </div>
-        <div className="flex justify-end mt-2">
-          <Button size="sm" variant="ghost" onClick={() => speak(q.audioText)}>
-            <RotateCcw className="w-3 h-3 mr-1" />
-            <span className="text-xs">{en ? 'Replay' : 'もう一度'}</span>
-          </Button>
         </div>
       </Card>
 
@@ -479,6 +487,7 @@ export function ListeningPractice() {
           {en ? 'Confirm' : '決定'}
         </Button>
       </Card>
+      {gameEffects}
     </div>
   );
 }
