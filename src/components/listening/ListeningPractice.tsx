@@ -460,24 +460,23 @@ export function ListeningPractice() {
         <p className="text-sm font-medium mb-3">{q.question}</p>
         <div className="space-y-2">
           {q.options.map((opt, i) => {
-            const colors = [
-              { border: 'border-blue-300 dark:border-blue-700', bg: 'bg-blue-50 dark:bg-blue-950', ring: 'ring-blue-400 dark:ring-blue-600', badge: 'border-blue-500 bg-blue-500', hover: 'hover:border-blue-400' },
-              { border: 'border-emerald-300 dark:border-emerald-700', bg: 'bg-emerald-50 dark:bg-emerald-950', ring: 'ring-emerald-400 dark:ring-emerald-600', badge: 'border-emerald-500 bg-emerald-500', hover: 'hover:border-emerald-400' },
-              { border: 'border-amber-300 dark:border-amber-700', bg: 'bg-amber-50 dark:bg-amber-950', ring: 'ring-amber-400 dark:ring-amber-600', badge: 'border-amber-500 bg-amber-500', hover: 'hover:border-amber-400' },
-              { border: 'border-purple-300 dark:border-purple-700', bg: 'bg-purple-50 dark:bg-purple-950', ring: 'ring-purple-400 dark:ring-purple-600', badge: 'border-purple-500 bg-purple-500', hover: 'hover:border-purple-400' },
+            const colorSchemes = [
+              { border: 'border-blue-200 dark:border-blue-700', hover: 'hover:border-blue-400', selected: 'border-blue-500 bg-blue-50 dark:bg-blue-950 ring-2 ring-blue-300 dark:ring-blue-700', badge: 'border-blue-400 bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300', badgeSelected: 'border-blue-500 bg-blue-500 text-white' },
+              { border: 'border-emerald-200 dark:border-emerald-700', hover: 'hover:border-emerald-400', selected: 'border-emerald-500 bg-emerald-50 dark:bg-emerald-950 ring-2 ring-emerald-300 dark:ring-emerald-700', badge: 'border-emerald-400 bg-emerald-100 dark:bg-emerald-900 text-emerald-700 dark:text-emerald-300', badgeSelected: 'border-emerald-500 bg-emerald-500 text-white' },
+              { border: 'border-orange-200 dark:border-orange-700', hover: 'hover:border-orange-400', selected: 'border-orange-500 bg-orange-50 dark:bg-orange-950 ring-2 ring-orange-300 dark:ring-orange-700', badge: 'border-orange-400 bg-orange-100 dark:bg-orange-900 text-orange-700 dark:text-orange-300', badgeSelected: 'border-orange-500 bg-orange-500 text-white' },
+              { border: 'border-purple-200 dark:border-purple-700', hover: 'hover:border-purple-400', selected: 'border-purple-500 bg-purple-50 dark:bg-purple-950 ring-2 ring-purple-300 dark:ring-purple-700', badge: 'border-purple-400 bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300', badgeSelected: 'border-purple-500 bg-purple-500 text-white' },
             ];
-            const c = colors[i] || colors[0];
-            const isSelected = selected === i;
-            const cls = isSelected
-              ? `${c.border} ${c.bg} ring-2 ${c.ring}`
-              : `${c.border} ${c.hover}`;
+            const scheme = colorSchemes[i] || colorSchemes[0];
+            let cls = `${scheme.border} ${scheme.hover}`;
+            if (selected === i) cls = scheme.selected;
+            const badgeCls = selected === i ? scheme.badgeSelected : scheme.badge;
             return (
               <button
                 key={i}
                 onClick={() => handleSelect(i)}
                 className={`w-full text-left p-3 rounded-lg border text-sm flex items-center gap-2 transition-colors ${cls}`}
               >
-                <span className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 text-xs font-bold ${isSelected ? `${c.badge} text-white` : 'border-gray-300 text-gray-400'}`}>
+                <span className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 text-xs font-bold ${badgeCls}`}>
                   {String.fromCharCode(65 + i)}
                 </span>
                 {opt}
