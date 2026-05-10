@@ -15,6 +15,9 @@ import { getPlayerName } from '@/lib/player-name';
 import { addAffinityPoints } from '@/lib/affinity';
 import Link from 'next/link';
 
+// Sora member data for explanation speech card
+const SORA_MEMBER = MEMBERS.find(m => m.id === 'sora')!;
+
 type EncouragementLevel = 'great' | 'good' | 'struggle';
 
 const ENCOURAGEMENT: Record<string, Record<EncouragementLevel, string[]>> = {
@@ -417,18 +420,6 @@ export function ReadingPractice() {
             {isCorrect ? 'Correct!' : 'Incorrect'}
           </p>
 
-          {/* Passage preview */}
-          <div className="text-left px-2 mb-3">
-            <p className="text-[10px] text-blue-400 font-medium mb-1">Passage</p>
-            <p className="text-sm leading-relaxed text-gray-800 dark:text-gray-100 italic font-medium line-clamp-3">{q.passage}</p>
-          </div>
-
-          {/* Explanation */}
-          <div className="text-left px-2 mt-3">
-            <p className="text-[10px] text-gray-500 font-medium mb-1">{en ? 'Explanation' : '解説'}</p>
-            <p className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed">{q.explanation}</p>
-          </div>
-
           {/* Selected vs correct */}
           {selected !== null && (
             <div className="mt-3 space-y-2 text-left px-2">
@@ -444,6 +435,19 @@ export function ReadingPractice() {
               </div>
             </div>
           )}
+        </div>
+
+        {/* Sora's explanation speech card */}
+        <div className="mt-3 rounded-xl bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-4">
+          <div className="flex gap-3 items-start">
+            <div className="shrink-0">
+              <MemberAvatar member={SORA_MEMBER} size="md" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">{SORA_MEMBER.nameJa}</p>
+              <p className="text-sm font-medium text-gray-800 dark:text-gray-100 leading-relaxed">{q.explanation}</p>
+            </div>
+          </div>
         </div>
 
         {/* Next button */}
