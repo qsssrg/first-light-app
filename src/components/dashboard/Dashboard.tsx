@@ -563,52 +563,65 @@ export function Dashboard() {
         );
       })()}
 
-      {/* Session history — grouped by axis + date */}
+      {/* Session history — grouped by axis + day */}
       <Card className="p-4 backdrop-blur-sm bg-white/80 dark:bg-gray-900/80">
         <h3 className="text-sm font-medium mb-3">{en ? 'Recent Sessions' : '最近のセッション'}</h3>
         {sessions.length === 0 ? (
           <p className="text-xs text-gray-500 text-center py-4">{en ? 'No sessions yet' : 'まだセッションがありません'}</p>
-        ) : (() => {
-          // Group consecutive sessions by axis + date
-          const grouped: { axis: SkillAxis; date: Date; count: number; xp: number; correct: number }[] = [];
-          const sorted = [...sessions].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-          for (const s of sorted) {
-            const sDate = new Date(s.date);
-            const dateKey = sDate.toISOString().split('T')[0];
-            const last = grouped[grouped.length - 1];
-            if (last && last.axis === s.axis && new Date(last.date).toISOString().split('T')[0] === dateKey) {
-              last.count += s.totalCount;
-              last.xp += s.xpEarned;
-              last.correct += s.correctCount;
-            } else {
-              grouped.push({ axis: s.axis, date: sDate, count: s.totalCount, xp: s.xpEarned, correct: s.correctCount });
-            }
-          }
+        ) : (
+          <div className="space-y-1.5">
+            {(() => {
+              const AXIS_ICONS: Record<SkillAxis, string> = {
+                vocabulary: '📚',
+                reading: '📖',
+                listening: '🎧',
+                writing: '✍️',
+                grammar: '📝',
+              };
+              // Group sessions by date + axis
+              const grouped = sessions.reduce((acc, s) => {
+                const dateKey = new Date(s.date).toISOString().split('T')[0];
+                const key = `${dateKey}_${s.axis}`;
+                if (!acc[key]) {
+                  acc[key] = {
+                    date: s.date,
+                    axis: s.axis,
+                    totalQuestions: 0,
+                    totalXp: 0,
+                    sessionCount: 0,
+                    lastTime: s.date,
+                  };
+                }
+                acc[key].totalQuestions += s.totalCount;
+                acc[key].totalXp += s.xpEarned;
+                acc[key].sessionCount += 1;
+                if (new Date(s.date) > new Date(acc[key].lastTime)) {
+                  acc[key].lastTime = s.date;
+                }
+                return acc;
+              }, {} as Record<string, { date: Date; axis: SkillAxis; totalQuestions: number; totalXp: number; sessionCount: number; lastTime: Date }>);
 
-          const AXIS_ICONS: Record<SkillAxis, string> = {
-            vocabulary: '📖', listening: '🎧', reading: '📕', writing: '✏️', grammar: '📐',
-          };
-
-          return (
-            <div className="space-y-1.5">
-              {grouped.slice(0, 15).map((g, i) => (
-                <div key={i} className="flex items-center justify-between text-xs py-1.5 border-b border-gray-100 dark:border-gray-800 last:border-0">
-                  <div className="flex items-center gap-2">
-                    <span>{AXIS_ICONS[g.axis]}</span>
-                    <span className="font-medium">{AXIS_LABELS[g.axis]}</span>
-                    <span className="text-gray-400">{g.count}{en ? 'Q' : '問'}</span>
+              return Object.values(grouped)
+                .sort((a, b) => new Date(b.lastTime).getTime() - new Date(a.lastTime).getTime())
+                .slice(0, 15)
+                .map((group, i) => (
+                  <div key={i} className="flex items-center justify-between text-xs py-1.5 border-b border-gray-100 dark:border-gray-800 last:border-0">
+                    <div className="flex items-center gap-2">
+                      <span>{AXIS_ICONS[group.axis]}</span>
+                      <span className="font-medium">{AXIS_LABELS[group.axis]}</span>
+                      <span className="text-gray-400">{group.totalQuestions}{en ? 'Q' : '問'}</span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <span className="text-amber-500 font-bold">+{group.totalXp}XP</span>
+                      <span className="text-gray-400 w-20 text-right">
+                        {new Date(group.lastTime).toLocaleDateString('ja-JP', { month: 'numeric', day: 'numeric' })} {new Date(group.lastTime).toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' })}
+                      </span>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-3">
-                    <span className="text-amber-500 font-bold">+{g.xp} XP</span>
-                    <span className="text-gray-400 w-12 text-right">
-                      {new Date(g.date).toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' })}
-                    </span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          );
-        })()}
+                ));
+            })()}
+          </div>
+        )}
       </Card>
     </div>
   );
