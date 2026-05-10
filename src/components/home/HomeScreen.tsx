@@ -583,7 +583,6 @@ export function HomeScreen({ onVNPlaying }: { onVNPlaying?: (playing: boolean) =
       {/* Group 2: 5 Courses + Chapter */}
       <div className="space-y-2">
       {/* 5 Member Courses */}
-      <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest pt-1">{en ? 'Member Courses' : 'メンバー別コース'}</p>
 
       {/* ハルト × 語彙 */}
       <Link href="/vocab-study">
@@ -673,6 +672,7 @@ export function HomeScreen({ onVNPlaying }: { onVNPlaying?: (playing: boolean) =
         </Link>
       )}
 
+      <div className="mt-6" />
       {/* Chapter — mixed skills + story (below member courses) */}
       <Link href="/chapters/">
         <Card className="p-4 hover:shadow-md transition-shadow cursor-pointer border-gray-600 dark:border-gray-500 bg-gradient-to-r from-gray-800 to-gray-900 dark:from-gray-800 dark:to-gray-950 shadow-lg">
