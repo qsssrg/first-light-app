@@ -9,7 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Play, Pause, Volume2, Check, X, RotateCcw, Headphones } from 'lucide-react';
 
-type Mode = 'select' | 'quiz' | 'dictation' | 'result';
+type Mode = 'select' | 'quiz' | 'quiz-result' | 'dictation' | 'result';
 type Speed = 0.8 | 1.0 | 1.2;
 
 export function ListeningPractice() {
@@ -19,6 +19,7 @@ export function ListeningPractice() {
   const [filter, setFilter] = useState<'all' | 'eiken2' | 'eiken_pre1' | 'toefl'>('all');
   const [questions, setQuestions] = useState<ListeningQuestion[]>([]);
   const [current, setCurrent] = useState(0);
+  const [selected, setSelected] = useState<number | null>(null);
   const [answered, setAnswered] = useState<number | null>(null);
   const [score, setScore] = useState(0);
   const [speed, setSpeed] = useState<Speed>(1.0);
@@ -37,6 +38,7 @@ export function ListeningPractice() {
     setQuestions(filtered);
     setCurrent(0);
     setScore(0);
+    setSelected(null);
     setAnswered(null);
     setMode('quiz');
   };
@@ -92,10 +94,16 @@ export function ListeningPractice() {
     setIsPlaying(false);
   };
 
-  const handleAnswer = (index: number) => {
+  const handleSelect = (index: number) => {
     if (answered !== null) return;
-    setAnswered(index);
-    if (index === questions[current].correctIndex) setScore(s => s + 1);
+    setSelected(index);
+  };
+
+  const handleConfirm = () => {
+    if (selected === null || answered !== null) return;
+    setAnswered(selected);
+    if (selected === questions[current].correctIndex) setScore(s => s + 1);
+    setMode('quiz-result');
   };
 
   const nextQuestion = () => {
@@ -105,7 +113,9 @@ export function ListeningPractice() {
       import('@/lib/streak').then(({ onStudyComplete }) => onStudyComplete());
     } else {
       setCurrent(c => c + 1);
+      setSelected(null);
       setAnswered(null);
+      setMode('quiz');
       stopSpeech();
     }
   };
@@ -117,7 +127,7 @@ export function ListeningPractice() {
         <div className="relative rounded-2xl overflow-hidden bg-gradient-to-br from-sky-600 via-blue-500 to-indigo-400 p-5 text-white shadow-lg mb-2">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_40%,rgba(255,255,255,0.08)_0%,transparent_50%)]" />
         <div className="relative">
-          <h2 className="text-xl font-black tracking-wide">{en ? 'Listening Practice' : 'リスニング練習'}</h2>
+          <h2 className="text-xl font-black tracking-wide">{en ? 'Listening Study' : 'リスニング学習'}</h2>
           <p className="text-xs opacity-60 mt-0.5">Listening</p>
         </div>
       </div>
@@ -135,22 +145,6 @@ export function ListeningPractice() {
             </button>
           ))}
         </div>
-
-        {/* Speed selector */}
-        <Card className="p-4">
-          <p className="text-xs text-gray-500 mb-2">{en ? 'Speed' : '再生速度'}</p>
-          <div className="flex gap-2">
-            {([0.8, 1.0, 1.2] as Speed[]).map(s => (
-              <button
-                key={s}
-                onClick={() => setSpeed(s)}
-                className={`flex-1 py-2 rounded-lg text-sm ${speed === s ? 'bg-blue-600 text-white' : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400'}`}
-              >
-                {s}x
-              </button>
-            ))}
-          </div>
-        </Card>
 
         <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">{en ? 'Choose Mode' : '学習モードを選択'}</p>
         <Card className="p-4 cursor-pointer hover:shadow-md transition-shadow border-blue-200 dark:border-blue-800" onClick={startQuiz}>
@@ -179,7 +173,7 @@ export function ListeningPractice() {
     );
   }
 
-  // Result
+  // Final result
   if (mode === 'result') {
     const percent = Math.round((score / questions.length) * 100);
     return (
@@ -256,6 +250,52 @@ export function ListeningPractice() {
     );
   }
 
+  // Quiz-result mode (after pressing 決定)
+  if (mode === 'quiz-result') {
+    const q = questions[current];
+    const isCorrect = answered === q.correctIndex;
+
+    return (
+      <div className="space-y-4 px-4">
+        <div className="flex items-center justify-between">
+          <Badge variant="secondary">{q.type === 'eiken' ? '英検型' : 'TOEFL型'}</Badge>
+          <span className="text-xs text-gray-500">{current + 1} / {questions.length}</span>
+        </div>
+
+        <Progress value={((current + 1) / questions.length) * 100} className="h-1.5" />
+
+        {/* Result indicator */}
+        <div className={`p-4 rounded-xl text-center font-bold text-lg ${isCorrect ? 'bg-green-50 dark:bg-green-950 text-green-700 dark:text-green-300 border border-green-200 dark:border-green-800' : 'bg-red-50 dark:bg-red-950 text-red-700 dark:text-red-300 border border-red-200 dark:border-red-800'}`}>
+          {isCorrect ? (en ? 'Correct!' : '正解！') : (en ? 'Incorrect' : '不正解')}
+        </div>
+
+        {/* English script */}
+        <Card className="p-4 border-blue-200 dark:border-blue-800 bg-blue-50/50 dark:bg-blue-950/50">
+          <p className="text-xs text-blue-500 font-bold mb-2">{en ? 'Script' : '英文'}</p>
+          <p className="text-sm text-gray-800 dark:text-gray-200 leading-relaxed">{q.audioText}</p>
+        </Card>
+
+        {/* Japanese translation */}
+        {q.audioTextJa && (
+          <Card className="p-4 border-gray-200 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-900/50">
+            <p className="text-xs text-gray-500 font-bold mb-2">和訳</p>
+            <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">{q.audioTextJa}</p>
+          </Card>
+        )}
+
+        {/* Explanation */}
+        <Card className="p-3 bg-gray-50 dark:bg-gray-900">
+          <p className="text-xs text-gray-600 dark:text-gray-400">{q.explanation}</p>
+        </Card>
+
+        {/* Next button */}
+        <Button onClick={nextQuestion} className="w-full" size="lg">
+          {current + 1 >= questions.length ? (en ? 'View Results' : '結果を見る') : (en ? 'Next Question' : '次の問題へ')}
+        </Button>
+      </div>
+    );
+  }
+
   // Quiz mode
   const q = questions[current];
 
@@ -268,27 +308,37 @@ export function ListeningPractice() {
 
       <Progress value={((current + 1) / questions.length) * 100} className="h-1.5" />
 
-      {/* Audio player */}
-      <Card className="p-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <Button
-              size="sm"
-              variant={isPlaying ? 'default' : 'outline'}
-              onClick={() => isPlaying ? stopSpeech() : speak(q.audioText)}
-            >
-              {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
-            </Button>
-            <div className="flex items-center gap-1">
-              <Volume2 className="w-3 h-3 text-gray-400" />
-              <span className="text-xs text-gray-500">{speed}x</span>
-            </div>
+      {/* Audio player - big prominent play button */}
+      <Card className="p-6">
+        <div className="flex flex-col items-center gap-3">
+          <button
+            onClick={() => isPlaying ? stopSpeech() : speak(q.audioText)}
+            className="w-16 h-16 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 hover:from-amber-500 hover:to-orange-600 shadow-lg shadow-orange-200 dark:shadow-orange-900/30 flex items-center justify-center transition-all active:scale-95"
+          >
+            {isPlaying ? <Pause className="w-7 h-7 text-white" /> : <Play className="w-7 h-7 text-white ml-1" />}
+          </button>
+          <p className="text-xs text-gray-400">{en ? 'Tap to play audio' : 'タップして音声を再生'}</p>
+
+          {/* Speed control */}
+          <div className="flex items-center gap-2 mt-1">
+            <span className="text-xs text-gray-400">{en ? 'Speed' : '速度'}:</span>
+            {([0.8, 1.0, 1.2] as Speed[]).map(s => (
+              <button
+                key={s}
+                onClick={() => setSpeed(s)}
+                className={`px-2.5 py-1 rounded-md text-xs font-medium transition-colors ${speed === s ? 'bg-amber-500 text-white' : 'bg-gray-100 dark:bg-gray-800 text-gray-500 hover:bg-gray-200 dark:hover:bg-gray-700'}`}
+              >
+                {s}x
+              </button>
+            ))}
           </div>
+        </div>
+        <div className="flex justify-end mt-2">
           <Button size="sm" variant="ghost" onClick={() => speak(q.audioText)}>
-            <RotateCcw className="w-3 h-3" />
+            <RotateCcw className="w-3 h-3 mr-1" />
+            <span className="text-xs">{en ? 'Replay' : 'もう一度'}</span>
           </Button>
         </div>
-        <p className="text-xs text-gray-400 mt-2">{en ? 'Tap ▶ to play audio' : '▶ をタップして音声を再生'}</p>
       </Card>
 
       {/* Question */}
@@ -297,46 +347,32 @@ export function ListeningPractice() {
         <div className="space-y-2">
           {q.options.map((opt, i) => {
             let cls = 'border-gray-200 dark:border-gray-700 hover:border-blue-400';
-            if (answered !== null) {
-              if (i === q.correctIndex) cls = 'border-green-500 bg-green-50 dark:bg-green-950';
-              else if (i === answered) cls = 'border-red-500 bg-red-50 dark:bg-red-950';
-            }
+            if (selected === i) cls = 'border-blue-500 bg-blue-50 dark:bg-blue-950 ring-2 ring-blue-300 dark:ring-blue-700';
             return (
               <button
                 key={i}
-                onClick={() => handleAnswer(i)}
-                disabled={answered !== null}
+                onClick={() => handleSelect(i)}
                 className={`w-full text-left p-3 rounded-lg border text-sm flex items-center gap-2 transition-colors ${cls}`}
               >
-                {answered !== null && i === q.correctIndex && <Check className="w-4 h-4 text-green-500 flex-shrink-0" />}
-                {answered !== null && i === answered && i !== q.correctIndex && <X className="w-4 h-4 text-red-500 flex-shrink-0" />}
+                <span className="w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 text-xs font-bold ${selected === i ? 'border-blue-500 bg-blue-500 text-white' : 'border-gray-300 text-gray-400'}">
+                  {String.fromCharCode(65 + i)}
+                </span>
                 {opt}
               </button>
             );
           })}
         </div>
 
-        {answered !== null && (
-          <div className="mt-3 space-y-2">
-            <div className={`p-3 rounded-lg text-sm font-medium ${answered === q.correctIndex ? 'bg-green-50 dark:bg-green-950 text-green-700 dark:text-green-300' : 'bg-red-50 dark:bg-red-950 text-red-700 dark:text-red-300'}`}>
-              {answered === q.correctIndex ? (en ? '✓ Correct!' : '✓ 正解！') : (en ? '✗ Incorrect' : '✗ 不正解')}
-            </div>
-            <div className="p-2 rounded bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800">
-              <p className="text-[10px] text-blue-500 font-medium mb-1">{en ? 'Script' : '読み上げ文'}</p>
-              <p className="text-xs text-gray-700 dark:text-gray-300 leading-relaxed">{q.audioText}</p>
-            </div>
-            <div className="p-2 rounded bg-gray-50 dark:bg-gray-900 text-xs text-gray-600 dark:text-gray-400">
-              {q.explanation}
-            </div>
-          </div>
-        )}
-      </Card>
-
-      {answered !== null && (
-        <Button onClick={nextQuestion} className="w-full">
-          {current + 1 >= questions.length ? '結果を見る' : '次の問題'}
+        {/* Confirm button */}
+        <Button
+          onClick={handleConfirm}
+          disabled={selected === null}
+          className="w-full mt-4 bg-blue-600 hover:bg-blue-700 disabled:opacity-40"
+          size="lg"
+        >
+          {en ? 'Confirm' : '決定'}
         </Button>
-      )}
+      </Card>
     </div>
   );
 }
