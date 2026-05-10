@@ -113,6 +113,9 @@ Remember the Montessori principle: acknowledge growth rather than just praise.`,
 
       const id = await db.writingSubmissions.add(submission as WritingSubmission);
       setResult({ ...submission, id } as WritingSubmission);
+      // Update streak on study completion
+      const { onStudyComplete } = await import('@/lib/streak');
+      await onStudyComplete();
     } catch (err) {
       const message = err instanceof Error && err.message === 'API_KEY_NOT_SET'
         ? 'APIキーが設定されていません。設定画面で入力してください。'

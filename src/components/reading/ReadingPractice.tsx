@@ -128,7 +128,13 @@ export function ReadingPractice() {
       </Card>
 
       {answered !== null && (
-        <Button onClick={() => { setCurrent(c => c + 1); setAnswered(null); }} className="w-full">
+        <Button onClick={() => {
+          if (current + 1 >= questions.length) {
+            // Update streak on study completion
+            import('@/lib/streak').then(({ onStudyComplete }) => onStudyComplete());
+          }
+          setCurrent(c => c + 1); setAnswered(null);
+        }} className="w-full">
           {current + 1 >= questions.length ? (en ? 'See Results' : '結果を見る') : (en ? 'Next' : '次の問題')}
         </Button>
       )}

@@ -101,6 +101,8 @@ export function ListeningPractice() {
   const nextQuestion = () => {
     if (current + 1 >= questions.length) {
       setMode('result');
+      // Update streak on study completion
+      import('@/lib/streak').then(({ onStudyComplete }) => onStudyComplete());
     } else {
       setCurrent(c => c + 1);
       setAnswered(null);

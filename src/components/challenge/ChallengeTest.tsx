@@ -68,6 +68,8 @@ export function ChallengeTest({ stageId, onTestComplete }: Props) {
           timeSpent,
           passed: (finalScore / questions.length) >= 0.8,
         });
+        // Update streak on study completion
+        import('@/lib/streak').then(({ onStudyComplete }) => onStudyComplete());
       } else {
         setCurrent(c => c + 1);
         setAnswered(null);
