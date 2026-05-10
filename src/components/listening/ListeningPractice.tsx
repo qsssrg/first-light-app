@@ -603,7 +603,6 @@ export function ListeningPractice() {
 
     // Split text into paragraphs by speaker change
     const splitBySpeaker = (text: string) => {
-      // Split before speaker labels (Woman before Man to prevent "Wo"+"man:" split)
       const segments = text.split(/(?=(?:Woman|Man|Professor|Speaker \d+|女性|男性|教授):\s*)/g).filter(s => s.trim());
       return segments;
     };
@@ -612,29 +611,100 @@ export function ListeningPractice() {
     const translationParagraphs = q.audioTextJa ? splitBySpeaker(q.audioTextJa) : [];
 
     return (
-      <div className="space-y-4 px-4">
-        <div className="flex items-center justify-between">
-          <Badge variant="secondary">{q.type === 'eiken' ? '英検型' : 'TOEFL型'}</Badge>
-          <span className="text-xs text-gray-500">{current + 1} / {questions.length}</span>
+      <div className="min-h-[85vh] flex flex-col px-4 py-3">
+        {/* Game effects overlay */}
+        <ComboFlash combo={combo} />
+        <XpFloat xp={lastXp} trigger={xpTrigger} />
+
+        {/* Level-up notification */}
+        {levelUpDisplay && (
+          <div className="fixed inset-0 pointer-events-none z-50 flex items-center justify-center">
+            <div className="animate-combo-flash text-center">
+              <div className="w-28 h-28 mx-auto rounded-2xl bg-gradient-to-br from-yellow-400 via-amber-300 to-yellow-500 flex items-center justify-center shadow-2xl shadow-yellow-500/50 mb-3">
+                <span className="text-4xl font-black text-yellow-900">Lv.{levelUpDisplay}</span>
+              </div>
+              <p className="text-2xl font-black bg-gradient-to-r from-yellow-300 to-amber-400 bg-clip-text text-transparent drop-shadow-lg">
+                LEVEL UP!
+              </p>
+              <p className="text-sm text-yellow-200/80 mt-1">新しいレベルに到達しました</p>
+            </div>
+          </div>
+        )}
+
+        {/* Affinity level-up notification */}
+        {affinityLevelUp && (() => {
+          const m = getMember(affinityLevelUp.memberId);
+          const label = AFFINITY_LABELS[affinityLevelUp.level - 1] ?? '';
+          return (
+            <div className="fixed inset-0 pointer-events-none z-50 flex items-center justify-center">
+              <div className="animate-combo-flash text-center">
+                {m && <div className="flex justify-center mb-2"><MemberAvatar member={m} size="lg" /></div>}
+                <p className="text-xl font-black text-pink-400 drop-shadow-[0_0_15px_rgba(236,72,153,0.5)]">
+                  ♡ 親密度UP ♡
+                </p>
+                <p className="text-sm text-pink-300 mt-1">{m?.nameJa}との関係: {label}</p>
+              </div>
+            </div>
+          );
+        })()}
+
+        {/* Progress */}
+        <div className="mb-4">
+          <div className="flex items-center justify-between mb-1.5">
+            <span className="text-xs font-bold tracking-wider text-gray-400">RESULT</span>
+            <div className="flex items-center gap-3">
+              {combo > 0 && <span className="text-xs font-black text-orange-400">🔥 {combo}</span>}
+              <span className="text-xs font-medium text-gray-400">{current + 1} / {questions.length}</span>
+            </div>
+          </div>
+          <div className="h-2 bg-gray-800/50 rounded-full overflow-hidden">
+            <div className="h-full rounded-full bg-gradient-to-r from-indigo-500 via-purple-500 to-fuchsia-500 transition-all duration-500" style={{ width: `${((current + 1) / questions.length) * 100}%` }} />
+          </div>
         </div>
 
-        <Progress value={((current + 1) / questions.length) * 100} className="h-1.5" />
+        {/* Result card */}
+        <div className={`rounded-2xl p-6 text-center border-2 backdrop-blur-md shadow-xl ${
+          isCorrect
+            ? 'border-emerald-400/50 bg-emerald-500/5 shadow-emerald-500/10'
+            : 'border-red-400/50 bg-red-500/5 shadow-red-500/10'
+        }`}>
+          {/* Big result icon */}
+          <div className={`inline-flex items-center justify-center w-16 h-16 rounded-full mb-4 ${
+            isCorrect
+              ? 'bg-emerald-500/20 text-emerald-400'
+              : 'bg-red-500/20 text-red-400'
+          }`}>
+            {isCorrect ? <Check className="w-8 h-8" /> : <X className="w-8 h-8" />}
+          </div>
+          <p className={`text-lg font-black mb-4 ${isCorrect ? 'text-emerald-400' : 'text-red-400'}`}>
+            {isCorrect ? 'Correct!' : 'Incorrect'}
+          </p>
 
-        {/* Result indicator */}
-        <div className={`p-4 rounded-xl text-center font-bold text-lg ${isCorrect ? 'bg-green-50 dark:bg-green-950 text-green-700 dark:text-green-300 border border-green-200 dark:border-green-800' : 'bg-red-50 dark:bg-red-950 text-red-700 dark:text-red-300 border border-red-200 dark:border-red-800'}`}>
-          {isCorrect ? (en ? 'Correct!' : '正解！') : (en ? 'Incorrect' : '不正解')}
-          {isCorrect && combo > 0 && (
-            <span className="ml-2 text-sm font-black text-orange-400">🔥 {combo}</span>
-          )}
+          {/* Question text */}
+          <p className="text-sm text-gray-400 mb-3">{q.question}</p>
+
+          {/* Selected vs correct */}
+          <div className="mt-3 space-y-2 text-left px-2">
+            {!isCorrect && answered !== null && (
+              <div className="flex items-start gap-2 px-3 py-2 rounded-lg bg-red-500/10">
+                <X className="w-4 h-4 text-red-400 shrink-0 mt-0.5" />
+                <span className="text-sm text-red-300">{q.options[answered]}</span>
+              </div>
+            )}
+            <div className="flex items-start gap-2 px-3 py-2 rounded-lg bg-emerald-500/10">
+              <Check className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+              <span className="text-sm text-emerald-300">{q.options[q.correctIndex]}</span>
+            </div>
+          </div>
         </div>
 
         {/* English script */}
-        <Card className="p-4 border-blue-200 dark:border-blue-800 bg-blue-50/50 dark:bg-blue-950/50">
+        <div className="mt-4 rounded-2xl bg-white/5 dark:bg-white/5 backdrop-blur-md border border-white/10 p-4 shadow-xl">
           <div className="flex items-center justify-between mb-2">
-            <p className="text-xs text-blue-500 font-bold">{en ? 'Script' : '英文'}</p>
+            <p className="text-xs font-bold tracking-widest text-purple-400 uppercase">{en ? 'Script' : '英文'}</p>
             <button
               onClick={() => isPlaying ? stopSpeech() : speak(q.audioText)}
-              className="flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-400 hover:bg-blue-200 dark:hover:bg-blue-800 transition-colors"
+              className="flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium bg-purple-500/20 text-purple-300 hover:bg-purple-500/30 transition-colors"
             >
               {isPlaying ? <Pause className="w-3.5 h-3.5" /> : <Volume2 className="w-3.5 h-3.5" />}
               {isPlaying ? (en ? 'Stop' : '停止') : (en ? 'Play' : '再生')}
@@ -643,69 +713,47 @@ export function ListeningPractice() {
           <div className="space-y-2">
             {scriptParagraphs.map((para, i) => (
               <div key={i} className="flex items-start gap-2">
-                <p className="text-sm text-gray-800 dark:text-gray-200 leading-relaxed flex-1">{para.trim()}</p>
+                <p className="text-sm text-gray-200 leading-relaxed flex-1">{para.trim()}</p>
                 <SpeakButton text={para.replace(/^(Woman|Man|Professor|Speaker \d+):\s*/i, '').trim()} className="shrink-0 mt-0.5" />
               </div>
             ))}
           </div>
-        </Card>
+        </div>
 
         {/* Japanese translation */}
         {q.audioTextJa && (
-          <Card className="p-4 border-gray-200 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-900/50">
-            <p className="text-xs text-gray-500 font-bold mb-2">和訳</p>
+          <div className="mt-3 rounded-2xl bg-white/5 dark:bg-white/5 backdrop-blur-md border border-white/10 p-4 shadow-xl">
+            <p className="text-xs font-bold tracking-widest text-gray-400 uppercase mb-2">{en ? 'Translation' : '和訳'}</p>
             <div className="space-y-2">
               {translationParagraphs.map((para, i) => (
-                <p key={i} className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">{para.trim()}</p>
+                <p key={i} className="text-sm text-gray-300 leading-relaxed">{para.trim()}</p>
               ))}
             </div>
-          </Card>
+          </div>
         )}
 
-        {/* Question & Choices */}
-        <Card className="p-4 border-gray-200 dark:border-gray-700">
-          <p className="text-xs text-gray-500 font-bold mb-2">{en ? 'Question' : '質問'}</p>
-          <p className="text-sm font-medium text-gray-800 dark:text-gray-200 mb-3">{q.question}</p>
-          <div className="space-y-1.5">
-            {q.options.map((opt, i) => {
-              const isUserAnswer = i === answered;
-              const isCorrectAnswer = i === q.correctIndex;
-              let optClass = 'text-gray-500 dark:text-gray-400';
-              if (isCorrectAnswer) optClass = 'text-green-700 dark:text-green-300 font-medium';
-              if (isUserAnswer && !isCorrect) optClass = 'text-red-600 dark:text-red-400 font-medium';
-              return (
-                <div key={i} className={`flex items-center gap-2 text-sm ${optClass}`}>
-                  <span className="w-4 shrink-0">
-                    {isCorrectAnswer && <Check className="w-4 h-4 text-green-600 dark:text-green-400" />}
-                    {isUserAnswer && !isCorrect && <X className="w-4 h-4 text-red-500 dark:text-red-400" />}
-                  </span>
-                  <span>{String.fromCharCode(65 + i)}. {opt}</span>
-                  {isUserAnswer && !isCorrectAnswer && <span className="text-xs text-red-500 ml-1">({en ? 'Your answer' : 'あなたの回答'})</span>}
-                  {isCorrectAnswer && <span className="text-xs text-green-600 ml-1">({en ? 'Correct' : '正解'})</span>}
-                </div>
-              );
-            })}
-          </div>
-        </Card>
-
         {/* Explanation - Ren's member speech card */}
-        <Card className="p-3">
-          <div className="flex items-start gap-3">
-            <div className="shrink-0 pt-0.5">
-              <MemberAvatar member={REN_MEMBER} size="sm" />
+        <div className="mt-3 rounded-xl bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-4">
+          <div className="flex gap-3 items-start">
+            <div className="shrink-0">
+              <MemberAvatar member={REN_MEMBER} size="md" />
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-xs text-gray-500 mb-0.5">{REN_MEMBER.nameJa}</p>
-              <p className="text-xs text-gray-700 dark:text-gray-300 leading-relaxed">{q.explanation}</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">{REN_MEMBER.nameJa}</p>
+              <p className="text-sm font-medium text-gray-800 dark:text-gray-100 leading-relaxed">{q.explanation}</p>
             </div>
           </div>
-        </Card>
+        </div>
 
         {/* Next button */}
-        <Button onClick={nextQuestion} className="w-full" size="lg">
-          {current + 1 >= questions.length ? (en ? 'View Results' : '結果を見る') : (en ? 'Next Question' : '次の問題へ')}
-        </Button>
-        {gameEffects}
+        <div className="mt-auto pt-4 pb-2">
+          <button
+            onClick={nextQuestion}
+            className="w-full py-3.5 rounded-xl text-sm font-bold tracking-wide bg-gradient-to-r from-indigo-500 via-purple-500 to-fuchsia-500 text-white shadow-lg shadow-purple-500/30 hover:shadow-xl active:scale-[0.98] transition-all"
+          >
+            {current + 1 >= questions.length ? (en ? 'View Results' : '結果を見る') : (en ? 'Next →' : '次の問題 →')}
+          </button>
+        </div>
       </div>
     );
   }
@@ -714,96 +762,136 @@ export function ListeningPractice() {
   const q = questions[current];
 
   return (
-    <div className="space-y-4 px-4">
-      <div className="flex items-center justify-between">
-        <Badge variant="secondary">{q.type === 'eiken' ? '英検型' : 'TOEFL型'}</Badge>
-        <div className="flex items-center gap-2">
-          {combo > 0 && <span className="text-xs font-black text-orange-400">🔥 {combo}</span>}
-          {sessionXp > 0 && <span className="text-xs font-bold text-amber-500">+{sessionXp} XP</span>}
-          <span className="text-xs text-gray-500">{current + 1} / {questions.length}</span>
+    <div className="min-h-[85vh] flex flex-col px-4 py-3">
+      {/* Game effects overlay */}
+      <ComboFlash combo={combo} />
+      <XpFloat xp={lastXp} trigger={xpTrigger} />
+
+      {/* Level-up notification */}
+      {levelUpDisplay && (
+        <div className="fixed inset-0 pointer-events-none z-50 flex items-center justify-center">
+          <div className="animate-combo-flash text-center">
+            <div className="w-28 h-28 mx-auto rounded-2xl bg-gradient-to-br from-yellow-400 via-amber-300 to-yellow-500 flex items-center justify-center shadow-2xl shadow-yellow-500/50 mb-3">
+              <span className="text-4xl font-black text-yellow-900">Lv.{levelUpDisplay}</span>
+            </div>
+            <p className="text-2xl font-black bg-gradient-to-r from-yellow-300 to-amber-400 bg-clip-text text-transparent drop-shadow-lg">
+              LEVEL UP!
+            </p>
+            <p className="text-sm text-yellow-200/80 mt-1">新しいレベルに到達しました</p>
+          </div>
+        </div>
+      )}
+
+      {/* Affinity level-up notification */}
+      {affinityLevelUp && (() => {
+        const m = getMember(affinityLevelUp.memberId);
+        const label = AFFINITY_LABELS[affinityLevelUp.level - 1] ?? '';
+        return (
+          <div className="fixed inset-0 pointer-events-none z-50 flex items-center justify-center">
+            <div className="animate-combo-flash text-center">
+              {m && <div className="flex justify-center mb-2"><MemberAvatar member={m} size="lg" /></div>}
+              <p className="text-xl font-black text-pink-400 drop-shadow-[0_0_15px_rgba(236,72,153,0.5)]">
+                ♡ 親密度UP ♡
+              </p>
+              <p className="text-sm text-pink-300 mt-1">{m?.nameJa}との関係: {label}</p>
+            </div>
+          </div>
+        );
+      })()}
+
+      {/* Progress header */}
+      <div className="mb-4">
+        <div className="flex items-center justify-between mb-1.5">
+          <span className="text-xs font-bold tracking-wider text-indigo-400">LISTENING</span>
+          <div className="flex items-center gap-3">
+            {combo > 0 && (
+              <span className="text-xs font-black text-orange-400 animate-pulse">🔥 {combo}</span>
+            )}
+            <span className="text-xs font-medium text-gray-400">{current + 1} / {questions.length}</span>
+          </div>
+        </div>
+        <div className="h-2 bg-gray-800/50 rounded-full overflow-hidden">
+          <div
+            className="h-full rounded-full bg-gradient-to-r from-indigo-500 via-purple-500 to-fuchsia-500 transition-all duration-500"
+            style={{ width: `${((current + 1) / questions.length) * 100}%` }}
+          />
         </div>
       </div>
 
-      <Progress value={((current + 1) / questions.length) * 100} className="h-1.5" />
+      {/* Audio card — glassmorphism */}
+      <div className="rounded-2xl bg-white/5 dark:bg-white/5 backdrop-blur-md border border-white/10 p-6 text-center shadow-xl mb-4">
+        <p className="text-[10px] font-bold tracking-widest text-purple-400 uppercase mb-3">{q.type === 'eiken' ? '英検型' : 'TOEFL型'}</p>
+        <button
+          onClick={() => isPlaying ? stopSpeech() : speak(q.audioText)}
+          className="w-16 h-16 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 hover:from-amber-500 hover:to-orange-600 shadow-lg shadow-orange-200 dark:shadow-orange-900/30 flex items-center justify-center transition-all active:scale-95 mx-auto"
+        >
+          {isPlaying ? <Pause className="w-7 h-7 text-white" /> : <Play className="w-7 h-7 text-white ml-1" />}
+        </button>
+        <p className="text-xs text-gray-500 mt-3">{en ? 'Tap to play audio' : 'タップして音声を再生'}</p>
 
-      {/* Audio player - big prominent play button */}
-      <Card className="p-6">
-        <div className="flex flex-col items-center gap-3">
-          <button
-            onClick={() => isPlaying ? stopSpeech() : speak(q.audioText)}
-            className="w-16 h-16 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 hover:from-amber-500 hover:to-orange-600 shadow-lg shadow-orange-200 dark:shadow-orange-900/30 flex items-center justify-center transition-all active:scale-95"
-          >
-            {isPlaying ? <Pause className="w-7 h-7 text-white" /> : <Play className="w-7 h-7 text-white ml-1" />}
-          </button>
-          <p className="text-xs text-gray-400">{en ? 'Tap to play audio' : 'タップして音声を再生'}</p>
-
-          {/* Speed control */}
-          <div className="flex items-center gap-2 mt-1">
-            <span className="text-xs text-gray-400">{en ? 'Speed' : '速度'}:</span>
-            {([0.8, 1.0, 1.2] as Speed[]).map(s => (
-              <button
-                key={s}
-                onClick={() => setSpeed(s)}
-                className={`px-2.5 py-1 rounded-md text-xs font-medium transition-colors ${speed === s ? 'bg-amber-500 text-white' : 'bg-gray-100 dark:bg-gray-800 text-gray-500 hover:bg-gray-200 dark:hover:bg-gray-700'}`}
-              >
-                {s}x
-              </button>
-            ))}
-          </div>
-        </div>
-      </Card>
-
-      {/* Question */}
-      <Card className="p-4">
-        <p className="text-sm font-medium mb-3">{q.question}</p>
-        <div className="space-y-2">
-          {q.options.map((opt, i) => {
-            const colorSchemes = [
-              { border: 'border-blue-200 dark:border-blue-700', hover: 'hover:border-blue-400', selected: 'border-blue-500 bg-blue-50 dark:bg-blue-950 ring-2 ring-blue-300 dark:ring-blue-700', badge: 'border-blue-400 bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300', badgeSelected: 'border-blue-500 bg-blue-500 text-white' },
-              { border: 'border-emerald-200 dark:border-emerald-700', hover: 'hover:border-emerald-400', selected: 'border-emerald-500 bg-emerald-50 dark:bg-emerald-950 ring-2 ring-emerald-300 dark:ring-emerald-700', badge: 'border-emerald-400 bg-emerald-100 dark:bg-emerald-900 text-emerald-700 dark:text-emerald-300', badgeSelected: 'border-emerald-500 bg-emerald-500 text-white' },
-              { border: 'border-orange-200 dark:border-orange-700', hover: 'hover:border-orange-400', selected: 'border-orange-500 bg-orange-50 dark:bg-orange-950 ring-2 ring-orange-300 dark:ring-orange-700', badge: 'border-orange-400 bg-orange-100 dark:bg-orange-900 text-orange-700 dark:text-orange-300', badgeSelected: 'border-orange-500 bg-orange-500 text-white' },
-              { border: 'border-purple-200 dark:border-purple-700', hover: 'hover:border-purple-400', selected: 'border-purple-500 bg-purple-50 dark:bg-purple-950 ring-2 ring-purple-300 dark:ring-purple-700', badge: 'border-purple-400 bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300', badgeSelected: 'border-purple-500 bg-purple-500 text-white' },
-            ];
-            const scheme = colorSchemes[i] || colorSchemes[0];
-            let cls = `${scheme.border} ${scheme.hover}`;
-            if (selected === i) cls = scheme.selected;
-            const badgeCls = selected === i ? scheme.badgeSelected : scheme.badge;
-            return (
-              <button
-                key={i}
-                onClick={() => handleSelect(i)}
-                className={`w-full text-left px-5 py-3.5 rounded-xl border-2 text-sm font-medium flex items-center gap-2.5 transition-all duration-200 ${cls}`}
-              >
-                <span className={`w-6 h-6 rounded-full border-2 flex items-center justify-center flex-shrink-0 text-xs font-bold ${badgeCls}`}>
-                  {String.fromCharCode(65 + i)}
-                </span>
-                {opt}
-              </button>
-            );
-          })}
+        {/* Speed control */}
+        <div className="flex items-center justify-center gap-2 mt-3">
+          <span className="text-xs text-gray-400">{en ? 'Speed' : '速度'}:</span>
+          {([0.8, 1.0, 1.2] as Speed[]).map(s => (
+            <button
+              key={s}
+              onClick={() => setSpeed(s)}
+              className={`px-2.5 py-1 rounded-md text-xs font-medium transition-colors ${speed === s ? 'bg-amber-500 text-white' : 'bg-gray-700/50 text-gray-400 hover:bg-gray-700'}`}
+            >
+              {s}x
+            </button>
+          ))}
         </div>
 
-        {/* Confirm button */}
-        <div className="mt-4">
+        {/* Question */}
+        <p className="text-sm font-medium text-gray-800 dark:text-gray-100 mt-4">{q.question}</p>
+      </div>
+
+      {/* Options — game-style buttons (matching VocabStudy) */}
+      <div className="space-y-2.5 flex-1">
+        {q.options.map((opt, i) => (
           <button
-            onClick={handleConfirm}
-            disabled={selected === null}
-            className={`w-full py-3.5 rounded-xl text-sm font-bold tracking-wide transition-all duration-200 ${
-              selected !== null
-                ? 'bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 text-white shadow-lg shadow-indigo-500/30 hover:shadow-xl active:scale-[0.98]'
-                : 'bg-gray-800 text-gray-600 cursor-not-allowed'
+            key={`${current}-${i}`}
+            onClick={() => handleSelect(i)}
+            className={`w-full text-left px-5 py-3.5 rounded-xl border-2 transition-all duration-200 text-sm font-medium ${
+              selected === i
+                ? 'border-indigo-400 bg-indigo-500/20 text-white shadow-lg shadow-indigo-500/20 scale-[1.02]'
+                : 'border-gray-700/50 bg-gray-800/30 hover:border-gray-500 hover:bg-gray-800/50 text-gray-200 active:scale-[0.98]'
             }`}
           >
-            {en ? 'Confirm' : '決定'}
+            <span className="inline-flex items-center gap-2.5">
+              <span className={`w-6 h-6 rounded-full border-2 flex items-center justify-center text-xs font-bold shrink-0 ${
+                selected === i ? 'border-indigo-400 bg-indigo-500 text-white' : 'border-gray-600 text-gray-500'
+              }`}>
+                {String.fromCharCode(65 + i)}
+              </span>
+              {opt}
+            </span>
           </button>
-          {sessionXp > 0 && (
-            <p className="text-center text-xs text-indigo-400/70 font-medium mt-2">
-              +{sessionXp} XP
-            </p>
-          )}
-        </div>
-      </Card>
-      {gameEffects}
+        ))}
+      </div>
+
+      {/* Confirm button — gradient */}
+      <div className="mt-4 pb-2">
+        <button
+          onClick={handleConfirm}
+          disabled={selected === null}
+          className={`w-full py-3.5 rounded-xl text-sm font-bold tracking-wide transition-all duration-200 ${
+            selected !== null
+              ? 'bg-gradient-to-r from-indigo-500 via-purple-500 to-fuchsia-500 text-white shadow-lg shadow-purple-500/30 hover:shadow-xl hover:shadow-purple-500/40 active:scale-[0.98]'
+              : 'bg-gray-800 text-gray-600 cursor-not-allowed'
+          }`}
+        >
+          {en ? 'Confirm' : '決定'}
+        </button>
+
+        {/* XP indicator */}
+        {sessionXp > 0 && (
+          <p className="text-center text-xs text-indigo-400/70 font-medium mt-2">
+            +{sessionXp} XP
+          </p>
+        )}
+      </div>
     </div>
   );
 }
