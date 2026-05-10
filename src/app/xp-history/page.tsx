@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useRef, useEffect } from 'react';
 import { BottomNav } from '@/components/common/BottomNav';
 import { Card } from '@/components/ui/card';
 import { useStudySessions } from '@/lib/hooks';
@@ -59,6 +59,14 @@ export default function XpHistoryPage() {
 
   const totalXp = dailyData.reduce((sum, d) => sum + Object.values(d.slots).reduce((a, b) => a + b, 0), 0);
 
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollLeft = scrollRef.current.scrollWidth;
+    }
+  }, [range]);
+
   return (
     <div className="pb-20">
       <div className="max-w-lg md:max-w-2xl lg:max-w-3xl mx-auto py-6 px-4 space-y-6">
@@ -90,7 +98,7 @@ export default function XpHistoryPage() {
 
         {/* Bar chart */}
         <Card className="p-4 backdrop-blur-sm bg-white/80 dark:bg-gray-900/80">
-          <div className="overflow-x-auto">
+          <div className="overflow-x-auto" ref={scrollRef}>
           <div className="flex gap-1" style={{ height: '256px', minWidth: range > 14 ? `${Math.round((range / 14) * 100)}%` : undefined }}>
             {dailyData.map((day, i) => {
               const total = Object.values(day.slots).reduce((a, b) => a + b, 0);
