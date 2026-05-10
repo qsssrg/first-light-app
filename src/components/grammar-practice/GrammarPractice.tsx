@@ -15,6 +15,9 @@ import { addAffinityPoints } from '@/lib/affinity';
 import { AFFINITY_LABELS, db } from '@/lib/db';
 import Link from 'next/link';
 
+// Kai member data for explanation speech card
+const KAI_MEMBER = MEMBERS.find(m => m.id === 'kai')!;
+
 type EncouragementLevel = 'great' | 'good' | 'struggle';
 
 const ENCOURAGEMENT: Record<string, Record<EncouragementLevel, string[]>> = {
@@ -332,10 +335,18 @@ export function GrammarPractice() {
             </div>
           )}
 
-          {/* Explanation */}
-          <div className="mt-4 pt-3 border-t border-white/10">
-            <p className="text-[10px] text-gray-500 font-medium mb-1">{en ? 'Explanation' : '解説'}</p>
-            <p className="text-xs text-gray-400">{q.explanation}</p>
+        </div>
+
+        {/* Kai's explanation speech card */}
+        <div className="mt-3 rounded-xl bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-4">
+          <div className="flex gap-3 items-start">
+            <div className="shrink-0">
+              <MemberAvatar member={KAI_MEMBER} size="md" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">{KAI_MEMBER.nameJa}</p>
+              <p className="text-sm font-medium text-gray-800 dark:text-gray-100 leading-relaxed">{q.explanation}</p>
+            </div>
           </div>
         </div>
 
