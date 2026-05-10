@@ -3,16 +3,19 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { useProfile } from '@/lib/hooks';
 import { LISTENING_QUESTIONS, DICTATION_EXERCISES, type ListeningQuestion } from '@/lib/listening-data';
+import { MEMBERS } from '@/lib/members';
+import { MemberAvatar } from '@/components/common/MemberAvatar';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Play, Pause, Volume2, Check, X, RotateCcw, Headphones } from 'lucide-react';
-import { getMember } from '@/lib/members';
-import { MemberAvatar } from '@/components/common/MemberAvatar';
 
 type Mode = 'select' | 'quiz' | 'quiz-result' | 'dictation' | 'result';
 type Speed = 0.8 | 1.0 | 1.2;
+
+// Ren member data for explanation speech card
+const REN_MEMBER = MEMBERS.find(m => m.id === 'ren')!;
 
 export function ListeningPractice() {
   const profile = useProfile();
@@ -28,19 +31,36 @@ export function ListeningPractice() {
   const [isPlaying, setIsPlaying] = useState(false);
   const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
 
+  // Pre-cache voices to ensure they are available on first playback
+  const voicesRef = useRef<{ female: SpeechSynthesisVoice | null; male: SpeechSynthesisVoice | null }>({ female: null, male: null });
+  const [voicesReady, setVoicesReady] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === 'undefined' || !window.speechSynthesis) return;
+
+    const loadVoices = () => {
+      const voices = window.speechSynthesis.getVoices().filter(v => v.lang.startsWith('en'));
+      const femaleVoice = voices.find(v => v.name.toLowerCase().includes('female') || v.name.includes('Samantha') || v.name.includes('Karen') || v.name.includes('Victoria')) || null;
+      const maleVoice = voices.find(v => v.name.toLowerCase().includes('male') || v.name.includes('Daniel') || v.name.includes('Alex') || v.name.includes('Fred')) || null;
+      voicesRef.current = { female: femaleVoice, male: maleVoice };
+      if (voices.length > 0) setVoicesReady(true);
+    };
+
+    // Try immediately (some browsers have voices ready synchronously)
+    loadVoices();
+
+    // Also listen for async voice loading
+    window.speechSynthesis.onvoiceschanged = loadVoices;
+
+    return () => {
+      window.speechSynthesis.onvoiceschanged = null;
+    };
+  }, []);
+
   // Dictation state
   const [dictIndex, setDictIndex] = useState(0);
   const [dictInput, setDictInput] = useState('');
   const [dictRevealed, setDictRevealed] = useState(false);
-  const [voices, setVoices] = useState<SpeechSynthesisVoice[]>([]);
-
-  useEffect(() => {
-    if (typeof window === 'undefined' || !window.speechSynthesis) return;
-    const load = () => setVoices(window.speechSynthesis.getVoices().filter(v => v.lang.startsWith('en')));
-    load();
-    window.speechSynthesis.addEventListener('voiceschanged', load);
-    return () => window.speechSynthesis.removeEventListener('voiceschanged', load);
-  }, []);
 
   const startQuiz = () => {
     const filtered = filter === 'all'
@@ -58,17 +78,19 @@ export function ListeningPractice() {
     if (typeof window === 'undefined' || !window.speechSynthesis) return;
     window.speechSynthesis.cancel();
 
-    // Split by speaker labels (Man:/Woman:) for multi-voice
-    const parts = text.split(/((?:Man|Woman|Speaker \d):\s*)/i).filter(Boolean);
-    const femaleVoice = voices.find(v => v.name.toLowerCase().includes('female') || v.name.includes('Samantha') || v.name.includes('Karen') || v.name.includes('Victoria'));
-    const maleVoice = voices.find(v => v.name.toLowerCase().includes('male') || v.name.includes('Daniel') || v.name.includes('Alex') || v.name.includes('Fred'));
+    // Use pre-cached voices for immediate availability on first play
+    const femaleVoice = voicesRef.current.female;
+    const maleVoice = voicesRef.current.male;
+
+    // Split by speaker labels (Man:/Woman:/Professor:/Speaker N:) for multi-voice
+    const parts = text.split(/((?:Man|Woman|Professor|Speaker \d):\s*)/i).filter(Boolean);
 
     let currentGender: 'male' | 'female' = 'male';
     const utterances: SpeechSynthesisUtterance[] = [];
 
     for (const part of parts) {
       if (/^woman:/i.test(part) || /^speaker 2:/i.test(part)) { currentGender = 'female'; continue; }
-      if (/^man:/i.test(part) || /^speaker 1:/i.test(part)) { currentGender = 'male'; continue; }
+      if (/^(man|professor):/i.test(part) || /^speaker 1:/i.test(part)) { currentGender = 'male'; continue; }
       if (!part.trim()) continue;
 
       const utt = new SpeechSynthesisUtterance(part.trim());
@@ -95,7 +117,7 @@ export function ListeningPractice() {
       window.speechSynthesis.speak(utt);
     });
     utteranceRef.current = utterances[utterances.length - 1];
-  }, [speed, voices]);
+  }, [speed]);
 
   const stopSpeech = () => {
     if (typeof window !== 'undefined') {
@@ -265,6 +287,16 @@ export function ListeningPractice() {
     const q = questions[current];
     const isCorrect = answered === q.correctIndex;
 
+    // Split text into paragraphs by speaker change
+    const splitBySpeaker = (text: string) => {
+      // Split before speaker labels (Man:/Woman:/Professor:/Speaker N:/男性:/女性:/教授:)
+      const segments = text.split(/(?=(?:Man|Woman|Professor|Speaker \d|男性|女性|教授):\s*)/i).filter(s => s.trim());
+      return segments;
+    };
+
+    const scriptParagraphs = splitBySpeaker(q.audioText);
+    const translationParagraphs = q.audioTextJa ? splitBySpeaker(q.audioTextJa) : [];
+
     return (
       <div className="space-y-4 px-4">
         <div className="flex items-center justify-between">
@@ -282,9 +314,9 @@ export function ListeningPractice() {
         {/* English script */}
         <Card className="p-4 border-blue-200 dark:border-blue-800 bg-blue-50/50 dark:bg-blue-950/50">
           <p className="text-xs text-blue-500 font-bold mb-2">{en ? 'Script' : '英文'}</p>
-          <div className="text-sm text-gray-800 dark:text-gray-200 leading-relaxed space-y-2">
-            {q.audioText.split(/(?=(?:Man|Woman|Speaker \d):)/i).filter(Boolean).map((seg, i) => (
-              <p key={i}>{seg.trim()}</p>
+          <div className="space-y-2">
+            {scriptParagraphs.map((para, i) => (
+              <p key={i} className="text-sm text-gray-800 dark:text-gray-200 leading-relaxed">{para.trim()}</p>
             ))}
           </div>
         </Card>
@@ -293,33 +325,26 @@ export function ListeningPractice() {
         {q.audioTextJa && (
           <Card className="p-4 border-gray-200 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-900/50">
             <p className="text-xs text-gray-500 font-bold mb-2">和訳</p>
-            <div className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed space-y-2">
-              {(q.audioTextJa ?? '').split(/\n/).filter(Boolean).map((seg, i) => (
-                <p key={i}>{seg.trim()}</p>
+            <div className="space-y-2">
+              {translationParagraphs.map((para, i) => (
+                <p key={i} className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">{para.trim()}</p>
               ))}
             </div>
           </Card>
         )}
 
-        {/* Explanation */}
-        {(() => {
-          const ren = getMember('ren');
-          return ren ? (
-            <Card className="p-3 bg-gray-50 dark:bg-gray-900">
-              <div className="flex items-start gap-2.5">
-                <div className="shrink-0"><MemberAvatar member={ren} size="sm" /></div>
-                <div className="flex-1">
-                  <p className="text-[10px] text-gray-500 mb-0.5">{ren.nameJa}</p>
-                  <p className="text-xs text-gray-600 dark:text-gray-300">{q.explanation}</p>
-                </div>
-              </div>
-            </Card>
-          ) : (
-            <Card className="p-3 bg-gray-50 dark:bg-gray-900">
-              <p className="text-xs text-gray-600 dark:text-gray-400">{q.explanation}</p>
-            </Card>
-          );
-        })()}
+        {/* Explanation - Ren's member speech card */}
+        <Card className="p-3">
+          <div className="flex items-start gap-3">
+            <div className="shrink-0 pt-0.5">
+              <MemberAvatar member={REN_MEMBER} size="sm" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-xs text-gray-500 mb-0.5">{REN_MEMBER.nameJa}</p>
+              <p className="text-xs text-gray-700 dark:text-gray-300 leading-relaxed">{q.explanation}</p>
+            </div>
+          </div>
+        </Card>
 
         {/* Next button */}
         <Button onClick={nextQuestion} className="w-full" size="lg">
