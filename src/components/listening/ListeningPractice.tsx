@@ -6,9 +6,6 @@ import { LISTENING_QUESTIONS, DICTATION_EXERCISES, type ListeningQuestion } from
 import { MEMBERS } from '@/lib/members';
 import { MemberAvatar } from '@/components/common/MemberAvatar';
 import { Card } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
 import { Play, Pause, Volume2, Check, X, Headphones, Home, RotateCcw, Star } from 'lucide-react';
 import { SpeakButton } from '@/components/common/SpeakButton';
 import { calculateXp, getLevelFromXp } from '@/lib/xp';
@@ -580,27 +577,6 @@ export function ListeningPractice() {
       </div>
     );
   }
-
-  // Game effects (rendered in quiz-result)
-  const gameEffects = (
-    <>
-      <ComboFlash combo={combo} />
-      <XpFloat xp={lastXp} trigger={xpTrigger} />
-      {affinityLevelUp && (() => {
-        const m = getMember(affinityLevelUp.memberId);
-        const label = AFFINITY_LABELS[affinityLevelUp.level - 1] ?? '';
-        return m ? (
-          <div className="fixed inset-0 pointer-events-none z-50 flex items-center justify-center">
-            <div className="animate-combo-flash text-center bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/20">
-              <MemberAvatar member={m} size="lg" />
-              <p className="text-sm font-bold text-pink-400 mt-2">{m.nameJa}との絆が深まった！</p>
-              <p className="text-xs text-gray-400 mt-1">親密度Lv.{affinityLevelUp.level} 「{label}」</p>
-            </div>
-          </div>
-        ) : null;
-      })()}
-    </>
-  );
 
   // Quiz-result mode (after pressing 決定)
   if (mode === 'quiz-result') {

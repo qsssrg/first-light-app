@@ -1,13 +1,12 @@
 'use client';
 
-import { useState } from 'react';
-import { db } from '@/lib/db';
+import { useState, useRef } from 'react';
+import { db, AFFINITY_LABELS } from '@/lib/db';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { useProfile } from '@/lib/hooks';
 import { Card } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Send, Loader2, BookOpen, AlertCircle, Home, Star } from 'lucide-react';
+import { Send, Loader2, BookOpen, AlertCircle, Home, RotateCcw, Star } from 'lucide-react';
 import { hasApiKey } from '@/lib/api-key';
 import { callClaude } from '@/lib/claude-client';
 import type { WritingSubmission } from '@/types';
@@ -17,9 +16,8 @@ import { MemberAvatar } from '@/components/common/MemberAvatar';
 import { TypewriterText } from '@/components/common/TypewriterText';
 import { getPlayerName } from '@/lib/player-name';
 import { calculateXp, getLevelFromXp } from '@/lib/xp';
-import { XpFloat } from '@/components/common/GameEffects';
 import { addAffinityPoints } from '@/lib/affinity';
-import { AFFINITY_LABELS } from '@/lib/db';
+import { XpFloat } from '@/components/common/GameEffects';
 
 const PROMPTS = [
   { text: 'Describe your favorite place to relax and explain why you enjoy spending time there.', level: '英検2級' },
@@ -38,13 +36,44 @@ const YUUKI_LINES = [
   '英語で気持ちを伝えるの、難しいけど楽しいよね！ やろやろ！',
 ];
 
+type EncouragementLevel = 'great' | 'good' | 'struggle';
+
+const ENCOURAGEMENT: Record<string, Record<EncouragementLevel, string[]>> = {
+  yuuki: {
+    great: [
+      '{name}〜！ すごい！！ めっちゃ良い英文書けてるじゃん！',
+      'やばい！ {name}、ライティング上手くなりすぎ！ 天才！？',
+      '{name}さんの文章、ネイティブみたいだよ！ マジですごい！',
+    ],
+    good: [
+      '{name}、お疲れ〜！ いい感じに書けてたよ！ また明日もやろ！',
+      'いいね{name}！ ちょっとずつ上手くなってるの分かるよ！',
+      '{name}と一緒にライティング練習するの楽しいな〜！',
+    ],
+    struggle: [
+      '{name}〜、ドンマイ！ 書くこと自体が大事なんだよ！',
+      '大丈夫！ {name}なら絶対書けるようになるって！ 信じてる！',
+      '{name}、書いただけ偉い！ 続けることが一番大事だから！',
+    ],
+  },
+};
+
+function getWritingEncouragement(score: number | null): { member: typeof MEMBERS[0]; message: string } {
+  const name = getPlayerName() || 'マネージャー';
+  const level: EncouragementLevel = (score !== null && score >= 80) ? 'great' : (score !== null && score >= 50) ? 'good' : 'struggle';
+  const yuuki = MEMBERS.find(m => m.id === 'yuuki')!;
+  const messages = ENCOURAGEMENT.yuuki[level];
+  const message = messages[Math.floor(Math.random() * messages.length)].replace(/\{name\}/g, name);
+  return { member: yuuki, message };
+}
+
 function YuukiGuideCard() {
   const yuuki = getMember('yuuki')!;
   const name = getPlayerName() || 'マネージャー';
   const [line] = useState(() => YUUKI_LINES[Math.floor(Math.random() * YUUKI_LINES.length)].replace(/\{name\}/g, name));
 
   return (
-    <Card className="p-4 mb-4">
+    <div className="rounded-2xl bg-white/5 dark:bg-white/5 backdrop-blur-md border border-white/10 p-4 shadow-xl mb-4">
       <div className="flex items-start gap-3">
         <div className="shrink-0">
           <MemberAvatar member={yuuki} size="md" />
@@ -54,7 +83,7 @@ function YuukiGuideCard() {
           <TypewriterText text={line} speed={35} className="text-sm text-gray-700 dark:text-gray-300" />
         </div>
       </div>
-    </Card>
+    </div>
   );
 }
 
@@ -66,11 +95,19 @@ export function WritingPractice() {
   const [text, setText] = useState('');
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<WritingSubmission | null>(null);
-  const [earnedXp, setEarnedXp] = useState(0);
+  const [sessionXp, setSessionXp] = useState(0);
+  const [lastXp, setLastXp] = useState(0);
   const [xpTrigger, setXpTrigger] = useState(0);
   const [affinityLevelUp, setAffinityLevelUp] = useState<{ memberId: string; level: number } | null>(null);
+  const [levelUpDisplay, setLevelUpDisplay] = useState<number | null>(null);
+  const [submissionCount, setSubmissionCount] = useState(0);
+  const startTimeRef = useRef(Date.now());
 
   const submissions = useLiveQuery(() => db.writingSubmissions.orderBy('date').reverse().limit(5).toArray()) ?? [];
+
+  // Progress phases: 1=writing, 2=submitting, 3=result
+  const progressPhase = result ? 3 : loading ? 2 : 1;
+  const progressPercent = progressPhase === 1 ? 33 : progressPhase === 2 ? 66 : 100;
 
   const handleSubmit = async () => {
     if (!text.trim() || text.trim().split(' ').length < 10) return;
@@ -120,31 +157,52 @@ Remember the Montessori principle: acknowledge growth rather than just praise.`,
 
       const id = await db.writingSubmissions.add(submission as WritingSubmission);
       setResult({ ...submission, id } as WritingSubmission);
-      // Update streak on study completion
+      setSubmissionCount(prev => prev + 1);
+
+      // Award XP based on score
+      const xpEarned = data.score !== null ? Math.max(5, Math.floor(data.score / 10) * 2) : 5;
+      setSessionXp(prev => prev + xpEarned);
+      setLastXp(xpEarned);
+      setXpTrigger(prev => prev + 1);
+
+      // Update profile XP
+      const profileData = await db.userProfile.toCollection().first();
+      if (profileData?.id) {
+        const newTotalXp = profileData.totalXp + xpEarned;
+        const oldLevel = getLevelFromXp(profileData.totalXp);
+        const newLevel = getLevelFromXp(newTotalXp);
+        await db.userProfile.update(profileData.id, {
+          xp: profileData.xp + xpEarned,
+          totalXp: newTotalXp,
+          level: newLevel,
+        });
+        if (newLevel > oldLevel) {
+          setLevelUpDisplay(newLevel);
+          setTimeout(() => setLevelUpDisplay(null), 3000);
+        }
+      }
+
+      // Record study session
+      await db.studySessions.add({
+        date: new Date(),
+        axis: 'writing',
+        correctCount: data.score !== null && data.score >= 50 ? 1 : 0,
+        totalCount: 1,
+        xpEarned,
+        comboMax: 0,
+        duration: Math.floor((Date.now() - startTimeRef.current) / 1000),
+      } as any);
+
+      // Update streak
       const { onStudyComplete } = await import('@/lib/streak');
       await onStudyComplete();
 
-      // XP based on score
-      const xp = data.score ? Math.max(10, Math.round(data.score / 5)) : 10;
-      setEarnedXp(xp);
-      setXpTrigger(prev => prev + 1);
-      try {
-        const p = await db.userProfile.toCollection().first();
-        if (p?.id) {
-          const newTotalXp = p.totalXp + xp;
-          await db.userProfile.update(p.id, {
-            xp: p.xp + xp,
-            totalXp: newTotalXp,
-            level: getLevelFromXp(newTotalXp),
-          });
-        }
-        // Affinity for Yuuki (writing)
-        const aff = await addAffinityPoints('writing', 5);
-        if (aff.leveled) {
-          setAffinityLevelUp({ memberId: aff.memberId, level: aff.newLevel });
-          setTimeout(() => setAffinityLevelUp(null), 3000);
-        }
-      } catch {}
+      // Add affinity points to Yuuki (writing)
+      const aff = await addAffinityPoints('writing', 5);
+      if (aff.leveled) {
+        setAffinityLevelUp({ memberId: aff.memberId, level: aff.newLevel });
+        setTimeout(() => setAffinityLevelUp(null), 3000);
+      }
     } catch (err) {
       const message = err instanceof Error && err.message === 'API_KEY_NOT_SET'
         ? 'APIキーが設定されていません。設定画面で入力してください。'
@@ -168,183 +226,342 @@ Remember the Montessori principle: acknowledge growth rather than just praise.`,
     setPromptData(PROMPTS[Math.floor(Math.random() * PROMPTS.length)]);
     setText('');
     setResult(null);
+    startTimeRef.current = Date.now();
   };
 
+  // ─── 結果画面（VocabStudy風） ───
   if (result) {
-    const scoreRank = result.score !== null
-      ? (result.score >= 90 ? 'S' : result.score >= 70 ? 'A' : result.score >= 50 ? 'B' : 'C')
-      : null;
+    const score = result.score;
+    const rank = score !== null ? (score >= 90 ? 'S' : score >= 70 ? 'A' : score >= 50 ? 'B' : 'C') : 'B';
     const rankColors: Record<string, string> = {
       S: 'from-yellow-400 via-amber-300 to-yellow-500 text-yellow-900',
       A: 'from-indigo-400 via-purple-400 to-fuchsia-400 text-white',
       B: 'from-emerald-400 via-green-400 to-teal-400 text-white',
       C: 'from-gray-400 via-gray-300 to-gray-400 text-gray-800',
     };
+    const encouragement = getWritingEncouragement(score);
+    const elapsed = Math.floor((Date.now() - startTimeRef.current) / 60000);
 
     return (
       <div className="min-h-[85vh] flex flex-col px-4 py-6">
+        {/* Game effects */}
+        <XpFloat xp={lastXp} trigger={xpTrigger} />
+
+        {/* Level-up notification */}
+        {levelUpDisplay && (
+          <div className="fixed inset-0 pointer-events-none z-50 flex items-center justify-center">
+            <div className="animate-combo-flash text-center">
+              <div className="w-28 h-28 mx-auto rounded-2xl bg-gradient-to-br from-yellow-400 via-amber-300 to-yellow-500 flex items-center justify-center shadow-2xl shadow-yellow-500/50 mb-3">
+                <span className="text-4xl font-black text-yellow-900">Lv.{levelUpDisplay}</span>
+              </div>
+              <p className="text-2xl font-black bg-gradient-to-r from-yellow-300 to-amber-400 bg-clip-text text-transparent drop-shadow-lg">
+                LEVEL UP!
+              </p>
+              <p className="text-sm text-yellow-200/80 mt-1">新しいレベルに到達しました</p>
+            </div>
+          </div>
+        )}
+
+        {/* Affinity level-up notification */}
+        {affinityLevelUp && (() => {
+          const m = getMember(affinityLevelUp.memberId);
+          const label = AFFINITY_LABELS[affinityLevelUp.level - 1] ?? '';
+          return (
+            <div className="fixed inset-0 pointer-events-none z-50 flex items-center justify-center">
+              <div className="animate-combo-flash text-center">
+                {m && <div className="flex justify-center mb-2"><MemberAvatar member={m} size="lg" /></div>}
+                <p className="text-xl font-black text-pink-400 drop-shadow-[0_0_15px_rgba(236,72,153,0.5)]">
+                  ♡ 親密度UP ♡
+                </p>
+                <p className="text-sm text-pink-300 mt-1">{m?.nameJa}との関係: {label}</p>
+              </div>
+            </div>
+          );
+        })()}
+
+        {/* Progress bar */}
+        <div className="mb-4">
+          <div className="flex items-center justify-between mb-1.5">
+            <span className="text-xs font-bold tracking-wider text-indigo-400">RESULT</span>
+            <span className="text-xs font-medium text-gray-400">{submissionCount} {en ? 'submitted' : '提出済'}</span>
+          </div>
+          <div className="h-2 bg-gray-800/50 rounded-full overflow-hidden">
+            <div className="h-full rounded-full bg-gradient-to-r from-indigo-500 via-purple-500 to-fuchsia-500 transition-all duration-500" style={{ width: `${progressPercent}%` }} />
+          </div>
+        </div>
+
+        {/* Header */}
         <p className="text-center text-[10px] font-bold tracking-[0.3em] text-gray-500 uppercase mb-6">
-          Writing Review
+          Writing Complete
         </p>
 
         <div className="flex-1 space-y-5">
           {/* Rank badge */}
-          {scoreRank && (
+          {score !== null && (
             <div className="flex flex-col items-center gap-2">
               <p className="text-[10px] text-gray-500 tracking-wider uppercase">{en ? 'Rank' : 'ランク'}</p>
-              <div className={`w-24 h-24 rounded-2xl bg-gradient-to-br ${rankColors[scoreRank]} flex items-center justify-center shadow-2xl`}>
-                <span className="text-5xl font-black">{scoreRank}</span>
+              <div className={`w-24 h-24 rounded-2xl bg-gradient-to-br ${rankColors[rank]} flex items-center justify-center shadow-2xl`}>
+                <span className="text-5xl font-black">{rank}</span>
               </div>
-              <p className="text-xs text-gray-500">{result.score}/100</p>
+              <p className="text-xs text-gray-500">
+                {rank === 'S' ? (en ? 'Score 90+' : 'スコア90+') : rank === 'A' ? (en ? 'Score 70+' : 'スコア70+') : rank === 'B' ? (en ? 'Score 50+' : 'スコア50+') : (en ? 'Under 50' : 'スコア50未満')}
+              </p>
             </div>
           )}
 
-          {/* XP earned */}
-          {earnedXp > 0 && (
+          {/* XP gauge */}
+          {sessionXp > 0 && (
             <div className="rounded-xl bg-white/5 backdrop-blur-md border border-white/10 p-4">
               <div className="flex items-center justify-between mb-2">
-                <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">{en ? 'XP Earned' : '獲得XP'}</p>
-                <p className="text-lg font-black text-amber-400">+{earnedXp}</p>
+                <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">獲得XP</p>
+                <p className="text-lg font-black text-amber-400">+{sessionXp}</p>
               </div>
               <div className="h-3 bg-gray-800 rounded-full overflow-hidden">
                 <div
                   className="h-full bg-gradient-to-r from-amber-500 to-yellow-400 rounded-full transition-all duration-1000 ease-out"
-                  style={{ width: `${Math.min(100, (earnedXp / 30) * 100)}%` }}
+                  style={{ width: `${Math.min(100, (sessionXp / 200) * 100)}%` }}
                 />
               </div>
             </div>
           )}
 
-          {/* Feedback */}
-          <div className="rounded-xl bg-white/5 backdrop-blur-md border border-white/10 p-4">
-            <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">{en ? 'Feedback' : 'フィードバック'}</p>
-            <p className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-line leading-relaxed">{result.feedback}</p>
+          {/* Stats grid */}
+          <div className="grid grid-cols-2 gap-3">
+            <div className="rounded-xl bg-white/5 backdrop-blur-md border border-white/10 p-4 text-center">
+              <p className="text-2xl font-black text-indigo-400">{score !== null ? score : '—'}</p>
+              <p className="text-[10px] text-gray-500 tracking-wider uppercase mt-1">Score</p>
+            </div>
+            <div className="rounded-xl bg-white/5 backdrop-blur-md border border-white/10 p-4 text-center">
+              <p className="text-2xl font-black text-purple-400">{sessionXp}</p>
+              <p className="text-[10px] text-gray-500 tracking-wider uppercase mt-1">XP Earned</p>
+            </div>
+            <div className="rounded-xl bg-white/5 backdrop-blur-md border border-white/10 p-4 text-center">
+              <p className="text-2xl font-black text-orange-400">{result.corrections.length}</p>
+              <p className="text-[10px] text-gray-500 tracking-wider uppercase mt-1">Corrections</p>
+            </div>
+            <div className="rounded-xl bg-white/5 backdrop-blur-md border border-white/10 p-4 text-center">
+              <p className="text-2xl font-black text-fuchsia-400">{elapsed > 0 ? `${elapsed}m` : '<1m'}</p>
+              <p className="text-[10px] text-gray-500 tracking-wider uppercase mt-1">Time</p>
+            </div>
+          </div>
+
+          {/* Feedback card (glassmorphism) */}
+          <div className="rounded-2xl bg-white/5 dark:bg-white/5 backdrop-blur-md border border-white/10 p-5 shadow-xl">
+            <h3 className="text-xs font-bold tracking-wider text-indigo-400 uppercase mb-3">{en ? 'Feedback' : 'フィードバック'}</h3>
+            <p className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-line">{result.feedback}</p>
           </div>
 
           {/* Corrections */}
           {result.corrections.length > 0 && (
-            <div className="rounded-xl bg-white/5 backdrop-blur-md border border-white/10 p-4">
-              <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">{en ? 'Corrections' : '修正箇所'}</p>
+            <div className="rounded-2xl bg-white/5 dark:bg-white/5 backdrop-blur-md border border-white/10 p-5 shadow-xl">
+              <h3 className="text-xs font-bold tracking-wider text-indigo-400 uppercase mb-3">{en ? 'Corrections' : '修正箇所'}</h3>
               <div className="space-y-3">
                 {result.corrections.map((c, i) => (
                   <div key={i} className="border-l-2 border-indigo-400 pl-3">
                     <p className="text-sm line-through text-red-400">{c.original}</p>
                     <p className="text-sm text-emerald-400">{c.corrected}</p>
-                    <p className="text-xs text-gray-500 mt-1">{c.explanation}</p>
+                    <p className="text-xs text-gray-500 mt-0.5">{c.explanation}</p>
                     <Badge variant="secondary" className="text-[10px] mt-1">{c.type}</Badge>
                   </div>
                 ))}
               </div>
             </div>
           )}
-        </div>
 
-        {/* Action buttons */}
-        <div className="space-y-2.5 pt-4 pb-2">
-          <button
-            onClick={newPrompt}
-            className="w-full py-3.5 rounded-xl text-sm font-bold tracking-wide bg-gradient-to-r from-indigo-500 via-purple-500 to-fuchsia-500 text-white shadow-lg shadow-purple-500/30 hover:shadow-xl active:scale-[0.98] transition-all"
-          >
-            {en ? 'Next Prompt' : '次のお題に挑戦'}
-          </button>
-          <Link href="/" className="block">
-            <button className="w-full py-3 rounded-xl text-sm font-medium border-2 border-gray-700/50 text-gray-300 hover:border-gray-500 hover:bg-gray-800/30 active:scale-[0.98] transition-all flex items-center justify-center gap-2">
-              <Home className="w-4 h-4" /> {en ? 'Home' : 'ホームに戻る'}
-            </button>
-          </Link>
-        </div>
-
-        <XpFloat xp={earnedXp} trigger={xpTrigger} />
-        {affinityLevelUp && (() => {
-          const m = getMember(affinityLevelUp.memberId);
-          const label = AFFINITY_LABELS[affinityLevelUp.level - 1] ?? '';
-          return m ? (
-            <div className="fixed inset-0 pointer-events-none z-50 flex items-center justify-center">
-              <div className="animate-combo-flash text-center bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/20">
-                <MemberAvatar member={m} size="lg" />
-                <p className="text-sm font-bold text-pink-400 mt-2">{m.nameJa}との絆が深まった！</p>
-                <p className="text-xs text-gray-400 mt-1">親密度Lv.{affinityLevelUp.level} 「{label}」</p>
+          {/* Member encouragement */}
+          <div className="rounded-xl bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-4">
+            <div className="flex gap-3 items-start">
+              <div className="shrink-0">
+                <MemberAvatar member={encouragement.member} size="md" />
+              </div>
+              <div className="flex-1">
+                <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">{encouragement.member.nameJa}</p>
+                <TypewriterText text={encouragement.message} speed={40} className="text-sm font-medium text-gray-800 dark:text-gray-100" />
               </div>
             </div>
-          ) : null;
-        })()}
+          </div>
+        </div>
+
+        {/* Action buttons (VocabStudy style) */}
+        <div className="space-y-2.5 pt-4 pb-2">
+          <Link href="/" className="block">
+            <button className="w-full py-3.5 rounded-xl text-sm font-bold tracking-wide bg-gradient-to-r from-indigo-500 via-purple-500 to-fuchsia-500 text-white shadow-lg shadow-purple-500/30 hover:shadow-xl active:scale-[0.98] transition-all flex items-center justify-center gap-2">
+              <Home className="w-4 h-4" /> ホームに戻る
+            </button>
+          </Link>
+          <div className="flex gap-2.5">
+            <button
+              onClick={newPrompt}
+              className="flex-1 py-3 rounded-xl text-sm font-medium border-2 border-gray-700/50 text-gray-300 hover:border-gray-500 hover:bg-gray-800/30 active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+            >
+              <RotateCcw className="w-4 h-4" /> 次のお題
+            </button>
+            <Link href="/writing-practice" className="flex-1">
+              <button className="w-full py-3 rounded-xl text-sm font-medium border-2 border-blue-700/50 text-blue-300 hover:border-blue-500 hover:bg-blue-800/30 active:scale-[0.98] transition-all flex items-center justify-center gap-2">
+                <BookOpen className="w-4 h-4" /> 履歴
+              </button>
+            </Link>
+          </div>
+        </div>
       </div>
     );
   }
 
+  // ─── 入力画面（VocabStudy風ゲームUI） ───
   return (
-    <div className="space-y-4 px-4">
-      <div className="relative rounded-2xl overflow-hidden bg-gradient-to-br from-rose-600 via-pink-500 to-fuchsia-400 p-5 text-white shadow-lg mb-2">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_40%,rgba(255,255,255,0.08)_0%,transparent_50%)]" />
-        <div className="relative">
-          <h2 className="text-xl font-black tracking-wide">{en ? 'Writing Practice' : 'ライティング練習'}</h2>
-          <p className="text-xs opacity-60 mt-0.5">Writing Practice</p>
+    <div className="min-h-[85vh] flex flex-col px-4 py-3">
+      {/* Game effects overlay */}
+      <XpFloat xp={lastXp} trigger={xpTrigger} />
+
+      {/* Level-up notification */}
+      {levelUpDisplay && (
+        <div className="fixed inset-0 pointer-events-none z-50 flex items-center justify-center">
+          <div className="animate-combo-flash text-center">
+            <div className="w-28 h-28 mx-auto rounded-2xl bg-gradient-to-br from-yellow-400 via-amber-300 to-yellow-500 flex items-center justify-center shadow-2xl shadow-yellow-500/50 mb-3">
+              <span className="text-4xl font-black text-yellow-900">Lv.{levelUpDisplay}</span>
+            </div>
+            <p className="text-2xl font-black bg-gradient-to-r from-yellow-300 to-amber-400 bg-clip-text text-transparent drop-shadow-lg">
+              LEVEL UP!
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* Affinity level-up notification */}
+      {affinityLevelUp && (() => {
+        const m = getMember(affinityLevelUp.memberId);
+        const label = AFFINITY_LABELS[affinityLevelUp.level - 1] ?? '';
+        return (
+          <div className="fixed inset-0 pointer-events-none z-50 flex items-center justify-center">
+            <div className="animate-combo-flash text-center">
+              {m && <div className="flex justify-center mb-2"><MemberAvatar member={m} size="lg" /></div>}
+              <p className="text-xl font-black text-pink-400 drop-shadow-[0_0_15px_rgba(236,72,153,0.5)]">
+                ♡ 親密度UP ♡
+              </p>
+              <p className="text-sm text-pink-300 mt-1">{m?.nameJa}との関係: {label}</p>
+            </div>
+          </div>
+        );
+      })()}
+
+      {/* Progress header */}
+      <div className="mb-4">
+        <div className="flex items-center justify-between mb-1.5">
+          <span className="text-xs font-bold tracking-wider text-indigo-400">WRITING</span>
+          <div className="flex items-center gap-3">
+            {sessionXp > 0 && (
+              <span className="text-xs font-black text-amber-400">+{sessionXp} XP</span>
+            )}
+            <span className="text-xs font-medium text-gray-400">{submissionCount} {en ? 'done' : '提出'}</span>
+          </div>
+        </div>
+        <div className="h-2 bg-gray-800/50 rounded-full overflow-hidden">
+          <div
+            className="h-full rounded-full bg-gradient-to-r from-indigo-500 via-purple-500 to-fuchsia-500 transition-all duration-500"
+            style={{ width: `${progressPercent}%` }}
+          />
         </div>
       </div>
 
+      {/* Yuuki guide card */}
       <YuukiGuideCard />
 
-      <Card className="p-4 bg-blue-50 dark:bg-blue-950 border-blue-200 dark:border-blue-800">
-        <div className="flex items-center gap-2 mb-1">
-          <p className="text-xs text-blue-600 dark:text-blue-400">{en ? 'Prompt' : 'お題'}</p>
-          <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-indigo-100 dark:bg-indigo-900 text-indigo-600 dark:text-indigo-300 font-medium">{promptData.level}</span>
+      {/* Prompt card — glassmorphism */}
+      <div className="rounded-2xl bg-white/5 dark:bg-white/5 backdrop-blur-md border border-white/10 p-6 text-center shadow-xl mb-4">
+        <div className="flex items-center justify-center gap-2 mb-3">
+          <p className="text-[10px] font-bold tracking-widest text-indigo-400 uppercase">{en ? 'Prompt' : 'お題'}</p>
+          <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300 font-medium">
+            {promptData.level}
+          </span>
         </div>
-        <p className="text-sm font-medium">{prompt}</p>
-      </Card>
-
-      <div className="relative">
-        <textarea
-          value={text}
-          onChange={(e) => setText(e.target.value)}
-          placeholder={en ? "Write in English (10+ words)" : "英語で書いてみよう（10語以上）"}
-          rows={8}
-          className="w-full rounded-xl border-2 border-gray-700/50 bg-gray-800/30 px-4 py-3 text-sm text-gray-200 placeholder-gray-500 resize-none focus:border-indigo-400 focus:outline-none focus:ring-0 transition-colors"
-        />
-        <span className="absolute bottom-2 right-2 text-xs text-gray-400">
-          {text.trim().split(/\s+/).filter(Boolean).length} words
-        </span>
+        <p className="text-base leading-relaxed text-gray-800 dark:text-gray-100 italic font-medium px-2">
+          {prompt}
+        </p>
+        <p className="text-xs text-gray-500 mt-4">{en ? 'Write 10+ words in English' : '10語以上の英文を書いてください'}</p>
       </div>
 
+      {/* Text area */}
+      <div className="flex-1 mb-4">
+        <div className="relative rounded-2xl bg-white/5 dark:bg-white/5 backdrop-blur-md border border-white/10 shadow-xl overflow-hidden">
+          <textarea
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+            placeholder={en ? "Write in English (10+ words)" : "英語で書いてみよう（10語以上）"}
+            rows={8}
+            className="w-full px-5 py-4 text-sm bg-transparent resize-none focus:outline-none text-gray-800 dark:text-gray-100 placeholder-gray-500"
+          />
+          <div className="flex items-center justify-between px-5 py-2 border-t border-white/10">
+            <span className="text-xs text-gray-500">
+              {text.trim().split(/\s+/).filter(Boolean).length} words
+            </span>
+            {text.trim().split(/\s+/).filter(Boolean).length >= 10 && (
+              <span className="text-xs text-emerald-400 font-medium">Ready!</span>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* API key warning */}
       {!hasApiKey() && (
         <Link href="/settings">
-          <Card className="p-3 border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-950/50 cursor-pointer hover:shadow-md transition-shadow">
+          <div className="rounded-xl bg-amber-500/10 border border-amber-500/30 p-3 mb-4 cursor-pointer hover:bg-amber-500/20 transition-colors">
             <div className="flex items-center gap-2">
               <AlertCircle className="w-4 h-4 text-amber-500 shrink-0" />
-              <p className="text-xs text-amber-700 dark:text-amber-300">APIキーが未設定です。設定画面で入力してください。</p>
+              <p className="text-xs text-amber-300">APIキーが未設定です。設定画面で入力してください。</p>
             </div>
-          </Card>
+          </div>
         </Link>
       )}
 
-      <button
-        onClick={handleSubmit}
-        disabled={loading || text.trim().split(' ').length < 10 || !hasApiKey()}
-        className={`w-full py-3.5 rounded-xl text-sm font-bold tracking-wide transition-all duration-200 flex items-center justify-center gap-2 ${
-          !loading && text.trim().split(' ').length >= 10 && hasApiKey()
-            ? 'bg-gradient-to-r from-rose-500 via-pink-500 to-fuchsia-500 text-white shadow-lg shadow-pink-500/30 hover:shadow-xl active:scale-[0.98]'
-            : 'bg-gray-800 text-gray-600 cursor-not-allowed'
-        }`}
-      >
-        {loading ? <><Loader2 className="w-4 h-4 animate-spin" />{en ? 'Reviewing...' : '添削中...'}</> : <><Send className="w-4 h-4" />{en ? 'Submit for Review' : '添削を依頼'}</>}
-      </button>
+      {/* Submit button — gradient (matching VocabStudy confirm button) */}
+      <div className="pb-2">
+        <button
+          onClick={handleSubmit}
+          disabled={loading || text.trim().split(' ').length < 10 || !hasApiKey()}
+          className={`w-full py-3.5 rounded-xl text-sm font-bold tracking-wide transition-all duration-200 ${
+            !loading && text.trim().split(' ').length >= 10 && hasApiKey()
+              ? 'bg-gradient-to-r from-indigo-500 via-purple-500 to-fuchsia-500 text-white shadow-lg shadow-purple-500/30 hover:shadow-xl hover:shadow-purple-500/40 active:scale-[0.98]'
+              : 'bg-gray-800 text-gray-600 cursor-not-allowed'
+          }`}
+        >
+          {loading ? (
+            <span className="flex items-center justify-center gap-2">
+              <Loader2 className="w-4 h-4 animate-spin" />
+              {en ? 'Reviewing...' : '添削中...'}
+            </span>
+          ) : (
+            <span className="flex items-center justify-center gap-2">
+              <Send className="w-4 h-4" />
+              {en ? 'Submit for Review' : '添削を依頼'}
+            </span>
+          )}
+        </button>
 
-      <button onClick={newPrompt} className="w-full text-xs text-gray-500 hover:text-gray-700">
-        別のお題にする
-      </button>
+        <button onClick={newPrompt} className="w-full mt-2 text-xs text-gray-400 hover:text-gray-600 underline decoration-dotted">
+          {en ? 'Different prompt' : '別のお題にする'}
+        </button>
+
+        {/* XP indicator */}
+        {sessionXp > 0 && (
+          <p className="text-center text-xs text-indigo-400/70 font-medium mt-2">
+            +{sessionXp} XP
+          </p>
+        )}
+      </div>
 
       {/* Past submissions */}
       {submissions.length > 0 && (
-        <div className="pt-4 border-t">
-          <h3 className="text-sm font-medium mb-2 flex items-center gap-2">
-            <BookOpen className="w-4 h-4" />{en ? ' Past Reviews' : ' 過去の添削'}
+        <div className="pt-4 border-t border-white/10">
+          <h3 className="text-xs font-bold tracking-wider text-gray-400 uppercase mb-3 flex items-center gap-2">
+            <BookOpen className="w-3.5 h-3.5" />{en ? ' Past Reviews' : ' 過去の添削'}
           </h3>
           <div className="space-y-2">
             {submissions.map(s => (
-              <Card key={s.id} className="p-3">
+              <div key={s.id} className="rounded-xl bg-white/5 backdrop-blur-md border border-white/10 p-3">
                 <p className="text-xs text-gray-500">{new Date(s.date).toLocaleDateString('ja-JP')}</p>
                 <p className="text-xs text-gray-700 dark:text-gray-300 truncate">{s.prompt}</p>
                 {s.score !== null && <Badge variant="secondary" className="text-[10px] mt-1">{s.score}/100</Badge>}
-              </Card>
+              </div>
             ))}
           </div>
         </div>
