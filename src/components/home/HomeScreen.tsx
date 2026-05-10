@@ -588,7 +588,7 @@ export function HomeScreen({ onVNPlaying }: { onVNPlaying?: (playing: boolean) =
           <div className="flex items-center gap-3">
             <MemberAvatar member={getMember('haruto')!} size="sm" />
             <div className="flex-1">
-              <p className="text-sm font-bold text-blue-900 dark:text-blue-100">{en ? 'Vocabulary with Haruto' : 'ハルトと単語学習'}</p>
+              <p className="text-sm font-bold text-blue-900 dark:text-blue-100">{en ? 'Vocabulary with Haruto' : 'ハルトと単語'}</p>
               <p className="text-xs text-blue-600 dark:text-blue-400">{en ? 'Build your word power' : '単語を覚えて語彙力を伸ばそう'}</p>
             </div>
             <ArrowRight className="w-4 h-4 text-blue-400" />
