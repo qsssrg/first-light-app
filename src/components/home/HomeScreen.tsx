@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { useProfile, useDueCards } from '@/lib/hooks';
+import { db } from '@/lib/db';
 import { getLevelProgress, xpToNextLevel, getLevelFromXp } from '@/lib/xp';
 import { LEVEL_THRESHOLDS } from '@/types';
 import { MEMBERS, getMember } from '@/lib/members';
@@ -33,7 +34,43 @@ import { STAGE_FAN_POSTS } from '@/data/stage-fan-posts';
 import { getStoryStage } from '@/lib/chapter-progress';
 import { Newspaper, RefreshCw, MessageSquare, Heart, UserCircle } from 'lucide-react';
 
+const STUDY_AXES = [
+  { axis: 'vocabulary', label: '単語', labelEn: 'Vocabulary', href: '/vocab-study', icon: BookOpen, member: 'haruto' },
+  { axis: 'writing', label: 'ライティング', labelEn: 'Writing', href: '/writing-study', icon: FileText, member: 'yuuki' },
+  { axis: 'listening', label: 'リスニング', labelEn: 'Listening', href: '/listening-study', icon: Headphones, member: 'ren' },
+  { axis: 'reading', label: 'リーディング', labelEn: 'Reading', href: '/reading-study', icon: BookOpen, member: 'sora' },
+  { axis: 'grammar', label: '文法', labelEn: 'Grammar', href: '/grammar-study', icon: GraduationCap, member: 'kai' },
+] as const;
+
 function NextActionGuide({ profile, dueCardCount, en }: { profile: any; dueCardCount: number; en: boolean }) {
+  const [weakAxis, setWeakAxis] = useState<typeof STUDY_AXES[number] | null>(null);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const sessions = await db.studySessions.toArray();
+        const lastStudied: Record<string, number> = {};
+        for (const s of sessions) {
+          const axis = (s as any).axis as string | undefined;
+          if (!axis) continue;
+          const t = new Date(s.date).getTime();
+          if (!lastStudied[axis] || t > lastStudied[axis]) lastStudied[axis] = t;
+        }
+
+        // Find axis with oldest last study (or never studied)
+        let oldest: typeof STUDY_AXES[number] | null = null;
+        let oldestTime = Infinity;
+        for (const a of STUDY_AXES) {
+          const t = lastStudied[a.axis] ?? 0;
+          if (t < oldestTime) { oldestTime = t; oldest = a; }
+        }
+        setWeakAxis(oldest);
+      } catch {
+        setWeakAxis(null);
+      }
+    })();
+  }, []);
+
   const getNextAction = () => {
     if (!profile.learnerType || profile.learnerType === 'balanced' && profile.totalXp === 0) {
       return { text: en ? 'Take the assessment' : 'まずレベルを測ろう', desc: en ? 'Measure your English skills across 5 axes' : 'あなたの英語力を5つの軸で判定します', href: '/settings', icon: Target };
@@ -41,17 +78,23 @@ function NextActionGuide({ profile, dueCardCount, en }: { profile: any; dueCardC
     if (dueCardCount > 0) {
       return { text: en ? `Study ${dueCardCount} words` : `${dueCardCount}語の学習しよう`, desc: en ? 'Build your vocabulary' : '単語を学習して語彙力を伸ばそう', href: '/vocab-study', icon: BookOpen };
     }
+    if (weakAxis) {
+      const member = getMember(weakAxis.member);
+      const memberName = member?.nameJa ?? '';
+      return {
+        text: en ? `Practice ${weakAxis.labelEn}` : `${weakAxis.label}をやろう`,
+        desc: en ? `${weakAxis.labelEn} needs attention` : `${memberName}が待ってるよ！ 最近やってない科目です`,
+        href: weakAxis.href,
+        icon: weakAxis.icon,
+      };
+    }
     if (profile.totalXp < 100) {
       return { text: en ? 'Start learning words' : '単語学習を始めよう', desc: en ? 'Add new words and begin' : '新しい単語を追加して学習スタート', href: '/vocab-study', icon: BookOpen };
     }
-    if (!profile.lastStudyAt || Date.now() - new Date(profile.lastStudyAt).getTime() > 86400000) {
-      return { text: en ? 'Study today' : '今日の学習をしよう', desc: en ? 'Consistency is key' : '毎日の積み重ねが力になる', href: '/vocabulary', icon: Flame };
-    }
-    return { text: en ? 'Try writing' : 'ライティングに挑戦しよう', desc: en ? 'Write sentences in English' : '英語で文を書いてみよう', href: '/writing', icon: Sparkles };
+    return { text: en ? 'Try writing' : 'ライティングに挑戦しよう', desc: en ? 'Write sentences in English' : '英語で文を書いてみよう', href: '/writing-study', icon: Sparkles };
   };
 
   const action = getNextAction();
-  const Icon = action.icon;
 
   return (
     <Link href={action.href}>
