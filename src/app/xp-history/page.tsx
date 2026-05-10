@@ -22,6 +22,14 @@ function getSlotKey(date: Date): SlotKey {
   return 'evening';
 }
 
+/** Get YYYY-MM-DD in local timezone (not UTC) */
+function toLocalDateStr(d: Date): string {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+}
+
 export default function XpHistoryPage() {
   const sessions = useStudySessions();
   const [range, setRange] = useState<7 | 14 | 30>(7);
@@ -33,14 +41,14 @@ export default function XpHistoryPage() {
     for (let i = range - 1; i >= 0; i--) {
       const d = new Date(now);
       d.setDate(d.getDate() - i);
-      const dateStr = d.toISOString().split('T')[0];
+      const dateStr = toLocalDateStr(d);
       const label = `${d.getMonth() + 1}/${d.getDate()}`;
       days.push({ date: dateStr, label, slots: { night: 0, morning: 0, afternoon: 0, evening: 0 } });
     }
 
     for (const s of sessions) {
       const sd = new Date(s.date);
-      const dateStr = sd.toISOString().split('T')[0];
+      const dateStr = toLocalDateStr(sd);
       const day = days.find(d => d.date === dateStr);
       if (day) {
         const slot = getSlotKey(sd);

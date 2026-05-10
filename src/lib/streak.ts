@@ -4,14 +4,21 @@ import { db } from './db';
 
 const LAST_STUDY_KEY = 'firstlight_last_study_date';
 
+function toLocalDateStr(d: Date): string {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+}
+
 function getToday(): string {
-  return new Date().toISOString().split('T')[0];
+  return toLocalDateStr(new Date());
 }
 
 function getYesterday(): string {
   const d = new Date();
   d.setDate(d.getDate() - 1);
-  return d.toISOString().split('T')[0];
+  return toLocalDateStr(d);
 }
 
 /** Get last study date from localStorage */
