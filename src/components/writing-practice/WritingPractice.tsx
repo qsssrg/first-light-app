@@ -50,7 +50,9 @@ function buildPuzzleChips(answer: string): PuzzleChip[] {
   return chips.sort(() => Math.random() - 0.5);
 }
 
-// ─── Drag & Drop Hook ───
+// ─── Drag & Drop + Tap Hook ───
+const DRAG_THRESHOLD = 8; // pixels before a touch/click becomes a drag
+
 type DragState = {
   chipId: number;
   source: 'pool' | 'answer';
@@ -59,6 +61,7 @@ type DragState = {
   currentX: number;
   currentY: number;
   element: HTMLElement | null;
+  isDragging: boolean;
 };
 
 function useDragAndDrop(
@@ -119,18 +122,31 @@ function useDragAndDrop(
       currentX: clientX,
       currentY: clientY,
       element: el,
+      isDragging: false,
     };
-    el.style.opacity = '0.4';
-    createGhost(el, clientX, clientY);
-  }, [puzzleResult, createGhost]);
+    // Ghost and opacity are deferred until movement exceeds threshold
+  }, [puzzleResult]);
 
   const handleDragMove = useCallback((e: TouchEvent | MouseEvent) => {
     if (!dragStateRef.current) return;
-    e.preventDefault();
     const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
     const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
     dragStateRef.current.currentX = clientX;
     dragStateRef.current.currentY = clientY;
+
+    // Activate drag visuals only after threshold exceeded
+    if (!dragStateRef.current.isDragging) {
+      const dx = clientX - dragStateRef.current.startX;
+      const dy = clientY - dragStateRef.current.startY;
+      if (Math.abs(dx) <= DRAG_THRESHOLD && Math.abs(dy) <= DRAG_THRESHOLD) return;
+      dragStateRef.current.isDragging = true;
+      if (dragStateRef.current.element) {
+        dragStateRef.current.element.style.opacity = '0.4';
+        createGhost(dragStateRef.current.element, clientX, clientY);
+      }
+    }
+
+    e.preventDefault();
     if (dragStateRef.current.element) {
       moveGhost(clientX, clientY, dragStateRef.current.element);
     }
@@ -144,11 +160,11 @@ function useDragAndDrop(
       poolAreaRef.current.style.borderColor = isOverElement(clientX, clientY, poolAreaRef)
         ? 'rgb(99 102 241 / 0.8)' : '';
     }
-  }, [moveGhost, isOverElement]);
+  }, [moveGhost, isOverElement, createGhost]);
 
   const handleDragEnd = useCallback((e: TouchEvent | MouseEvent) => {
     if (!dragStateRef.current) return;
-    const { chipId, source, startX, startY, currentX, currentY, element } = dragStateRef.current;
+    const { chipId, source, currentX, currentY, element, isDragging } = dragStateRef.current;
 
     if (element) element.style.opacity = '';
     removeGhost();
@@ -157,10 +173,9 @@ function useDragAndDrop(
     if (answerAreaRef.current) answerAreaRef.current.style.borderColor = '';
     if (poolAreaRef.current) poolAreaRef.current.style.borderColor = '';
 
-    // Tap detection: if moved less than 10px, treat as tap
-    const dx = Math.abs(currentX - startX);
-    const dy = Math.abs(currentY - startY);
-    if (dx < 10 && dy < 10) {
+    // Tap: no drag was initiated (movement stayed within threshold)
+    if (!isDragging) {
+      dragStateRef.current = null;
       if (source === 'pool') {
         const chip = puzzleChips.find(c => c.id === chipId);
         if (chip && !selectedChips.find(c => c.id === chipId)) {
@@ -169,7 +184,6 @@ function useDragAndDrop(
       } else if (source === 'answer') {
         setSelectedChips(prev => prev.filter(c => c.id !== chipId));
       }
-      dragStateRef.current = null;
       return;
     }
 
