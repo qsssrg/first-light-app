@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import { useProfile } from '@/lib/hooks';
 import { LISTENING_QUESTIONS, DICTATION_EXERCISES, type ListeningQuestion } from '@/lib/listening-data';
 import { Card } from '@/components/ui/card';
@@ -8,6 +8,8 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Play, Pause, Volume2, Check, X, RotateCcw, Headphones } from 'lucide-react';
+import { getMember } from '@/lib/members';
+import { MemberAvatar } from '@/components/common/MemberAvatar';
 
 type Mode = 'select' | 'quiz' | 'quiz-result' | 'dictation' | 'result';
 type Speed = 0.8 | 1.0 | 1.2;
@@ -30,6 +32,15 @@ export function ListeningPractice() {
   const [dictIndex, setDictIndex] = useState(0);
   const [dictInput, setDictInput] = useState('');
   const [dictRevealed, setDictRevealed] = useState(false);
+  const [voices, setVoices] = useState<SpeechSynthesisVoice[]>([]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined' || !window.speechSynthesis) return;
+    const load = () => setVoices(window.speechSynthesis.getVoices().filter(v => v.lang.startsWith('en')));
+    load();
+    window.speechSynthesis.addEventListener('voiceschanged', load);
+    return () => window.speechSynthesis.removeEventListener('voiceschanged', load);
+  }, []);
 
   const startQuiz = () => {
     const filtered = filter === 'all'
@@ -49,7 +60,6 @@ export function ListeningPractice() {
 
     // Split by speaker labels (Man:/Woman:) for multi-voice
     const parts = text.split(/((?:Man|Woman|Speaker \d):\s*)/i).filter(Boolean);
-    const voices = window.speechSynthesis.getVoices().filter(v => v.lang.startsWith('en'));
     const femaleVoice = voices.find(v => v.name.toLowerCase().includes('female') || v.name.includes('Samantha') || v.name.includes('Karen') || v.name.includes('Victoria'));
     const maleVoice = voices.find(v => v.name.toLowerCase().includes('male') || v.name.includes('Daniel') || v.name.includes('Alex') || v.name.includes('Fred'));
 
@@ -85,7 +95,7 @@ export function ListeningPractice() {
       window.speechSynthesis.speak(utt);
     });
     utteranceRef.current = utterances[utterances.length - 1];
-  }, [speed]);
+  }, [speed, voices]);
 
   const stopSpeech = () => {
     if (typeof window !== 'undefined') {
@@ -272,21 +282,44 @@ export function ListeningPractice() {
         {/* English script */}
         <Card className="p-4 border-blue-200 dark:border-blue-800 bg-blue-50/50 dark:bg-blue-950/50">
           <p className="text-xs text-blue-500 font-bold mb-2">{en ? 'Script' : '英文'}</p>
-          <p className="text-sm text-gray-800 dark:text-gray-200 leading-relaxed">{q.audioText}</p>
+          <div className="text-sm text-gray-800 dark:text-gray-200 leading-relaxed space-y-2">
+            {q.audioText.split(/(?=(?:Man|Woman|Speaker \d):)/i).filter(Boolean).map((seg, i) => (
+              <p key={i}>{seg.trim()}</p>
+            ))}
+          </div>
         </Card>
 
         {/* Japanese translation */}
         {q.audioTextJa && (
           <Card className="p-4 border-gray-200 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-900/50">
             <p className="text-xs text-gray-500 font-bold mb-2">和訳</p>
-            <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">{q.audioTextJa}</p>
+            <div className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed space-y-2">
+              {(q.audioTextJa ?? '').split(/\n/).filter(Boolean).map((seg, i) => (
+                <p key={i}>{seg.trim()}</p>
+              ))}
+            </div>
           </Card>
         )}
 
         {/* Explanation */}
-        <Card className="p-3 bg-gray-50 dark:bg-gray-900">
-          <p className="text-xs text-gray-600 dark:text-gray-400">{q.explanation}</p>
-        </Card>
+        {(() => {
+          const ren = getMember('ren');
+          return ren ? (
+            <Card className="p-3 bg-gray-50 dark:bg-gray-900">
+              <div className="flex items-start gap-2.5">
+                <div className="shrink-0"><MemberAvatar member={ren} size="sm" /></div>
+                <div className="flex-1">
+                  <p className="text-[10px] text-gray-500 mb-0.5">{ren.nameJa}</p>
+                  <p className="text-xs text-gray-600 dark:text-gray-300">{q.explanation}</p>
+                </div>
+              </div>
+            </Card>
+          ) : (
+            <Card className="p-3 bg-gray-50 dark:bg-gray-900">
+              <p className="text-xs text-gray-600 dark:text-gray-400">{q.explanation}</p>
+            </Card>
+          );
+        })()}
 
         {/* Next button */}
         <Button onClick={nextQuestion} className="w-full" size="lg">
