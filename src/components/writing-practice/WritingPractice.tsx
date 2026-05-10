@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import { db, AFFINITY_LABELS } from '@/lib/db';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { useProfile } from '@/lib/hooks';
@@ -28,10 +28,7 @@ const PROMPTS = [
   { text: 'What is one invention that you think has changed the world the most? Explain why.', level: 'TOEFL', sampleAnswer: 'The internet has changed the world the most because it connects people across different countries instantly' },
 ];
 
-// Dummy words for puzzle mode (common English words not in answers)
-const DUMMY_WORDS = ['always', 'never', 'very', 'much', 'often', 'really', 'just', 'also', 'only', 'still', 'even', 'already', 'perhaps', 'quite', 'rather', 'almost', 'between', 'without', 'through', 'during'];
-
-type PuzzleChip = { word: string; id: number; isDummy: boolean };
+type PuzzleChip = { word: string; id: number };
 
 function tokenize(answer: string): string[] {
   // Split by space, separate commas as independent tokens, remove periods
@@ -48,15 +45,173 @@ function tokenize(answer: string): string[] {
 
 function buildPuzzleChips(answer: string): PuzzleChip[] {
   const tokens = tokenize(answer);
-  const chips: PuzzleChip[] = tokens.map((w, i) => ({ word: w, id: i, isDummy: false }));
-  // Add ~30% dummy words
-  const dummyCount = Math.max(2, Math.round(tokens.length * 0.3));
-  const usedWords = new Set(tokens.map(w => w.toLowerCase()));
-  const available = DUMMY_WORDS.filter(w => !usedWords.has(w));
-  const shuffledDummies = [...available].sort(() => Math.random() - 0.5).slice(0, dummyCount);
-  shuffledDummies.forEach((w, i) => chips.push({ word: w, id: tokens.length + i, isDummy: true }));
-  // Shuffle all
+  const chips: PuzzleChip[] = tokens.map((w, i) => ({ word: w, id: i }));
+  // Shuffle
   return chips.sort(() => Math.random() - 0.5);
+}
+
+// ─── Drag & Drop Hook ───
+type DragState = {
+  chipId: number;
+  source: 'pool' | 'answer';
+  startX: number;
+  startY: number;
+  currentX: number;
+  currentY: number;
+  element: HTMLElement | null;
+};
+
+function useDragAndDrop(
+  puzzleChips: PuzzleChip[],
+  selectedChips: PuzzleChip[],
+  setSelectedChips: React.Dispatch<React.SetStateAction<PuzzleChip[]>>,
+  puzzleResult: 'correct' | 'incorrect' | null,
+) {
+  const dragStateRef = useRef<DragState | null>(null);
+  const ghostRef = useRef<HTMLDivElement | null>(null);
+  const answerAreaRef = useRef<HTMLDivElement>(null);
+  const poolAreaRef = useRef<HTMLDivElement>(null);
+
+  const createGhost = useCallback((el: HTMLElement, x: number, y: number) => {
+    if (ghostRef.current) ghostRef.current.remove();
+    const ghost = document.createElement('div');
+    ghost.className = el.className + ' fixed pointer-events-none z-[9999] opacity-80 shadow-xl scale-110';
+    ghost.textContent = el.textContent;
+    ghost.style.left = `${x - el.offsetWidth / 2}px`;
+    ghost.style.top = `${y - el.offsetHeight / 2}px`;
+    ghost.style.width = `${el.offsetWidth}px`;
+    document.body.appendChild(ghost);
+    ghostRef.current = ghost;
+  }, []);
+
+  const moveGhost = useCallback((x: number, y: number, el: HTMLElement) => {
+    if (ghostRef.current) {
+      ghostRef.current.style.left = `${x - el.offsetWidth / 2}px`;
+      ghostRef.current.style.top = `${y - el.offsetHeight / 2}px`;
+    }
+  }, []);
+
+  const removeGhost = useCallback(() => {
+    if (ghostRef.current) {
+      ghostRef.current.remove();
+      ghostRef.current = null;
+    }
+  }, []);
+
+  const isOverElement = useCallback((x: number, y: number, ref: React.RefObject<HTMLDivElement | null>) => {
+    if (!ref.current) return false;
+    const rect = ref.current.getBoundingClientRect();
+    return x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom;
+  }, []);
+
+  const handleDragStart = useCallback((e: React.TouchEvent | React.MouseEvent, chipId: number, source: 'pool' | 'answer') => {
+    if (puzzleResult) return;
+    e.preventDefault();
+    const el = e.currentTarget as HTMLElement;
+    const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
+    const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
+
+    dragStateRef.current = {
+      chipId,
+      source,
+      startX: clientX,
+      startY: clientY,
+      currentX: clientX,
+      currentY: clientY,
+      element: el,
+    };
+    el.style.opacity = '0.4';
+    createGhost(el, clientX, clientY);
+  }, [puzzleResult, createGhost]);
+
+  const handleDragMove = useCallback((e: TouchEvent | MouseEvent) => {
+    if (!dragStateRef.current) return;
+    e.preventDefault();
+    const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
+    const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
+    dragStateRef.current.currentX = clientX;
+    dragStateRef.current.currentY = clientY;
+    if (dragStateRef.current.element) {
+      moveGhost(clientX, clientY, dragStateRef.current.element);
+    }
+
+    // Highlight drop zones
+    if (answerAreaRef.current) {
+      answerAreaRef.current.style.borderColor = isOverElement(clientX, clientY, answerAreaRef)
+        ? 'rgb(99 102 241 / 0.8)' : '';
+    }
+    if (poolAreaRef.current) {
+      poolAreaRef.current.style.borderColor = isOverElement(clientX, clientY, poolAreaRef)
+        ? 'rgb(99 102 241 / 0.8)' : '';
+    }
+  }, [moveGhost, isOverElement]);
+
+  const handleDragEnd = useCallback((e: TouchEvent | MouseEvent) => {
+    if (!dragStateRef.current) return;
+    const { chipId, source, currentX, currentY, element } = dragStateRef.current;
+
+    if (element) element.style.opacity = '';
+    removeGhost();
+
+    // Reset border highlights
+    if (answerAreaRef.current) answerAreaRef.current.style.borderColor = '';
+    if (poolAreaRef.current) poolAreaRef.current.style.borderColor = '';
+
+    const droppedOnAnswer = isOverElement(currentX, currentY, answerAreaRef);
+    const droppedOnPool = isOverElement(currentX, currentY, poolAreaRef);
+
+    if (source === 'pool' && droppedOnAnswer) {
+      // Move from pool to answer
+      const chip = puzzleChips.find(c => c.id === chipId);
+      if (chip && !selectedChips.find(c => c.id === chipId)) {
+        setSelectedChips(prev => [...prev, chip]);
+      }
+    } else if (source === 'answer' && (droppedOnPool || !droppedOnAnswer)) {
+      // Move from answer back to pool
+      setSelectedChips(prev => prev.filter(c => c.id !== chipId));
+    } else if (source === 'answer' && droppedOnAnswer) {
+      // Reorder within answer area - find insertion index
+      if (answerAreaRef.current) {
+        const children = Array.from(answerAreaRef.current.querySelectorAll('[data-chip-id]'));
+        let insertIndex = selectedChips.length;
+        for (let i = 0; i < children.length; i++) {
+          const rect = children[i].getBoundingClientRect();
+          const midX = rect.left + rect.width / 2;
+          if (currentX < midX) {
+            insertIndex = i;
+            break;
+          }
+        }
+        setSelectedChips(prev => {
+          const without = prev.filter(c => c.id !== chipId);
+          const chip = prev.find(c => c.id === chipId);
+          if (!chip) return prev;
+          const adjusted = insertIndex > prev.indexOf(chip) ? insertIndex - 1 : insertIndex;
+          without.splice(Math.min(adjusted, without.length), 0, chip);
+          return [...without];
+        });
+      }
+    }
+
+    dragStateRef.current = null;
+  }, [puzzleChips, selectedChips, setSelectedChips, removeGhost, isOverElement]);
+
+  useEffect(() => {
+    const onMove = (e: TouchEvent | MouseEvent) => handleDragMove(e);
+    const onEnd = (e: TouchEvent | MouseEvent) => handleDragEnd(e);
+    document.addEventListener('touchmove', onMove, { passive: false });
+    document.addEventListener('touchend', onEnd);
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('mouseup', onEnd);
+    return () => {
+      document.removeEventListener('touchmove', onMove);
+      document.removeEventListener('touchend', onEnd);
+      document.removeEventListener('mousemove', onMove);
+      document.removeEventListener('mouseup', onEnd);
+    };
+  }, [handleDragMove, handleDragEnd]);
+
+  return { handleDragStart, answerAreaRef, poolAreaRef };
 }
 
 const YUUKI_LINES = [
@@ -142,6 +297,9 @@ export function WritingPractice() {
   const [combo, setCombo] = useState(0);
 
   const submissions = useLiveQuery(() => db.writingSubmissions.orderBy('date').reverse().limit(5).toArray()) ?? [];
+
+  // Drag & Drop
+  const { handleDragStart, answerAreaRef, poolAreaRef } = useDragAndDrop(puzzleChips, selectedChips, setSelectedChips, puzzleResult);
 
   // Progress phases: 1=writing, 2=submitting, 3=result
   const progressPhase = result ? 3 : loading ? 2 : 1;
@@ -605,44 +763,48 @@ Remember the Montessori principle: acknowledge growth rather than just praise.`,
             <p className="text-xs text-gray-500 mt-3">{en ? 'Arrange words to form the answer' : '単語を並べて回答を完成させてください'}</p>
           </div>
 
-          {/* Selected area */}
-          <div className="rounded-2xl bg-white/5 backdrop-blur-md border border-white/10 p-4 min-h-[60px] mb-3">
-            <p className="text-[10px] text-gray-500 mb-2">{en ? 'Your Answer' : '回答'}</p>
+          {/* Answer drop area */}
+          <div
+            ref={answerAreaRef}
+            className="rounded-2xl bg-white/5 backdrop-blur-md border-2 border-dashed border-white/20 p-4 min-h-[70px] mb-3 transition-colors"
+          >
+            <p className="text-[10px] text-gray-500 mb-2">{en ? 'Your Answer (drop here)' : '回答（ここにドロップ）'}</p>
             <div className="flex flex-wrap gap-1.5">
               {selectedChips.length === 0 ? (
-                <span className="text-xs text-gray-500 italic">{en ? 'Tap words below to build your answer' : '下の単語をタップして文を作ろう'}</span>
+                <span className="text-xs text-gray-500 italic">{en ? 'Drag words here to build your answer' : '下の単語をドラッグして文を作ろう'}</span>
               ) : (
-                selectedChips.map((chip, i) => (
-                  <button
+                selectedChips.map((chip) => (
+                  <div
                     key={`sel-${chip.id}`}
-                    onClick={() => {
-                      if (puzzleResult) return;
-                      setSelectedChips(prev => prev.filter(c => c.id !== chip.id));
-                    }}
-                    className="px-3 py-1.5 rounded-lg bg-indigo-500/20 border border-indigo-400/50 text-sm font-medium text-indigo-300 hover:bg-indigo-500/30 active:scale-95 transition-all"
+                    data-chip-id={chip.id}
+                    onTouchStart={(e) => handleDragStart(e, chip.id, 'answer')}
+                    onMouseDown={(e) => handleDragStart(e, chip.id, 'answer')}
+                    className="px-3 py-1.5 rounded-lg bg-indigo-500/20 border border-indigo-400/50 text-sm font-medium text-indigo-300 cursor-grab active:cursor-grabbing select-none touch-none transition-all"
                   >
                     {chip.word}
-                  </button>
+                  </div>
                 ))
               )}
             </div>
           </div>
 
-          {/* Available chips */}
-          <div className="flex flex-wrap gap-1.5 mb-4">
+          {/* Word pool (drag from here) */}
+          <div
+            ref={poolAreaRef}
+            className="flex flex-wrap gap-1.5 mb-4 rounded-2xl border-2 border-dashed border-transparent p-3 transition-colors min-h-[50px]"
+          >
             {puzzleChips
               .filter(c => !selectedChips.find(s => s.id === c.id))
               .map(chip => (
-                <button
+                <div
                   key={`avail-${chip.id}`}
-                  onClick={() => {
-                    if (puzzleResult) return;
-                    setSelectedChips(prev => [...prev, chip]);
-                  }}
-                  className="px-3 py-1.5 rounded-lg border-2 border-gray-700/50 bg-gray-800/30 text-sm font-medium text-gray-200 hover:border-gray-500 hover:bg-gray-800/50 active:scale-95 transition-all"
+                  data-chip-id={chip.id}
+                  onTouchStart={(e) => handleDragStart(e, chip.id, 'pool')}
+                  onMouseDown={(e) => handleDragStart(e, chip.id, 'pool')}
+                  className="px-3 py-1.5 rounded-lg border-2 border-gray-700/50 bg-gray-800/30 text-sm font-medium text-gray-200 cursor-grab active:cursor-grabbing select-none touch-none transition-all"
                 >
                   {chip.word}
-                </button>
+                </div>
               ))}
           </div>
 
