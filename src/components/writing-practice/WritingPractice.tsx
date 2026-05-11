@@ -584,7 +584,7 @@ Remember the Montessori principle: acknowledge growth rather than just praise.`,
         <div className="mb-4">
           <div className="flex items-center justify-between mb-1.5">
             <span className="text-xs font-bold tracking-wider text-indigo-400">RESULT</span>
-            <span className="text-xs font-medium text-gray-400">{submissionCount} {en ? 'submitted' : '提出済'}</span>
+            <span className="text-xs font-medium text-gray-400">{submissionCount}/{PROMPTS.length}</span>
           </div>
           <div className="h-2 bg-gray-800/50 rounded-full overflow-hidden">
             <div className="h-full rounded-full bg-gradient-to-r from-indigo-500 via-purple-500 to-fuchsia-500 transition-all duration-500" style={{ width: `${progressPercent}%` }} />
@@ -753,7 +753,7 @@ Remember the Montessori principle: acknowledge growth rather than just praise.`,
             {sessionXp > 0 && (
               <span className="text-xs font-black text-amber-400">+{sessionXp} XP</span>
             )}
-            <span className="text-xs font-medium text-gray-400">{submissionCount} {en ? 'done' : '提出'}</span>
+            <span className="text-xs font-medium text-gray-400">{submissionCount}/{PROMPTS.length}</span>
           </div>
         </div>
         <div className="h-2 bg-gray-800/50 rounded-full overflow-hidden">
@@ -783,6 +783,9 @@ Remember the Montessori principle: acknowledge growth rather than just praise.`,
       {mode === 'puzzle' ? (
         // ─── パズルモード ───
         <>
+          {/* Yuuki guide */}
+          <YuukiGuideCard />
+
           {/* Prompt */}
           <div className="rounded-2xl bg-white/5 backdrop-blur-md border border-white/10 p-5 text-center shadow-xl mb-4">
             <div className="flex items-center justify-center gap-2 mb-2">
@@ -895,6 +898,18 @@ Remember the Montessori principle: acknowledge growth rather than just praise.`,
         </>
       ) : (
       <>
+      {/* API key warning — above guide card */}
+      {!hasApiKey() && (
+        <Link href="/settings">
+          <div className="rounded-xl bg-amber-500/10 border border-amber-500/30 p-3 mb-3 cursor-pointer hover:bg-amber-500/20 transition-colors">
+            <div className="flex items-center gap-2">
+              <AlertCircle className="w-4 h-4 text-amber-500 shrink-0" />
+              <p className="text-xs text-amber-300">{en ? 'API key not set. Tap to configure in settings.' : 'APIキーが未設定です。設定画面で入力してください。'}</p>
+            </div>
+          </div>
+        </Link>
+      )}
+
       {/* Yuuki guide card */}
       <YuukiGuideCard />
 
@@ -918,9 +933,10 @@ Remember the Montessori principle: acknowledge growth rather than just praise.`,
           <textarea
             value={text}
             onChange={(e) => setText(e.target.value)}
-            placeholder={en ? "Write in English (10+ words)" : "英語で書いてみよう（10語以上）"}
+            placeholder={!hasApiKey() ? (en ? 'API key required. Go to Settings.' : 'APIキーが必要です。設定画面へ') : (en ? "Write in English (10+ words)" : "英語で書いてみよう（10語以上）")}
             rows={8}
-            className="w-full px-5 py-4 text-sm bg-transparent resize-none focus:outline-none text-gray-800 dark:text-gray-100 placeholder-gray-500"
+            disabled={!hasApiKey()}
+            className={`w-full px-5 py-4 text-sm bg-transparent resize-none focus:outline-none text-gray-800 dark:text-gray-100 placeholder-gray-500 ${!hasApiKey() ? 'opacity-50 cursor-not-allowed' : ''}`}
           />
           <div className="flex items-center justify-between px-5 py-2 border-t border-white/10">
             <span className="text-xs text-gray-500">
@@ -932,18 +948,6 @@ Remember the Montessori principle: acknowledge growth rather than just praise.`,
           </div>
         </div>
       </div>
-
-      {/* API key warning */}
-      {!hasApiKey() && (
-        <Link href="/settings">
-          <div className="rounded-xl bg-amber-500/10 border border-amber-500/30 p-3 mb-4 cursor-pointer hover:bg-amber-500/20 transition-colors">
-            <div className="flex items-center gap-2">
-              <AlertCircle className="w-4 h-4 text-amber-500 shrink-0" />
-              <p className="text-xs text-amber-300">APIキーが未設定です。設定画面で入力してください。</p>
-            </div>
-          </div>
-        </Link>
-      )}
 
       {/* Submit button — gradient (matching VocabStudy confirm button) */}
       <div className="pb-2">
