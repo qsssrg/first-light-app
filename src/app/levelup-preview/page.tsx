@@ -34,17 +34,18 @@ const CHARACTER_NAMES: Record<string, string> = {
 
 function BackgroundPreview({ backgroundId }: { backgroundId: string }) {
   const bg = VN_BACKGROUNDS[backgroundId] ?? VN_BACKGROUNDS['practice-room'];
+  const imageUrl = bg.desktopImagePath ?? bg.imagePath;
   return (
     <div
       style={{
         width: '100%',
         height: '100%',
-        background: bg.gradient,
+        background: imageUrl ? `url(${imageUrl}) center/cover no-repeat` : bg.gradient,
         position: 'relative',
         borderRadius: '8px',
       }}
     >
-      {bg.overlay && (
+      {!imageUrl && bg.overlay && (
         <div
           style={{
             position: 'absolute',
@@ -83,13 +84,15 @@ function FullScreenPreview({
     }
   };
 
+  const imageUrl = bg.desktopImagePath ?? bg.imagePath;
+
   return (
     <div
       style={{
         position: 'fixed',
         inset: 0,
         zIndex: 9999,
-        background: bg.gradient,
+        background: imageUrl ? `url(${imageUrl}) center/cover no-repeat` : bg.gradient,
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'flex-end',
@@ -97,7 +100,7 @@ function FullScreenPreview({
       }}
       onClick={handleNext}
     >
-      {bg.overlay && (
+      {!imageUrl && bg.overlay && (
         <div style={{ position: 'absolute', inset: 0, background: bg.overlay }} />
       )}
 
