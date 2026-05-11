@@ -53,73 +53,43 @@ const SKILL_LABELS: Record<SkillAxis, { ja: string; en: string }> = {
 function NextActionGuide({ profile, dueCardCount, en }: { profile: any; dueCardCount: number; en: boolean }) {
   const sessions = useStudySessions();
 
-  // Determine lagging skills based on last study date and session count
-  const getLaggingSkills = (): { axis: SkillAxis; reason: string }[] => {
+  const getNextAction = () => {
+    // First-time user: assessment
+    if (!profile.learnerType || (profile.learnerType === 'balanced' && profile.totalXp === 0)) {
+      return [{ text: en ? 'Take the assessment' : 'まずレベルを測ろう', desc: en ? 'Measure your English skills across 5 axes' : 'あなたの英語力を5つの軸で判定します', href: '/settings' }];
+    }
+
+    // 5-axis rotation: sort by last study date (oldest first), pick top 1
     const allAxes: SkillAxis[] = ['vocabulary', 'writing', 'listening', 'reading', 'grammar'];
     const now = Date.now();
 
-    // Calculate per-skill stats
     const stats = allAxes.map(axis => {
       const axisSessions = sessions.filter(s => s.axis === axis);
       const lastDate = axisSessions.length > 0
         ? Math.max(...axisSessions.map(s => new Date(s.date).getTime()))
         : 0;
-      return { axis, count: axisSessions.length, lastDate, daysSince: lastDate > 0 ? Math.floor((now - lastDate) / 86400000) : Infinity };
+      const daysSince = lastDate > 0 ? Math.floor((now - lastDate) / 86400000) : Infinity;
+      return { axis, count: axisSessions.length, lastDate, daysSince };
     });
 
-    // Sort by days since last study (descending = most neglected first)
+    // Sort: never-studied first, then by days since last study (desc)
     const sorted = [...stats].sort((a, b) => b.daysSince - a.daysSince);
+    const top = sorted[0];
 
-    // Pick up to 2 lagging skills
-    const lagging: { axis: SkillAxis; reason: string }[] = [];
-    for (const s of sorted) {
-      if (lagging.length >= 2) break;
-      if (s.daysSince === Infinity) {
-        // Never studied
-        lagging.push({ axis: s.axis, reason: en ? 'Not started yet' : 'まだ未学習' });
-      } else if (s.daysSince >= 3) {
-        // 3+ days since last study
-        lagging.push({ axis: s.axis, reason: en ? `${s.daysSince} days ago` : `${s.daysSince}日前が最後` });
-      }
+    let reason: string;
+    if (top.daysSince === Infinity) {
+      reason = en ? 'Not started yet' : 'まだ未学習';
+    } else if (top.daysSince >= 1) {
+      reason = en ? `${top.daysSince} days ago` : `${top.daysSince}日前が最後`;
+    } else {
+      reason = en ? 'Keep up the pace!' : '今日もやろう！';
     }
 
-    // If no skill has 3+ days gap, pick the one with fewest sessions (if notably fewer)
-    if (lagging.length === 0 && sessions.length > 0) {
-      const bySessions = [...stats].sort((a, b) => a.count - b.count);
-      const avgCount = stats.reduce((sum, s) => sum + s.count, 0) / stats.length;
-      if (bySessions[0].count < avgCount * 0.6) {
-        lagging.push({ axis: bySessions[0].axis, reason: en ? `Only ${bySessions[0].count} sessions` : `${bySessions[0].count}回のみ` });
-      }
-    }
-
-    return lagging;
-  };
-
-  const getNextAction = () => {
-    if (!profile.learnerType || profile.learnerType === 'balanced' && profile.totalXp === 0) {
-      return [{ text: en ? 'Take the assessment' : 'まずレベルを測ろう', desc: en ? 'Measure your English skills across 5 axes' : 'あなたの英語力を5つの軸で判定します', href: '/settings' }];
-    }
-    if (dueCardCount > 0) {
-      return [{ text: en ? `Study ${dueCardCount} words` : `${dueCardCount}語の学習しよう`, desc: en ? 'Build your vocabulary' : '単語を学習して語彙力を伸ばそう', href: '/vocab-study' }];
-    }
-
-    // Check for lagging skills
-    const lagging = getLaggingSkills();
-    if (lagging.length > 0) {
-      return lagging.map(l => ({
-        text: en ? `${SKILL_LABELS[l.axis].en} needs attention` : `${SKILL_LABELS[l.axis].ja}が遅れています`,
-        desc: l.reason,
-        href: SKILL_HREF[l.axis],
-      }));
-    }
-
-    if (profile.totalXp < 100) {
-      return [{ text: en ? 'Start learning words' : '単語学習を始めよう', desc: en ? 'Add new words and begin' : '新しい単語を追加して学習スタート', href: '/vocab-study' }];
-    }
-    if (!profile.lastStudyAt || Date.now() - new Date(profile.lastStudyAt).getTime() > 86400000) {
-      return [{ text: en ? 'Study today' : '今日の学習をしよう', desc: en ? 'Consistency is key' : '毎日の積み重ねが力になる', href: '/vocabulary' }];
-    }
-    return [{ text: en ? 'Try writing' : 'ライティングに挑戦しよう', desc: en ? 'Write sentences in English' : '英語で文を書いてみよう', href: '/writing-study' }];
+    return [{
+      text: en ? `${SKILL_LABELS[top.axis].en}` : `${SKILL_LABELS[top.axis].ja}をやろう`,
+      desc: reason,
+      href: SKILL_HREF[top.axis],
+    }];
   };
 
   const actions = getNextAction();
