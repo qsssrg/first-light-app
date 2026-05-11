@@ -75,19 +75,19 @@
         "character": "yuuki",
         "expression": "neutral",
         "text": "Level 4 — 路上ライブ",
-        "background": "rooftop"
+        "background": "street-busking"
       },
       {
         "character": "yuuki",
         "expression": "smile",
         "text": "初めて路上で英語の曲を歌った。歌詞カード持ちながら。通りすがりの外国人観光客が立ち止まって拍手してくれた。伝わった。めちゃくちゃでも、伝わった。",
-        "background": "rooftop"
+        "background": "street-busking"
       },
       {
         "character": "yuuki",
         "expression": "happy",
         "text": "🎉 初路上ライブ",
-        "background": "rooftop"
+        "background": "street-busking"
       }
     ]
   },
@@ -167,19 +167,19 @@
         "character": "kai",
         "expression": "neutral",
         "text": "Level 8 — 初ライブハウス",
-        "background": "practice-room"
+        "background": "livehouse-small"
       },
       {
         "character": "kai",
         "expression": "smile",
         "text": "30人キャパの箱でライブをした。MCを全部英語でやると決めていた。噛んだし、文法は怪しかった。でもお客さんが一緒に笑ってくれた。完璧じゃなくていいと、体で学んだ夜。",
-        "background": "practice-room"
+        "background": "livehouse-small"
       },
       {
         "character": "kai",
         "expression": "happy",
         "text": "🎉 初ライブハウス公演",
-        "background": "practice-room"
+        "background": "livehouse-small"
       }
     ]
   },
@@ -374,19 +374,19 @@
         "character": "kai",
         "expression": "neutral",
         "text": "Level 17 — カイのスピーチ",
-        "background": "practice-room"
+        "background": "conference-panel"
       },
       {
         "character": "kai",
         "expression": "smile",
         "text": "音楽イベントのパネルディスカッションに英語で登壇した。質疑応答で予想外の質問が来て一瞬固まった。でも深呼吸して、知っている言葉で答えた。伝わった。",
-        "background": "practice-room"
+        "background": "conference-panel"
       },
       {
         "character": "kai",
         "expression": "happy",
         "text": "🎉 英語プレゼン成功",
-        "background": "practice-room"
+        "background": "conference-panel"
       }
     ]
   },
@@ -397,19 +397,19 @@
         "character": "yuuki",
         "expression": "neutral",
         "text": "Level 18 — 海外公演",
-        "background": "rooftop"
+        "background": "taipei-venue"
       },
       {
         "character": "yuuki",
         "expression": "serious",
         "text": "台北でライブをした。MCで「你好！...じゃなくて、Hello!」って言ったらめちゃくちゃ盛り上がった。英語は世界の共通語。どの国のファンとも繋がれる魔法の鍵。",
-        "background": "rooftop"
+        "background": "taipei-venue"
       },
       {
         "character": "yuuki",
         "expression": "happy",
         "text": "🎉 初海外公演",
-        "background": "rooftop"
+        "background": "taipei-venue"
       }
     ]
   },
@@ -443,19 +443,19 @@
         "character": "kai",
         "expression": "neutral",
         "text": "Level 20 — アリーナの景色",
-        "background": "practice-room"
+        "background": "arena-stage"
       },
       {
         "character": "kai",
         "expression": "smile",
         "text": "1万人の前に立っている。MCの最後に英語で感謝を伝えた。客席の外国人ファンが泣いていた。言葉が届いたのだとわかった。この景色をもっと大きくしたい。",
-        "background": "practice-room"
+        "background": "arena-stage"
       },
       {
         "character": "kai",
         "expression": "happy",
         "text": "🎉 アリーナ公演",
-        "background": "practice-room"
+        "background": "arena-stage"
       }
     ]
   },
@@ -466,19 +466,19 @@
         "character": "haruto",
         "expression": "neutral",
         "text": "Level 21 — ハルトの詩集",
-        "background": "studio"
+        "background": "london-bookshop"
       },
       {
         "character": "haruto",
         "expression": "serious",
         "text": "英語で書いた詩を10篇集めてZINEにした。部数は少ないけど、ロンドンの小さな本屋に置いてもらえた。言葉はどこまでも旅ができる。",
-        "background": "studio"
+        "background": "london-bookshop"
       },
       {
         "character": "haruto",
         "expression": "happy",
         "text": "🎉 英語創作物の発表",
-        "background": "studio"
+        "background": "london-bookshop"
       }
     ]
   },
@@ -512,19 +512,19 @@
         "character": "yuuki",
         "expression": "neutral",
         "text": "Level 23 — ユウキのファンミ",
-        "background": "rooftop"
+        "background": "la-venue"
       },
       {
         "character": "yuuki",
         "expression": "smile",
         "text": "ロサンゼルスでファンミーティング。全部英語で2時間。冗談も言えた。ファンが笑ってくれた。泣いてくれた。言葉が通じるって、こういうことだったんだ。",
-        "background": "rooftop"
+        "background": "la-venue"
       },
       {
         "character": "yuuki",
         "expression": "happy",
         "text": "🎉 英語ファンミーティング成功",
-        "background": "rooftop"
+        "background": "la-venue"
       }
     ]
   },
@@ -558,19 +558,19 @@
         "character": "kai",
         "expression": "neutral",
         "text": "Level 25 — FIRST LIGHTの意味",
-        "background": "practice-room"
+        "background": "tokyo-dome"
       },
       {
         "character": "kai",
         "expression": "smile",
         "text": "東京ドーム。5万人。MCで話した。「FIRST LIGHTという名前は、夜明けの最初の光。暗闇の中でも必ず朝は来る。英語という新しい言葉を学ぶ旅も同じ。一歩ずつ、光に向かって。」客席が静かに聴いてくれた。最高の景色だった。",
-        "background": "practice-room"
+        "background": "tokyo-dome"
       },
       {
         "character": "kai",
         "expression": "happy",
         "text": "🎉 東京ドーム公演",
-        "background": "practice-room"
+        "background": "tokyo-dome"
       }
     ]
   }
