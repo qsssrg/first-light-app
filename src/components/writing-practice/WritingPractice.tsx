@@ -306,7 +306,8 @@ function YuukiGuideCard() {
 export function WritingPractice() {
   const profile = useProfile();
   const en = profile?.settings?.englishSpeakerMode ?? false;
-  const [promptData, setPromptData] = useState(PROMPTS[Math.floor(Math.random() * PROMPTS.length)]);
+  const [promptIndex, setPromptIndex] = useState(() => Math.floor(Math.random() * PROMPTS.length));
+  const [promptData, setPromptData] = useState(PROMPTS[promptIndex]);
   const prompt = promptData.text;
   const [text, setText] = useState('');
   const [loading, setLoading] = useState(false);
@@ -455,7 +456,9 @@ Remember the Montessori principle: acknowledge growth rather than just praise.`,
   };
 
   const newPrompt = () => {
-    const p = PROMPTS[Math.floor(Math.random() * PROMPTS.length)];
+    const idx = Math.floor(Math.random() * PROMPTS.length);
+    const p = PROMPTS[idx];
+    setPromptIndex(idx);
     setPromptData(p);
     setText('');
     setResult(null);
@@ -584,7 +587,7 @@ Remember the Montessori principle: acknowledge growth rather than just praise.`,
         <div className="mb-4">
           <div className="flex items-center justify-between mb-1.5">
             <span className="text-xs font-bold tracking-wider text-indigo-400">RESULT</span>
-            <span className="text-xs font-medium text-gray-400">{submissionCount}/{PROMPTS.length}</span>
+            <span className="text-xs font-medium text-gray-400">{promptIndex + 1}/{PROMPTS.length}</span>
           </div>
           <div className="h-2 bg-gray-800/50 rounded-full overflow-hidden">
             <div className="h-full rounded-full bg-gradient-to-r from-indigo-500 via-purple-500 to-fuchsia-500 transition-all duration-500" style={{ width: `${progressPercent}%` }} />
@@ -753,7 +756,7 @@ Remember the Montessori principle: acknowledge growth rather than just praise.`,
             {sessionXp > 0 && (
               <span className="text-xs font-black text-amber-400">+{sessionXp} XP</span>
             )}
-            <span className="text-xs font-medium text-gray-400">{submissionCount}/{PROMPTS.length}</span>
+            <span className="text-xs font-medium text-gray-400">{promptIndex + 1}/{PROMPTS.length}</span>
           </div>
         </div>
         <div className="h-2 bg-gray-800/50 rounded-full overflow-hidden">
@@ -900,14 +903,18 @@ Remember the Montessori principle: acknowledge growth rather than just praise.`,
       <>
       {/* API key warning — above guide card */}
       {!hasApiKey() && (
-        <Link href="/settings">
-          <div className="rounded-xl bg-amber-500/10 border border-amber-500/30 p-3 mb-3 cursor-pointer hover:bg-amber-500/20 transition-colors">
-            <div className="flex items-center gap-2">
-              <AlertCircle className="w-4 h-4 text-amber-500 shrink-0" />
-              <p className="text-xs text-amber-300">{en ? 'API key not set. Tap to configure in settings.' : 'APIキーが未設定です。設定画面で入力してください。'}</p>
+        <div className="rounded-2xl bg-amber-500/10 border border-amber-500/30 p-4 mb-4 shadow-xl">
+          <div className="flex items-start gap-3">
+            <AlertCircle className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
+            <div className="flex-1">
+              <p className="text-sm font-bold text-amber-400 mb-1">{en ? 'API Key Not Set' : 'APIキーが設定されていません'}</p>
+              <p className="text-xs text-amber-300/80">{en ? 'An API key is required to use free write mode.' : '手入力モードを利用するにはAPIキーの設定が必要です。'}</p>
+              <Link href="/settings" className="inline-block mt-2 text-xs text-amber-400 underline decoration-dotted hover:text-amber-300">
+                {en ? 'Go to Settings' : '設定画面へ'} →
+              </Link>
             </div>
           </div>
-        </Link>
+        </div>
       )}
 
       {/* Yuuki guide card */}
