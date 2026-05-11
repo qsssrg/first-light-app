@@ -29,19 +29,19 @@
         "character": "haruto",
         "expression": "neutral",
         "text": "Level 2 — ハルトの日記 #1",
-        "background": "studio"
+        "background": "cafe"
       },
       {
         "character": "haruto",
         "expression": "smile",
         "text": "今日、最初の50単語を覚えた。abandon, absorb, accomplish... アルファベット順に並んだ単語たちが、まだバラバラのパズルピースみたいだ。でもいつか、これが歌詞になる予感がする。",
-        "background": "studio"
+        "background": "cafe"
       },
       {
         "character": "haruto",
         "expression": "happy",
         "text": "🎉 50語マスター",
-        "background": "studio"
+        "background": "cafe"
       }
     ]
   },
@@ -259,19 +259,19 @@
         "character": "kai",
         "expression": "neutral",
         "text": "Level 12 — デビューの日",
-        "background": "practice-room"
+        "background": "studio"
       },
       {
         "character": "kai",
         "expression": "serious",
         "text": "配信シングルが出た。タイトルは英語にした。海外のリスナーにも届くように。再生数は大したことないけど、12カ国から再生されていることに5人で震えた。",
-        "background": "practice-room"
+        "background": "studio"
       },
       {
         "character": "kai",
         "expression": "happy",
         "text": "🎉 デビュー",
-        "background": "practice-room"
+        "background": "studio"
       }
     ]
   },
@@ -282,19 +282,19 @@
         "character": "yuuki",
         "expression": "neutral",
         "text": "Level 13 — ユウキの失敗",
-        "background": "rooftop"
+        "background": "cafe"
       },
       {
         "character": "yuuki",
         "expression": "smile",
         "text": "海外ファンへのDMで大失敗。\"I'm looking forward to seeing you\" を \"I'm looking forward to see you\" と書いてしまった。でもファンは優しく教えてくれた。失敗は最高の先生。",
-        "background": "rooftop"
+        "background": "cafe"
       },
       {
         "character": "yuuki",
         "expression": "happy",
         "text": "🎉 文法の壁を越える",
-        "background": "rooftop"
+        "background": "cafe"
       }
     ]
   },
@@ -305,19 +305,19 @@
         "character": "haruto",
         "expression": "neutral",
         "text": "Level 14 — ハルトの語彙力",
-        "background": "studio"
+        "background": "night-street"
       },
       {
         "character": "haruto",
         "expression": "smile",
         "text": "1000語を超えた。数が問題じゃない。大事なのは、それぞれの言葉に自分の体験が紐づいていること。「nostalgia」は去年の夏フェスの帰り道。「resilience」はレンが風邪で声を失った週。",
-        "background": "studio"
+        "background": "night-street"
       },
       {
         "character": "haruto",
         "expression": "happy",
         "text": "🎉 1000語マスター",
-        "background": "studio"
+        "background": "night-street"
       }
     ]
   },
@@ -328,19 +328,19 @@
         "character": "ren",
         "expression": "neutral",
         "text": "Level 15 — 初ワンマンライブ",
-        "background": "studio"
+        "background": "stage"
       },
       {
         "character": "ren",
         "expression": "serious",
         "text": "200人の前で、MCを含めて英語で通したライブ。アンコールで観客が「One more!」って叫んでくれた。日本語じゃなく英語で。あの瞬間、やってきたことが全部報われた気がした。",
-        "background": "studio"
+        "background": "stage"
       },
       {
         "character": "ren",
         "expression": "happy",
         "text": "🎉 初ワンマンライブ",
-        "background": "studio"
+        "background": "stage"
       }
     ]
   },
@@ -489,19 +489,19 @@
         "character": "sora",
         "expression": "neutral",
         "text": "Level 22 — ソラのインタビュー",
-        "background": "library"
+        "background": "press-room"
       },
       {
         "character": "sora",
         "expression": "smile",
         "text": "海外メディアのインタビューを一人で受けた。30分。通訳なし。終わった後、記者に「Your English is impressive」と言われた。褒め言葉より、理解し合えたことが嬉しかった。",
-        "background": "library"
+        "background": "press-room"
       },
       {
         "character": "sora",
         "expression": "happy",
         "text": "🎉 英語インタビュー対応",
-        "background": "library"
+        "background": "press-room"
       }
     ]
   },
@@ -535,19 +535,19 @@
         "character": "kai",
         "expression": "neutral",
         "text": "Level 24 — 5人の約束",
-        "background": "practice-room"
+        "background": "airport-hotel"
       },
       {
         "character": "kai",
         "expression": "serious",
         "text": "ドームに立つ前夜。5人で集まって話した。最初に全員で決めた「英語で世界と繋がる」という約束。もう叶っている。でも終わりじゃない。ここからが本当のスタート。",
-        "background": "practice-room"
+        "background": "airport-hotel"
       },
       {
         "character": "kai",
         "expression": "happy",
         "text": "🎉 東京ドーム前夜",
-        "background": "practice-room"
+        "background": "airport-hotel"
       }
     ]
   },
